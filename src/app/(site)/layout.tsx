@@ -1,6 +1,10 @@
 import { SiteNav } from "@/components/site/site-nav";
 import { SiteFooter } from "@/components/site/site-footer";
 
+// The nav reflects per-request auth state (cookies), so render the shell
+// dynamically rather than prerendering it at build time.
+export const dynamic = "force-dynamic";
+
 /**
  * Public + account shell: sticky nav on top, footer on the bottom.
  * The admin area and the bare /login screen live outside this group.
