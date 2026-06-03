@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, ShieldCheck } from "lucide-react";
+import { ArrowRight, Flame, ShieldCheck } from "lucide-react";
 import { CATEGORIES } from "@/lib/catalog";
+import { getFeaturedProducts } from "@/lib/products";
+import { ProductCard } from "@/components/product-card";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -9,7 +11,9 @@ export const metadata: Metadata = {
   title: "Premium AI tools storefront",
 };
 
-export default function Home() {
+export default async function Home() {
+  const featured = await getFeaturedProducts(4);
+
   return (
     <main className="flex flex-1 flex-col">
       {/* Hero */}
@@ -66,6 +70,33 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Featured products (from the database) */}
+      {featured.length > 0 && (
+        <section className="mx-auto w-full max-w-[1320px] px-4 py-8 sm:px-6">
+          <div className="mb-8 flex items-end justify-between gap-4">
+            <div>
+              <p className="eyebrow">
+                <Flame className="size-3.5" /> Trending now
+              </p>
+              <h2 className="font-display mt-3 text-3xl font-semibold tracking-tight">
+                Featured products
+              </h2>
+            </div>
+            <Link
+              href="/products"
+              className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-sm font-medium"
+            >
+              View all <ArrowRight className="size-3.5" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {featured.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Categories */}
       <section className="mx-auto w-full max-w-[1320px] px-4 py-16 sm:px-6">
