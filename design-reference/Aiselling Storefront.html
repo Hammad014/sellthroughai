@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aiselling — Premium AI tools storefront</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/tokens.css" />
+  <link rel="stylesheet" href="styles/app.css" />
+  <link rel="stylesheet" href="styles/screens.css" />
+</head>
+<body>
+  <div class="app-root" id="app"></div>
+
+  <div class="switcher" role="tablist" aria-label="Screens">
+    <button data-route="landing" onclick="GO('landing')">Landing</button>
+    <button data-route="detail" onclick="GO('detail')">Product</button>
+    <button data-route="library" onclick="GO('library')">Library</button>
+    <button data-route="tokens" onclick="location.href='Design Tokens.html'">Tokens ↗</button>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="icons.js"></script>
+  <script src="render/chrome.js"></script>
+  <script src="render/landing.js"></script>
+  <script src="render/detail.js"></script>
+  <script src="render/library.js"></script>
+  <script>
+    const STATE = { route: "landing", productId: "ai-in-7" };
+
+    function TOGGLE_THEME() {
+      const cur = document.documentElement.getAttribute("data-theme");
+      const next = cur === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", next);
+      localStorage.setItem("aiselling-theme", next);
+      updateThemeBtn();
+    }
+    function updateThemeBtn() {
+      const btn = document.getElementById("themeBtn");
+      if (!btn) return;
+      const dark = document.documentElement.getAttribute("data-theme") === "dark";
+      btn.innerHTML = window.icon(dark ? "sun" : "moon");
+    }
+
+    function GO(route, arg) {
+      if (route === "detail" && arg && typeof arg === "string" && arg[0] !== "#") {
+        STATE.productId = arg;
+      }
+      STATE.route = route;
+      localStorage.setItem("aiselling-route", route);
+      localStorage.setItem("aiselling-product", STATE.productId);
+      render();
+      const hash = (typeof arg === "string" && arg[0] === "#") ? arg : null;
+      requestAnimationFrame(() => {
+        if (hash) {
+          const el = document.querySelector(hash);
+          if (el) { window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 80, behavior: "smooth" }); return; }
+        }
+        window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
+      });
+    }
+
+    function render() {
+      const app = document.getElementById("app");
+      const r = STATE.route;
+      let body = "";
+      if (r === "landing") body = window.SCREENS.landing();
+      else if (r === "detail") body = window.SCREENS.detail(STATE.productId);
+      else if (r === "library") body = window.SCREENS.library();
+
+      const showFooter = r !== "library";
+      app.innerHTML = window.UI.nav(r) + `<div class="route-body">${body}</div>` + (showFooter ? window.UI.footer() : "");
+      updateThemeBtn();
+      document.querySelectorAll(".switcher [data-route]").forEach((b) => b.classList.toggle("is-active", b.dataset.route === r));
+    }
+
+    // Boot
+    (function init() {
+      const savedTheme = localStorage.getItem("aiselling-theme");
+      if (savedTheme) document.documentElement.setAttribute("data-theme", savedTheme);
+      STATE.route = localStorage.getItem("aiselling-route") || "landing";
+      STATE.productId = localStorage.getItem("aiselling-product") || "ai-in-7";
+      render();
+    })();
+  </script>
+</body>
+</html>
