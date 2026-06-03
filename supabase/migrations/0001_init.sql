@@ -6,28 +6,10 @@
 -- gen_random_uuid() is built in on Supabase (pgcrypto), but ensure it exists.
 create extension if not exists pgcrypto;
 
--- ------------------------------------------------------------
--- Helper: is the current user an admin?
--- SECURITY DEFINER so it can read profiles WITHOUT tripping the
--- profiles RLS policies (which would otherwise recurse).
--- ------------------------------------------------------------
-create or replace function public.is_admin()
-returns boolean
-language sql
-security definer
-set search_path = public
-stable
-as $$
-  select exists (
-    select 1
-    from public.profiles
-    where id = auth.uid()
-      and role = 'admin'
-  );
-$$;
-
 -- ============================================================
 -- TABLES
+-- (Created BEFORE the is_admin() helper because language=sql
+--  functions validate table references at CREATE time.)
 -- ============================================================
 
 -- profiles: one row per auth user. id == auth.uid().
@@ -133,6 +115,28 @@ create table public.download_events (
 );
 
 create index download_events_user_id_idx on public.download_events (user_id);
+
+-- ============================================================
+-- HELPER: is the current user an admin?
+-- SECURITY DEFINER so it can read profiles WITHOUT tripping the
+-- profiles RLS policies (which would otherwise recurse).
+-- Defined AFTER public.profiles because language=sql validates
+-- referenced relations at CREATE time.
+-- ============================================================
+create or replace function public.is_admin()
+returns boolean
+language sql
+security definer
+set search_path = public
+stable
+as $$
+  select exists (
+    select 1
+    from public.profiles
+    where id = auth.uid()
+      and role = 'admin'
+  );
+$$;
 
 -- ============================================================
 -- AUTO-CREATE PROFILE ON FIRST SIGN-IN
