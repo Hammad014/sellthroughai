@@ -3,8 +3,18 @@ import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/lib/supabase/types";
 
+/** True when Supabase env vars are present. */
+function hasSupabaseEnv(): boolean {
+  return Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  );
+}
+
 /** Current authenticated user (server), or null. */
 export async function getUser(): Promise<User | null> {
+  // Let the public site render before Supabase is configured.
+  if (!hasSupabaseEnv()) return null;
   const supabase = await createClient();
   const {
     data: { user },
@@ -18,6 +28,7 @@ export async function getUser(): Promise<User | null> {
  * (e.g. a user created before the trigger existed).
  */
 export async function getProfile(): Promise<Profile | null> {
+  if (!hasSupabaseEnv()) return null;
   const supabase = await createClient();
   const {
     data: { user },
