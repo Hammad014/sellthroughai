@@ -2,6 +2,7 @@ import "server-only";
 import {
   lemonSqueezySetup,
   createCheckout,
+  listOrders,
 } from "@lemonsqueezy/lemonsqueezy.js";
 
 /** True when the Lemon Squeezy API env vars are present. */
@@ -59,4 +60,35 @@ export async function createProductCheckout(opts: {
   if (error) return { error: error.message };
   const url = data?.data.attributes.url;
   return url ? { url } : { error: "Could not create checkout." };
+}
+
+export type LemonOrder = { id: string; total: number };
+
+/**
+ * Fetch orders from the Lemon Squeezy API for reconciliation (paginated, up to
+ * `maxPages` × 100). `total` is normalised to dollars.
+ */
+export async function fetchLemonOrders(maxPages = 5): Promise<LemonOrder[]> {
+  if (!lemonConfigured()) return [];
+  ensureSetup();
+  const storeId = process.env.LEMONSQUEEZY_STORE_ID!;
+  const out: LemonOrder[] = [];
+
+  for (let page = 1; page <= maxPages; page++) {
+    const { data, error } = await listOrders({
+      filter: { storeId },
+      page: { number: page, size: 100 },
+    });
+    if (error || !data) break;
+    for (const order of data.data) {
+      out.push({
+        id: String(order.id),
+        total: Number(order.attributes.total ?? 0) / 100,
+      });
+    }
+    const lastPage = data.meta?.page?.lastPage ?? page;
+    if (page >= lastPage) break;
+  }
+
+  return out;
 }

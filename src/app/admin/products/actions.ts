@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import { createServiceClient } from "@/lib/supabase/service";
 import { COVERS_BUCKET, FILES_BUCKET } from "@/lib/storage";
+import { parseCsvToObjects } from "@/lib/csv";
 import type { DeliveryType, ProductStatus } from "@/lib/supabase/types";
 
 export type ProductFormState = { error?: string };
@@ -204,4 +205,116 @@ export async function deleteLesson(
   }
   await supabase.from("course_lessons").delete().eq("id", lessonId);
   revalidatePath(`/admin/products/${productId}`);
+}
+
+/** Flip a product between published and draft (inline list toggle). */
+export async function toggleProductStatus(
+  id: string,
+  current: ProductStatus,
+): Promise<void> {
+  await requireAdmin();
+  const supabase = createServiceClient();
+  const next: ProductStatus = current === "published" ? "draft" : "published";
+  await supabase.from("products").update({ status: next }).eq("id", id);
+  revalidatePath("/admin/products");
+  revalidatePath("/products");
+}
+
+export type ImportState = {
+  created?: number;
+  updated?: number;
+  errors?: string[];
+  done?: boolean;
+};
+
+const BOOL_RE = /^(1|true|yes|y)$/i;
+
+/**
+ * Bulk create/update products from CSV (paste or file). Upserts by slug.
+ * Columns: slug,title,short_desc,long_desc,category,price_usd,delivery_type,
+ *          ls_variant_id,status,featured,cover_image_url
+ */
+export async function importProductsCsv(
+  _prev: ImportState,
+  formData: FormData,
+): Promise<ImportState> {
+  await requireAdmin();
+  const supabase = createServiceClient();
+
+  let text = str(formData, "csv");
+  const file = formData.get("file");
+  if (!text && file instanceof File && file.size > 0) {
+    text = await file.text();
+  }
+  if (!text) return { errors: ["Paste CSV or choose a file."] };
+
+  const rows = parseCsvToObjects(text);
+  if (rows.length === 0) {
+    return { errors: ["No data rows found — include a header row + ≥1 row."] };
+  }
+
+  const errors: string[] = [];
+  let created = 0;
+  let updated = 0;
+
+  for (let idx = 0; idx < rows.length; idx++) {
+    const r = rows[idx];
+    const line = idx + 2; // header is line 1
+    const title = (r.title ?? "").trim();
+    if (!title) {
+      errors.push(`Row ${line}: missing title`);
+      continue;
+    }
+    const slug = slugify(r.slug || title);
+    if (!slug) {
+      errors.push(`Row ${line}: cannot derive slug`);
+      continue;
+    }
+    const price = Number.parseFloat(r.price_usd ?? r.price ?? "0");
+    if (Number.isNaN(price) || price < 0) {
+      errors.push(`Row ${line} (${slug}): invalid price`);
+      continue;
+    }
+
+    const payload = {
+      slug,
+      title,
+      short_desc: r.short_desc ?? "",
+      long_desc: r.long_desc || null,
+      category: (r.category || "prompts").toLowerCase(),
+      price_usd: price,
+      delivery_type: (r.delivery_type?.toLowerCase() === "gated"
+        ? "gated"
+        : "license") as DeliveryType,
+      status: (r.status?.toLowerCase() === "published"
+        ? "published"
+        : "draft") as ProductStatus,
+      featured: BOOL_RE.test(r.featured ?? ""),
+      ls_variant_id: r.ls_variant_id || null,
+      cover_image_url: r.cover_image_url || null,
+    };
+
+    const { data: existing } = await supabase
+      .from("products")
+      .select("id")
+      .eq("slug", slug)
+      .maybeSingle();
+
+    if (existing) {
+      const { error } = await supabase
+        .from("products")
+        .update(payload)
+        .eq("id", existing.id);
+      if (error) errors.push(`Row ${line} (${slug}): ${error.message}`);
+      else updated++;
+    } else {
+      const { error } = await supabase.from("products").insert(payload);
+      if (error) errors.push(`Row ${line} (${slug}): ${error.message}`);
+      else created++;
+    }
+  }
+
+  revalidatePath("/admin/products");
+  revalidatePath("/products");
+  return { created, updated, errors, done: true };
 }
