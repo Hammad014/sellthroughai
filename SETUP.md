@@ -33,10 +33,12 @@ npm install
 ## 2. Run the database migration (and seed)
 
 1. In the Supabase dashboard, open **SQL Editor** → **New query**.
-2. Open `supabase/migrations/0001_init.sql` from this repo, copy its entire
-   contents into the editor, and click **Run**. This creates all tables, RLS
-   policies, the `is_admin()` helper, and the trigger that auto-creates a
-   profile on first sign-in.
+2. Run the migrations **in order**, each as its own query:
+   - `supabase/migrations/0001_init.sql` — tables, RLS, `is_admin()`, the
+     auto-create-profile trigger.
+   - `supabase/migrations/0002_payments.sql` — `orders.receipt_url` (Lemon
+     Squeezy).
+   - `supabase/migrations/0003_cart.sql` — the persistent `cart_items` table.
 3. (Optional, recommended) Open `supabase/seed.sql`, paste it into a new query,
    and **Run** it to insert 3 published demo products.
 
@@ -171,17 +173,20 @@ Useful checks:
 
 ---
 
-## 8. What's intentionally deferred
+## 8. Payments, cart & SEO
 
-- **Payments (Lemon Squeezy, Merchant of Record).** The `Buy` button is a
-  no-op placeholder (`src/components/buy-button.tsx`). The schema already has
-  `orders`, `order_items`, `entitlements`, `download_events`, and
-  `products.ls_variant_id`. `.env.example` has commented
-  `LEMONSQUEEZY_*` placeholders. Wiring checkout + webhooks (grant entitlements,
-  create orders) is the next session.
-- **Gated download delivery.** `product_files` rows + the private bucket exist;
-  generating signed URLs for entitled buyers plugs in once entitlements are
-  granted by checkout.
+- **Payments + gated delivery** are live (Lemon Squeezy MoR). Setup + testing:
+  **[PAYMENTS.md](./PAYMENTS.md)**.
+- **Cart** persists in `cart_items` for signed-in users and in localStorage for
+  guests, merging on login (migration `0003_cart.sql`).
+- **SEO** is wired up at the code level: per-page metadata, `sitemap.xml`,
+  `robots.txt`, and dynamic per-product OpenGraph images. These activate
+  automatically once `NEXT_PUBLIC_SITE_URL` points at your real domain — there's
+  nothing to do before launch except set that variable. After you have a domain,
+  submit `https://<domain>/sitemap.xml` to Google Search Console.
+- **Analytics is intentionally deferred** until you have a domain (it needs an
+  account + live traffic to be useful). When ready, a privacy-friendly script
+  (Plausible / Umami) drops into `src/app/layout.tsx`.
 
 ---
 
