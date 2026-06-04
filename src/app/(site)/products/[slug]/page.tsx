@@ -7,6 +7,7 @@ import { categoryName, formatPrice } from "@/lib/catalog";
 import { Cover } from "@/components/cover";
 import { ProductCard } from "@/components/product-card";
 import { BuyButton } from "@/components/buy-button";
+import { AddToCartButton } from "@/components/cart/add-to-cart-button";
 import { Badge } from "@/components/ui/badge";
 
 export async function generateMetadata({
@@ -107,7 +108,10 @@ export default async function ProductDetailPage({
               ))}
             </ul>
 
-            <BuyButton productId={product.id} price={product.price_usd} />
+            <div className="flex flex-col gap-3">
+              <BuyButton productId={product.id} price={product.price_usd} />
+              <AddToCartButton product={product} />
+            </div>
 
             <p className="text-text-faint mt-4 flex items-center justify-center gap-2 text-xs">
               <ShieldCheck className="size-3.5" />

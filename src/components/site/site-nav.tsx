@@ -5,14 +5,15 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { NavSearch } from "@/components/site/nav-search";
 import { AccountMenu } from "@/components/site/account-menu";
 import { MobileNav } from "@/components/site/mobile-nav";
+import { CartButton } from "@/components/cart/cart-button";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
-  { href: "/products", label: "Browse" },
+  { href: "/products", label: "All products" },
+  { href: "/products?category=prompts", label: "Prompts" },
+  { href: "/products?category=automation", label: "Automations" },
   { href: "/products?category=courses", label: "Courses" },
-  { href: "/products?category=automation", label: "Automation" },
-  { href: "/about", label: "About" },
 ];
 
 export async function SiteNav() {
@@ -41,6 +42,7 @@ export async function SiteNav() {
         <div className="ml-auto flex items-center gap-2">
           <NavSearch className="hidden md:flex" />
           <ThemeToggle />
+          <CartButton />
 
           {account ? (
             <AccountMenu email={account.email} isAdmin={account.isAdmin} />

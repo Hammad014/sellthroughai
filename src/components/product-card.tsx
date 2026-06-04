@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Cover } from "@/components/cover";
+import { AddToCartIcon } from "@/components/cart/add-to-cart-button";
 import { categoryName, formatPrice } from "@/lib/catalog";
 import type { Product } from "@/lib/supabase/types";
 
@@ -10,7 +11,8 @@ export function ProductCard({ product }: { product: Product }) {
       href={`/products/${product.slug}`}
       className="group bg-card hover:border-border-accent flex flex-col overflow-hidden rounded-xl border transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-glow)]"
     >
-      <div className="p-3">
+      <div className="relative p-3">
+        <AddToCartIcon product={product} />
         <Cover
           category={product.category}
           coverImageUrl={product.cover_image_url}
