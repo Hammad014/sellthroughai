@@ -1,8 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, FileDown, Trash2, Upload } from "lucide-react";
-import { getAdminProductById, listProductFiles } from "@/lib/admin/products";
+import { ArrowLeft, FileDown, Trash2, Upload, Video } from "lucide-react";
 import {
+  getAdminProductById,
+  listProductFiles,
+  listProductLessons,
+} from "@/lib/admin/products";
+import {
+  addLesson,
+  deleteLesson,
   deleteProduct,
   deleteProductFile,
   uploadProductFile,
@@ -11,6 +17,8 @@ import { ProductForm } from "@/components/admin/product-form";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 export default async function EditProductPage({
   params,
@@ -22,6 +30,8 @@ export default async function EditProductPage({
   if (!product) notFound();
 
   const files = await listProductFiles(id);
+  const isGated = product.delivery_type === "gated";
+  const lessons = isGated ? await listProductLessons(id) : [];
 
   return (
     <div>
@@ -92,6 +102,88 @@ export default async function EditProductPage({
           </SubmitButton>
         </form>
       </section>
+
+      {/* Course lessons (gated products only) */}
+      {isGated && (
+        <section className="mt-12 max-w-2xl border-t pt-8">
+          <h2 className="font-display text-lg font-semibold tracking-tight">
+            Course lessons
+          </h2>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Shown in the course player at{" "}
+            <span className="font-mono">/dashboard/courses/{product.slug}</span>{" "}
+            for buyers. Videos upload to the private bucket and stream via
+            signed URLs.
+          </p>
+
+          <div className="mt-5 space-y-2">
+            {lessons.length === 0 ? (
+              <p className="text-text-faint text-sm">No lessons yet.</p>
+            ) : (
+              lessons.map((lesson, i) => (
+                <div
+                  key={lesson.id}
+                  className="bg-card flex items-center gap-3 rounded-md border px-3 py-2"
+                >
+                  <span className="text-text-faint font-mono text-xs">
+                    {i + 1}
+                  </span>
+                  <span className="truncate text-sm font-medium">
+                    {lesson.title}
+                  </span>
+                  {lesson.video_path && (
+                    <Video className="text-muted-foreground size-4 shrink-0" />
+                  )}
+                  <form
+                    action={deleteLesson.bind(
+                      null,
+                      lesson.id,
+                      product.id,
+                      lesson.video_path,
+                    )}
+                    className="ml-auto"
+                  >
+                    <Button
+                      type="submit"
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={`Delete ${lesson.title}`}
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </form>
+                </div>
+              ))
+            )}
+          </div>
+
+          <form
+            action={addLesson.bind(null, product.id)}
+            className="mt-6 flex flex-col gap-3"
+          >
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="lesson-title">Lesson title</Label>
+              <Input id="lesson-title" name="title" required />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="lesson-content">Content (markdown)</Label>
+              <Textarea id="lesson-content" name="content_md" rows={4} />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="lesson-video">Video (optional)</Label>
+              <Input
+                id="lesson-video"
+                name="video"
+                type="file"
+                accept="video/*"
+              />
+            </div>
+            <div>
+              <SubmitButton variant="secondary">Add lesson</SubmitButton>
+            </div>
+          </form>
+        </section>
+      )}
 
       {/* Danger zone */}
       <section className="border-destructive/30 mt-12 max-w-2xl rounded-xl border p-6">

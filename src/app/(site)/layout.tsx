@@ -1,5 +1,6 @@
 import { SiteNav } from "@/components/site/site-nav";
 import { SiteFooter } from "@/components/site/site-footer";
+import { LemonScript } from "@/components/lemon-script";
 
 // The nav reflects per-request auth state (cookies), so render the shell
 // dynamically rather than prerendering it at build time.
@@ -19,6 +20,7 @@ export default function SiteLayout({
       <SiteNav />
       <div className="flex flex-1 flex-col">{children}</div>
       <SiteFooter />
+      <LemonScript />
     </>
   );
 }

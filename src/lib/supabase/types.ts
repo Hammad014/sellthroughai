@@ -173,6 +173,7 @@ export interface Database {
           ls_order_id: string | null;
           total_usd: number;
           status: string;
+          receipt_url: string | null;
           created_at: string;
         };
         Insert: {
@@ -182,6 +183,7 @@ export interface Database {
           ls_order_id?: string | null;
           total_usd: number;
           status?: string;
+          receipt_url?: string | null;
           created_at?: string;
         };
         Update: {
@@ -191,6 +193,7 @@ export interface Database {
           ls_order_id?: string | null;
           total_usd?: number;
           status?: string;
+          receipt_url?: string | null;
           created_at?: string;
         };
         Relationships: [];

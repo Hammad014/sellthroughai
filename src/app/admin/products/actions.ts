@@ -149,3 +149,59 @@ export async function deleteProductFile(
   await supabase.from("product_files").delete().eq("id", fileId);
   revalidatePath(`/admin/products/${productId}`);
 }
+
+/** Add a course lesson (title + markdown + optional video to private bucket). */
+export async function addLesson(
+  productId: string,
+  formData: FormData,
+): Promise<void> {
+  await requireAdmin();
+  const supabase = createServiceClient();
+
+  const title = str(formData, "title");
+  if (!title) return;
+  const contentMd = str(formData, "content_md") || null;
+
+  let videoPath: string | null = null;
+  const video = formData.get("video");
+  if (video instanceof File && video.size > 0) {
+    const path = `${productId}/lessons/${Date.now()}-${video.name}`;
+    const { error } = await supabase.storage
+      .from(FILES_BUCKET)
+      .upload(path, video, { contentType: video.type });
+    if (!error) videoPath = path;
+  }
+
+  const { data: last } = await supabase
+    .from("course_lessons")
+    .select("sort_order")
+    .eq("product_id", productId)
+    .order("sort_order", { ascending: false })
+    .limit(1);
+  const nextOrder = last?.[0] ? last[0].sort_order + 1 : 0;
+
+  await supabase.from("course_lessons").insert({
+    product_id: productId,
+    title,
+    content_md: contentMd,
+    video_path: videoPath,
+    sort_order: nextOrder,
+  });
+
+  revalidatePath(`/admin/products/${productId}`);
+}
+
+/** Remove a course lesson (and its video object, if any). */
+export async function deleteLesson(
+  lessonId: string,
+  productId: string,
+  videoPath: string | null,
+): Promise<void> {
+  await requireAdmin();
+  const supabase = createServiceClient();
+  if (videoPath) {
+    await supabase.storage.from(FILES_BUCKET).remove([videoPath]);
+  }
+  await supabase.from("course_lessons").delete().eq("id", lessonId);
+  revalidatePath(`/admin/products/${productId}`);
+}

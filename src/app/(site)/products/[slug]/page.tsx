@@ -107,10 +107,7 @@ export default async function ProductDetailPage({
               ))}
             </ul>
 
-            <BuyButton
-              price={product.price_usd}
-              lsVariantId={product.ls_variant_id}
-            />
+            <BuyButton productId={product.id} price={product.price_usd} />
 
             <p className="text-text-faint mt-4 flex items-center justify-center gap-2 text-xs">
               <ShieldCheck className="size-3.5" />
