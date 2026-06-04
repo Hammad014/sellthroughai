@@ -59,10 +59,17 @@ supabase/
 design-reference/      # original Claude Design handoff (visual source of truth)
 ```
 
-## Payments seam (later)
+## Payments & delivery (Lemon Squeezy)
 
-Payments are intentionally **not** wired up. The `Buy` button is a no-op
-(`src/components/buy-button.tsx`); the schema (`orders`, `order_items`,
-`entitlements`, `download_events`, `products.ls_variant_id`) and commented
-`LEMONSQUEEZY_*` env vars are ready for a Lemon Squeezy integration in a
-follow-up session.
+Checkout, fulfilment, and gated delivery are live — see **[PAYMENTS.md](./PAYMENTS.md)**
+for setup and end-to-end testing.
+
+- **Checkout:** the `Buy` button opens the Lemon Squeezy overlay
+  (`src/components/buy-button.tsx` → `startCheckout` action), passing buyer
+  email + `user_id` + `product_id` as checkout custom data.
+- **Webhook:** `/api/webhooks/lemonsqueezy` verifies the `X-Signature` HMAC,
+  handles `order_created` idempotently, creates a guest account if needed, and
+  grants entitlements.
+- **Delivery:** `license` products show the Lemon Squeezy receipt/license;
+  `gated` products open the course player (`/dashboard/courses/[slug]`) with
+  `/api/download` serving files via 60-second Supabase signed URLs.

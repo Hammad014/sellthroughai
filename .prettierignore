@@ -5,4 +5,4 @@ build
 next-env.d.ts
 package-lock.json
 design-reference
-supabase/migrations
+supabase
