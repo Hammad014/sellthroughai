@@ -46,8 +46,8 @@ export function SiteFooter() {
           <div className="col-span-2 max-w-[30ch] md:col-span-1">
             <Logo />
             <p className="text-muted-foreground mt-4 text-sm">
-              Premium AI tools for people who&apos;d rather get the work done
-              than fight the tools. Buy once, own forever.
+              Premium AI products — prompts, automations, templates and courses
+              for people who want results. Buy once, own forever.
             </p>
           </div>
           {COLUMNS.map((col) => (

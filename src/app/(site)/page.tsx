@@ -8,7 +8,9 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Premium AI tools storefront",
+  title: "Premium AI products — prompts, automations & more",
+  description:
+    "Buy ready-made AI products: prompt packs, automation kits, Notion systems, mini-courses and ebooks. Instant delivery, lifetime access.",
 };
 
 export default async function Home() {
@@ -32,40 +34,40 @@ export default async function Home() {
               <span className="bg-brand-tint text-primary text-2xs rounded-[6px] px-2 py-0.5 font-mono uppercase">
                 New
               </span>
-              Content Engine for n8n just dropped
+              Fresh AI products added every week
             </span>
             <h1 className="font-display mt-6 text-5xl leading-[0.98] font-semibold tracking-tight sm:text-6xl">
-              AI tools that <span className="text-primary">just work</span>
-              <br />— no code required.
+              Premium AI products,{" "}
+              <span className="text-primary">ready to use.</span>
             </h1>
             <p className="text-muted-foreground mx-auto mt-6 max-w-xl text-lg leading-relaxed">
-              Prompt packs, Notion systems, mini-courses and automation kits —
-              curated for professionals who want results, not a research
-              project.
+              AI prompt packs, automation kits, Notion systems, mini-courses and
+              ebooks — ready-made digital products for people who want results,
+              not a research project.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link
                 href="/products"
                 className={cn(buttonVariants({ size: "lg" }))}
               >
-                Browse the catalog
+                Browse all products
                 <ArrowRight className="size-4" />
               </Link>
               <Link
-                href="/products?category=courses"
+                href="/products?category=prompts"
                 className={cn(
                   buttonVariants({ variant: "outline", size: "lg" }),
                 )}
               >
-                See the courses
+                Explore prompt packs
               </Link>
             </div>
             <div className="text-muted-foreground mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm">
               <span className="inline-flex items-center gap-2">
-                <ShieldCheck className="text-primary size-4" /> Lifetime access
+                <ShieldCheck className="text-primary size-4" /> Instant delivery
               </span>
-              <span>120k+ happy buyers</span>
-              <span>4.8/5 average rating</span>
+              <span>Lifetime access &amp; updates</span>
+              <span>14-day refund</span>
             </div>
           </div>
         </div>
@@ -103,7 +105,7 @@ export default async function Home() {
         <div className="mb-10">
           <p className="eyebrow">Shop by category</p>
           <h2 className="font-display mt-3 text-3xl font-semibold tracking-tight">
-            Find your next unfair advantage
+            Browse AI products by category
           </h2>
         </div>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -145,15 +147,15 @@ export default async function Home() {
             Equip your whole team to work with AI
           </h2>
           <p className="text-muted-foreground mx-auto mt-4 max-w-xl text-lg">
-            Bundle any products into a team license with shared seats,
-            onboarding and volume pricing. One invoice, lifetime access.
+            Equip your whole team with AI products under one license — shared
+            seats, onboarding and volume pricing. One invoice, lifetime access.
           </p>
           <div className="mt-8 flex justify-center">
             <Link
               href="/products"
               className={cn(buttonVariants({ size: "lg" }))}
             >
-              Browse bundles
+              Browse all products
               <ArrowRight className="size-4" />
             </Link>
           </div>

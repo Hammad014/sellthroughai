@@ -27,12 +27,15 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  ),
   title: {
-    default: "Aiselling — Premium AI tools storefront",
+    default: "Aiselling — Premium AI products storefront",
     template: "%s · Aiselling",
   },
   description:
-    "Prompt packs, Notion systems, mini-courses and automation kits — curated for professionals who want results, not a research project.",
+    "Buy ready-made AI products: prompt packs, automation kits, Notion systems, mini-courses and ebooks. Instant delivery, lifetime access.",
 };
 
 export default function RootLayout({

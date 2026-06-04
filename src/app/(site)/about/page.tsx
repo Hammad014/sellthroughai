@@ -18,7 +18,7 @@ const VALUES = [
   },
   {
     title: "Made for non-technical pros",
-    body: "Clear, jargon-free tools that help you do more with AI — no code required.",
+    body: "Clear, jargon-free AI products that help you do more — no code required.",
   },
 ];
 
@@ -27,14 +27,14 @@ export default function AboutPage() {
     <main className="mx-auto w-full max-w-[860px] px-4 py-16 sm:px-6">
       <p className="eyebrow">Our story</p>
       <h1 className="font-display mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">
-        Tools that just work, for people who&apos;d rather ship.
+        AI products that just work, for people who&apos;d rather ship.
       </h1>
       <p className="text-muted-foreground mt-6 max-w-2xl text-lg leading-relaxed">
-        Aiselling is a curated storefront for premium AI tools — prompt packs,
-        Notion systems, mini-courses, automation kits and ebooks. We started it
-        because the gap between &quot;AI is amazing&quot; and &quot;AI actually
-        helped me today&quot; was full of noise. We fill that gap with tested,
-        practical products.
+        Aiselling is a curated storefront for premium AI products — prompt
+        packs, automation kits, Notion systems, mini-courses and ebooks. We
+        started it because the gap between &quot;AI is amazing&quot; and
+        &quot;AI actually helped me today&quot; was full of noise. We fill that
+        gap with tested, practical products.
       </p>
 
       <div className="mt-12 grid gap-5 sm:grid-cols-3">

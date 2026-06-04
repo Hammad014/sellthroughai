@@ -6,9 +6,9 @@ import { CatalogFilters } from "@/components/catalog-filters";
 import { ProductCard } from "@/components/product-card";
 
 export const metadata: Metadata = {
-  title: "Catalog",
+  title: "All AI products",
   description:
-    "Browse prompt packs, templates, courses, automation kits and ebooks.",
+    "Browse AI products — prompt packs, automation kits, Notion templates, mini-courses and ebooks. Instant delivery, lifetime access.",
 };
 
 export default async function ProductsPage({
