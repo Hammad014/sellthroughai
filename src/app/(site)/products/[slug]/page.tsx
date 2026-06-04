@@ -21,6 +21,18 @@ export async function generateMetadata({
   return {
     title: product.title,
     description: product.short_desc,
+    alternates: { canonical: `/products/${product.slug}` },
+    openGraph: {
+      type: "website",
+      title: product.title,
+      description: product.short_desc,
+      url: `/products/${product.slug}`,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.title,
+      description: product.short_desc,
+    },
   };
 }
 

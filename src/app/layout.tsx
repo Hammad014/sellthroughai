@@ -36,6 +36,21 @@ export const metadata: Metadata = {
   },
   description:
     "Buy ready-made AI products: prompt packs, automation kits, Notion systems, mini-courses and ebooks. Instant delivery, lifetime access.",
+  applicationName: "Aiselling",
+  openGraph: {
+    type: "website",
+    siteName: "Aiselling",
+    title: "Aiselling — Premium AI products storefront",
+    description:
+      "Ready-made AI products: prompt packs, automation kits, Notion systems, mini-courses and ebooks.",
+    url: "/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Aiselling — Premium AI products storefront",
+    description:
+      "Ready-made AI products: prompt packs, automation kits, Notion systems, mini-courses and ebooks.",
+  },
 };
 
 export default function RootLayout({
