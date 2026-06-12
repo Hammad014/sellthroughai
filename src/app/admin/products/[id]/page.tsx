@@ -1,14 +1,24 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, FileDown, Trash2, Upload, Video } from "lucide-react";
+import {
+  ArrowLeft,
+  FileDown,
+  Sparkles,
+  Trash2,
+  Upload,
+  Video,
+} from "lucide-react";
 import {
   getAdminProductById,
   listProductFiles,
   listProductLessons,
+  listProductPrompts,
 } from "@/lib/admin/products";
 import {
   addLesson,
+  addPrompt,
   deleteLesson,
+  deletePrompt,
   deleteProduct,
   deleteProductFile,
   uploadProductFile,
@@ -31,7 +41,9 @@ export default async function EditProductPage({
 
   const files = await listProductFiles(id);
   const isGated = product.delivery_type === "gated";
+  const isPrompts = product.delivery_type === "prompts";
   const lessons = isGated ? await listProductLessons(id) : [];
+  const prompts = isPrompts ? await listProductPrompts(id) : [];
 
   return (
     <div>
@@ -180,6 +192,100 @@ export default async function EditProductPage({
             </div>
             <div>
               <SubmitButton variant="secondary">Add lesson</SubmitButton>
+            </div>
+          </form>
+        </section>
+      )}
+
+      {/* Prompt library (prompts products only) */}
+      {isPrompts && (
+        <section className="mt-12 max-w-2xl border-t pt-8">
+          <h2 className="font-display flex items-center gap-2 text-lg font-semibold tracking-tight">
+            <Sparkles className="size-4" /> Prompt library
+          </h2>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Buyers browse and copy these at{" "}
+            <span className="font-mono">/dashboard/prompts/{product.slug}</span>.
+            Use <span className="font-mono">[BRACKETS]</span> for the parts the
+            buyer fills in.
+          </p>
+
+          <div className="mt-5 space-y-2">
+            {prompts.length === 0 ? (
+              <p className="text-text-faint text-sm">No prompts yet.</p>
+            ) : (
+              prompts.map((p, i) => (
+                <div
+                  key={p.id}
+                  className="bg-card flex items-center gap-3 rounded-md border px-3 py-2"
+                >
+                  <span className="text-text-faint font-mono text-xs">
+                    {i + 1}
+                  </span>
+                  <span className="truncate text-sm font-medium">
+                    {p.title}
+                  </span>
+                  {p.model && (
+                    <span className="text-text-faint truncate font-mono text-xs">
+                      {p.model}
+                    </span>
+                  )}
+                  <form
+                    action={deletePrompt.bind(null, p.id, product.id)}
+                    className="ml-auto"
+                  >
+                    <Button
+                      type="submit"
+                      variant="ghost"
+                      size="icon-sm"
+                      aria-label={`Delete ${p.title}`}
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </form>
+                </div>
+              ))
+            )}
+          </div>
+
+          <form
+            action={addPrompt.bind(null, product.id)}
+            className="mt-6 flex flex-col gap-3"
+          >
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="prompt-title">Title</Label>
+                <Input id="prompt-title" name="title" required />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="prompt-model">Suggested model (optional)</Label>
+                <Input
+                  id="prompt-model"
+                  name="model"
+                  placeholder="Claude / GPT-4o"
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="prompt-desc">When to use it (optional)</Label>
+              <Input id="prompt-desc" name="description" />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="prompt-body">Prompt</Label>
+              <Textarea id="prompt-body" name="prompt_body" rows={6} required />
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="prompt-input">Example input (optional)</Label>
+                <Textarea id="prompt-input" name="example_input" rows={3} />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="prompt-output">Example output (optional)</Label>
+                <Textarea id="prompt-output" name="example_output" rows={3} />
+              </div>
+            </div>
+            <div>
+              <SubmitButton variant="secondary">Add prompt</SubmitButton>
             </div>
           </form>
         </section>

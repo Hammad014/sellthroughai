@@ -1,6 +1,11 @@
 import "server-only";
 import { createServiceClient } from "@/lib/supabase/service";
-import type { CourseLesson, Product, ProductFile } from "@/lib/supabase/types";
+import type {
+  CourseLesson,
+  Product,
+  ProductFile,
+  ProductPrompt,
+} from "@/lib/supabase/types";
 
 export type LibraryItem = {
   id: string;
@@ -68,4 +73,17 @@ export async function getCourseContent(productId: string): Promise<{
       .order("sort_order", { ascending: true }),
   ]);
   return { lessons: lessons ?? [], files: files ?? [] };
+}
+
+/** Prompts for a 'prompts' product (admin-trusted read, ordered). */
+export async function getProductPrompts(
+  productId: string,
+): Promise<ProductPrompt[]> {
+  const supabase = createServiceClient();
+  const { data } = await supabase
+    .from("product_prompts")
+    .select("*")
+    .eq("product_id", productId)
+    .order("sort_order", { ascending: true });
+  return data ?? [];
 }

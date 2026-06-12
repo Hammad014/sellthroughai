@@ -5,6 +5,7 @@ import { Check, ChevronRight, ShieldCheck } from "lucide-react";
 import { getProductBySlug, getRelatedProducts } from "@/lib/products";
 import { categoryName, formatPrice } from "@/lib/catalog";
 import { Cover } from "@/components/cover";
+import { Markdown } from "@/components/markdown";
 import { ProductCard } from "@/components/product-card";
 import { BuyButton } from "@/components/buy-button";
 import { AddToCartButton } from "@/components/cart/add-to-cart-button";
@@ -46,14 +47,19 @@ export default async function ProductDetailPage({
   if (!product) notFound();
 
   const related = await getRelatedProducts(product);
-  const isGated = product.delivery_type === "gated";
+  const delivery = product.delivery_type;
+
+  const deliveryBenefit =
+    delivery === "gated"
+      ? "Streamed lessons & gated content in your library"
+      : delivery === "prompts"
+        ? "Copy-and-go prompt library inside your dashboard"
+        : "Downloadable files in your library";
 
   const benefits = [
-    "Instant digital delivery — access on purchase",
+    "Instant access — the moment you buy",
     "Lifetime access & free future updates",
-    isGated
-      ? "Streamed lessons & gated content in your library"
-      : "Downloadable files in your library",
+    deliveryBenefit,
     "14-day no-questions refund",
   ];
 
@@ -139,13 +145,7 @@ export default async function ProductDetailPage({
           <h2 className="font-display mb-6 text-2xl font-semibold tracking-tight">
             About this product
           </h2>
-          <div className="text-muted-foreground max-w-[70ch] leading-relaxed">
-            {product.long_desc.split(/\n{2,}/).map((para, i) => (
-              <p key={i} className="mt-4 first:mt-0">
-                {para}
-              </p>
-            ))}
-          </div>
+          <Markdown>{product.long_desc}</Markdown>
         </section>
       )}
 

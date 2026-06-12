@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { requireAdmin } from "@/lib/auth";
+import { getProfile, isAdmin } from "@/lib/auth";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import { AdminLogin } from "@/components/admin/admin-login";
 import { Badge } from "@/components/ui/badge";
 
 // Admin is always rendered per-request and gated by role server-side.
@@ -14,8 +15,12 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Redirects to /login (not signed in) or / (signed in, not admin).
-  await requireAdmin();
+  // Gate in-place: show the admin sign-in screen until an admin is logged in,
+  // so /admin itself is the login entry point (no redirect to the user login).
+  const profile = await getProfile();
+  if (!isAdmin(profile)) {
+    return <AdminLogin signedInNotAdmin={Boolean(profile)} />;
+  }
 
   return (
     <div className="flex min-h-screen flex-col">

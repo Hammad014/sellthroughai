@@ -11,6 +11,29 @@ function hasSupabaseEnv(): boolean {
   );
 }
 
+/** Emails granted admin access via the `ADMIN_EMAILS` allowlist (comma-sep). */
+function adminEmailAllowlist(): string[] {
+  return (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+/**
+ * Whether a profile is an admin. True if the DB role is 'admin' OR the email
+ * is in the ADMIN_EMAILS allowlist. The allowlist lets you make an admin by
+ * just creating the user in Supabase and adding their email to the env var —
+ * no SQL needed. (Admin pages/actions use the service-role client, so this
+ * app-level check is what actually gates the panel.)
+ */
+export function isAdmin(
+  profile: Pick<Profile, "role" | "email"> | null,
+): boolean {
+  if (!profile) return false;
+  if (profile.role === "admin") return true;
+  return adminEmailAllowlist().includes((profile.email ?? "").toLowerCase());
+}
+
 /** Current authenticated user (server), or null. */
 export async function getUser(): Promise<User | null> {
   // Let the public site render before Supabase is configured.
@@ -69,10 +92,11 @@ export async function requireUser(next?: string): Promise<User> {
   return user;
 }
 
-/** Redirect unless signed in AND profiles.role === 'admin'. */
+/** Redirect unless signed in AND recognized as an admin. */
 export async function requireAdmin(): Promise<Profile> {
   const profile = await getProfile();
-  if (!profile) redirect("/login?next=/admin");
-  if (profile.role !== "admin") redirect("/");
+  // /admin renders its own email+password login when not authenticated.
+  if (!profile) redirect("/admin");
+  if (!isAdmin(profile)) redirect("/");
   return profile;
 }

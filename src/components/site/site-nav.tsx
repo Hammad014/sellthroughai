@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getProfile } from "@/lib/auth";
+import { getProfile, isAdmin } from "@/lib/auth";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { NavSearch } from "@/components/site/nav-search";
@@ -19,7 +19,7 @@ const LINKS = [
 export async function SiteNav() {
   const profile = await getProfile();
   const account = profile
-    ? { email: profile.email, isAdmin: profile.role === "admin" }
+    ? { email: profile.email, isAdmin: isAdmin(profile) }
     : null;
 
   return (

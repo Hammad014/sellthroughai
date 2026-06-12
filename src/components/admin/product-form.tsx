@@ -74,8 +74,14 @@ export function ProductForm({ product }: { product?: Product }) {
           name="long_desc"
           rows={6}
           defaultValue={product?.long_desc ?? ""}
-          placeholder="Full description. Separate paragraphs with a blank line."
+          placeholder={
+            "Full description. Markdown supported — use ## headings, - lists, **bold** and `code`."
+          }
         />
+        <p className="text-text-faint text-xs">
+          Rendered as markdown on the product page (headings, lists, bold,
+          code blocks).
+        </p>
       </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -118,6 +124,7 @@ export function ProductForm({ product }: { product?: Product }) {
           >
             <option value="license">License (downloadable files)</option>
             <option value="gated">Gated (course / gated content)</option>
+            <option value="prompts">Prompt library (in-app, copy-to-use)</option>
           </select>
         </div>
 

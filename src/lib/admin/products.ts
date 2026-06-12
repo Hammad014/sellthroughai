@@ -1,6 +1,11 @@
 import "server-only";
 import { createServiceClient } from "@/lib/supabase/service";
-import type { CourseLesson, Product, ProductFile } from "@/lib/supabase/types";
+import type {
+  CourseLesson,
+  Product,
+  ProductFile,
+  ProductPrompt,
+} from "@/lib/supabase/types";
 
 /**
  * Admin data access — uses the service-role client (bypasses RLS) so admins
@@ -45,6 +50,18 @@ export async function listProductLessons(
   const supabase = createServiceClient();
   const { data } = await supabase
     .from("course_lessons")
+    .select("*")
+    .eq("product_id", productId)
+    .order("sort_order", { ascending: true });
+  return data ?? [];
+}
+
+export async function listProductPrompts(
+  productId: string,
+): Promise<ProductPrompt[]> {
+  const supabase = createServiceClient();
+  const { data } = await supabase
+    .from("product_prompts")
     .select("*")
     .eq("product_id", productId)
     .order("sort_order", { ascending: true });

@@ -4,9 +4,12 @@ import { ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "About" };
+export const metadata: Metadata = {
+  title: "About",
+  description:
+    "Why Aiselling exists: tested, ready-to-use AI products that close the gap between AI hype and AI actually helping you today.",
+};
 
-// PLACEHOLDER COPY — edit freely.
 const VALUES = [
   {
     title: "Results over hype",
@@ -19,6 +22,21 @@ const VALUES = [
   {
     title: "Made for non-technical pros",
     body: "Clear, jargon-free AI products that help you do more — no code required.",
+  },
+];
+
+const STANDARDS = [
+  {
+    title: "Tested before it ships",
+    body: "If it hasn't earned its place in a real workflow, it doesn't go on the shelf. We sell systems we'd use ourselves.",
+  },
+  {
+    title: "Outcomes, not volume",
+    body: "We'd rather sell you 10 prompts that change how you work than 500 you'll never open. Specific beats big.",
+  },
+  {
+    title: "Kept current",
+    body: "Models and tools move fast. When they change, we update the products you already own — for free.",
   },
 ];
 
@@ -50,7 +68,29 @@ export default function AboutPage() {
         ))}
       </div>
 
-      <div className="border-border-accent bg-card mt-12 flex flex-col items-start gap-4 rounded-2xl border p-8 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-16">
+        <h2 className="font-display text-2xl font-semibold tracking-tight">
+          What we hold ourselves to
+        </h2>
+        <p className="text-muted-foreground mt-3 max-w-2xl">
+          Anyone can dump a prompt list online. Here&apos;s the bar every
+          product on Aiselling has to clear before it earns your money.
+        </p>
+        <div className="mt-8 grid gap-5 sm:grid-cols-3">
+          {STANDARDS.map((s) => (
+            <div key={s.title} className="bg-card rounded-xl border p-6">
+              <h3 className="font-display font-semibold tracking-tight">
+                {s.title}
+              </h3>
+              <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+                {s.body}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="border-border-accent bg-card mt-16 flex flex-col items-start gap-4 rounded-2xl border p-8 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="font-display text-xl font-semibold tracking-tight">
             Ready to find your next unfair advantage?

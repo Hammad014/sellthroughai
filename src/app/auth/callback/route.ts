@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
 /**
- * OAuth + PKCE magic-link callback. Exchanges the `code` for a session
- * (cookies are written here) and redirects onward.
+ * Auth callback. Email-confirmation links (and any future OAuth/PKCE flow)
+ * land here with a `code`; we exchange it for a session (cookies are written
+ * here) and redirect onward.
  */
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);

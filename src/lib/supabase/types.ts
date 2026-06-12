@@ -7,7 +7,7 @@
  * The shape below is intentionally compatible with that generator.
  */
 
-export type DeliveryType = "license" | "gated";
+export type DeliveryType = "license" | "gated" | "prompts";
 export type ProductStatus = "draft" | "published";
 export type UserRole = "user" | "admin";
 
@@ -193,6 +193,52 @@ export interface Database {
           },
         ];
       };
+      product_prompts: {
+        Row: {
+          id: string;
+          product_id: string;
+          title: string;
+          description: string | null;
+          prompt_body: string;
+          example_input: string | null;
+          example_output: string | null;
+          model: string | null;
+          sort_order: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          product_id: string;
+          title: string;
+          description?: string | null;
+          prompt_body: string;
+          example_input?: string | null;
+          example_output?: string | null;
+          model?: string | null;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          product_id?: string;
+          title?: string;
+          description?: string | null;
+          prompt_body?: string;
+          example_input?: string | null;
+          example_output?: string | null;
+          model?: string | null;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "product_prompts_product_id_fkey";
+            columns: ["product_id"];
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       orders: {
         Row: {
           id: string;
@@ -348,6 +394,8 @@ export type Product = Database["public"]["Tables"]["products"]["Row"];
 export type ProductFile = Database["public"]["Tables"]["product_files"]["Row"];
 export type CourseLesson =
   Database["public"]["Tables"]["course_lessons"]["Row"];
+export type ProductPrompt =
+  Database["public"]["Tables"]["product_prompts"]["Row"];
 export type Order = Database["public"]["Tables"]["orders"]["Row"];
 export type OrderItem = Database["public"]["Tables"]["order_items"]["Row"];
 export type Entitlement = Database["public"]["Tables"]["entitlements"]["Row"];

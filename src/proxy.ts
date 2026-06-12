@@ -5,17 +5,18 @@ import { updateSession } from "@/lib/supabase/middleware";
  * Refreshes the auth session and gates the private areas.
  * (Next 16 renamed the `middleware` convention to `proxy`.)
  *
- * The proxy only checks that a user is signed in. The admin ROLE check lives
- * server-side in the /admin layout (it needs to read the profiles table).
+ * The USER area (/dashboard) bounces to the user login (/login) when signed
+ * out. The ADMIN area (/admin) is intentionally NOT redirected here: its
+ * layout renders its own email+password admin login in-place and does the
+ * role check server-side (it needs to read the profiles table).
  */
 export default async function proxy(request: NextRequest) {
   const { supabaseResponse, user } = await updateSession(request);
   const { pathname } = request.nextUrl;
 
-  const isProtected =
-    pathname.startsWith("/dashboard") || pathname.startsWith("/admin");
+  const isUserProtected = pathname.startsWith("/dashboard");
 
-  if (isProtected && !user) {
+  if (isUserProtected && !user) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";
     redirectUrl.searchParams.set("next", pathname);

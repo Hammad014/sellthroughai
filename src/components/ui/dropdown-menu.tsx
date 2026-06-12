@@ -56,15 +56,18 @@ function DropdownMenuGroup({ ...props }: MenuPrimitive.Group.Props) {
   return <MenuPrimitive.Group data-slot="dropdown-menu-group" {...props} />;
 }
 
+// A standalone heading inside the menu. Rendered as a plain <div> rather than
+// Base UI's <Menu.GroupLabel>, which throws unless wrapped in a <Menu.Group>.
+// Use DropdownMenuGroup + DropdownMenuGroupLabel when you need a labelled group.
 function DropdownMenuLabel({
   className,
   inset,
   ...props
-}: MenuPrimitive.GroupLabel.Props & {
+}: React.ComponentProps<"div"> & {
   inset?: boolean;
 }) {
   return (
-    <MenuPrimitive.GroupLabel
+    <div
       data-slot="dropdown-menu-label"
       data-inset={inset}
       className={cn(

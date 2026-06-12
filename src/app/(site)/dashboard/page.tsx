@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Download, LibraryBig, PlayCircle } from "lucide-react";
+import { Download, LibraryBig, PlayCircle, Sparkles } from "lucide-react";
 import { requireUser, getProfile } from "@/lib/auth";
 import { listLibrary } from "@/lib/entitlements";
 import { Cover } from "@/components/cover";
@@ -64,7 +64,13 @@ export default async function DashboardPage({
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {library.map(({ id, product, receiptUrl }) => {
-            const isGated = product.delivery_type === "gated";
+            const delivery = product.delivery_type;
+            const badgeLabel =
+              delivery === "gated"
+                ? "Course"
+                : delivery === "prompts"
+                  ? "Prompts"
+                  : "License";
             return (
               <div
                 key={id}
@@ -84,7 +90,7 @@ export default async function DashboardPage({
                       {categoryName(product.category)}
                     </span>
                     <Badge variant="secondary" className="ml-auto">
-                      {isGated ? "Course" : "License"}
+                      {badgeLabel}
                     </Badge>
                   </div>
                   <h3 className="font-display leading-snug font-semibold tracking-tight">
@@ -95,12 +101,19 @@ export default async function DashboardPage({
                   </p>
 
                   <div className="mt-auto pt-3">
-                    {isGated ? (
+                    {delivery === "gated" ? (
                       <Link
                         href={`/dashboard/courses/${product.slug}`}
                         className={cn(buttonVariants(), "w-full")}
                       >
                         <PlayCircle className="size-4" /> Open course
+                      </Link>
+                    ) : delivery === "prompts" ? (
+                      <Link
+                        href={`/dashboard/prompts/${product.slug}`}
+                        className={cn(buttonVariants(), "w-full")}
+                      >
+                        <Sparkles className="size-4" /> Open prompt library
                       </Link>
                     ) : receiptUrl ? (
                       <a

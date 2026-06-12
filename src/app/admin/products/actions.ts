@@ -207,6 +207,51 @@ export async function deleteLesson(
   revalidatePath(`/admin/products/${productId}`);
 }
 
+/** Add a prompt to a 'prompts' product's in-app library. */
+export async function addPrompt(
+  productId: string,
+  formData: FormData,
+): Promise<void> {
+  await requireAdmin();
+  const supabase = createServiceClient();
+
+  const title = str(formData, "title");
+  const promptBody = str(formData, "prompt_body");
+  if (!title || !promptBody) return;
+
+  const { data: last } = await supabase
+    .from("product_prompts")
+    .select("sort_order")
+    .eq("product_id", productId)
+    .order("sort_order", { ascending: false })
+    .limit(1);
+  const nextOrder = last?.[0] ? last[0].sort_order + 1 : 0;
+
+  await supabase.from("product_prompts").insert({
+    product_id: productId,
+    title,
+    description: str(formData, "description") || null,
+    prompt_body: promptBody,
+    example_input: str(formData, "example_input") || null,
+    example_output: str(formData, "example_output") || null,
+    model: str(formData, "model") || null,
+    sort_order: nextOrder,
+  });
+
+  revalidatePath(`/admin/products/${productId}`);
+}
+
+/** Remove a prompt from a product's library. */
+export async function deletePrompt(
+  promptId: string,
+  productId: string,
+): Promise<void> {
+  await requireAdmin();
+  const supabase = createServiceClient();
+  await supabase.from("product_prompts").delete().eq("id", promptId);
+  revalidatePath(`/admin/products/${productId}`);
+}
+
 /** Flip a product between published and draft (inline list toggle). */
 export async function toggleProductStatus(
   id: string,
@@ -283,9 +328,10 @@ export async function importProductsCsv(
       long_desc: r.long_desc || null,
       category: (r.category || "prompts").toLowerCase(),
       price_usd: price,
-      delivery_type: (r.delivery_type?.toLowerCase() === "gated"
-        ? "gated"
-        : "license") as DeliveryType,
+      delivery_type: ((): DeliveryType => {
+        const dt = r.delivery_type?.toLowerCase();
+        return dt === "gated" || dt === "prompts" ? dt : "license";
+      })(),
       status: (r.status?.toLowerCase() === "published"
         ? "published"
         : "draft") as ProductStatus,
