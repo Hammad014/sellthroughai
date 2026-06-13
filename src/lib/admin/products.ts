@@ -68,6 +68,31 @@ export async function listProductPrompts(
   return data ?? [];
 }
 
+/** Bundle members (admin view): the join rows + each included product. */
+export async function listBundleItems(
+  bundleId: string,
+): Promise<{ id: string; product: Product }[]> {
+  const supabase = createServiceClient();
+  const { data: rows } = await supabase
+    .from("product_bundle_items")
+    .select("id, item_product_id, sort_order")
+    .eq("bundle_id", bundleId)
+    .order("sort_order", { ascending: true });
+
+  const ids = (rows ?? []).map((r) => r.item_product_id);
+  if (ids.length === 0) return [];
+
+  const { data: products } = await supabase
+    .from("products")
+    .select("*")
+    .in("id", ids);
+
+  const byId = new Map((products ?? []).map((p) => [p.id, p]));
+  return (rows ?? [])
+    .map((r) => ({ id: r.id, product: byId.get(r.item_product_id) }))
+    .filter((x): x is { id: string; product: Product } => Boolean(x.product));
+}
+
 export async function countProducts(): Promise<{
   total: number;
   published: number;

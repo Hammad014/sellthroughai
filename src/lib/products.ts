@@ -79,6 +79,39 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   }
 }
 
+/**
+ * Published products included in a bundle, in the admin-defined order.
+ * Used on the bundle's sales page to show "what's included".
+ */
+export async function getBundleProducts(bundleId: string): Promise<Product[]> {
+  if (!hasSupabaseEnv()) return [];
+  try {
+    const supabase = await createClient();
+    const { data: rows } = await supabase
+      .from("product_bundle_items")
+      .select("item_product_id, sort_order")
+      .eq("bundle_id", bundleId)
+      .order("sort_order", { ascending: true });
+
+    const ids = (rows ?? []).map((r) => r.item_product_id);
+    if (ids.length === 0) return [];
+
+    const { data: products } = await supabase
+      .from("products")
+      .select("*")
+      .in("id", ids)
+      .eq("status", "published");
+
+    // Preserve the bundle's declared order.
+    const rank = new Map(ids.map((id, i) => [id, i]));
+    return (products ?? []).sort(
+      (a, b) => (rank.get(a.id) ?? 0) - (rank.get(b.id) ?? 0),
+    );
+  } catch {
+    return [];
+  }
+}
+
 /** Up to `limit` other published products in the same category. */
 export async function getRelatedProducts(
   product: Product,

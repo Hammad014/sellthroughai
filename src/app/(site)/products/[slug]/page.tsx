@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Check, ChevronRight, ShieldCheck } from "lucide-react";
-import { getProductBySlug, getRelatedProducts } from "@/lib/products";
+import { Check, ChevronRight, Package, ShieldCheck } from "lucide-react";
+import {
+  getProductBySlug,
+  getRelatedProducts,
+  getBundleProducts,
+} from "@/lib/products";
 import { categoryName, formatPrice } from "@/lib/catalog";
 import { Cover } from "@/components/cover";
 import { Markdown } from "@/components/markdown";
@@ -48,16 +52,27 @@ export default async function ProductDetailPage({
 
   const related = await getRelatedProducts(product);
   const delivery = product.delivery_type;
+  const isBundle = product.category === "bundles";
 
-  const deliveryBenefit =
-    delivery === "gated"
+  const bundleItems = isBundle ? await getBundleProducts(product.id) : [];
+  const bundleListTotal = bundleItems.reduce(
+    (sum, p) => sum + Number(p.price_usd),
+    0,
+  );
+  const bundleSavings = Math.max(0, bundleListTotal - Number(product.price_usd));
+
+  const deliveryBenefit = isBundle
+    ? `All ${bundleItems.length} products unlocked in your library`
+    : delivery === "gated"
       ? "Streamed lessons & gated content in your library"
       : delivery === "prompts"
         ? "Copy-and-go prompt library inside your dashboard"
         : "Downloadable files in your library";
 
   const benefits = [
-    "Instant access — the moment you buy",
+    isBundle
+      ? `Save ${formatPrice(bundleSavings)} vs buying separately`
+      : "Instant access — the moment you buy",
     "Lifetime access & free future updates",
     deliveryBenefit,
     "14-day no-questions refund",
@@ -138,6 +153,50 @@ export default async function ProductDetailPage({
           </div>
         </div>
       </div>
+
+      {/* What's included (bundles) */}
+      {isBundle && bundleItems.length > 0 && (
+        <section className="mt-12 border-t pt-12">
+          <h2 className="font-display mb-2 flex items-center gap-2 text-2xl font-semibold tracking-tight">
+            <Package className="text-primary size-6" /> Everything included
+          </h2>
+          <p className="text-muted-foreground mb-6">
+            {bundleItems.length} products, normally {formatPrice(bundleListTotal)}{" "}
+            — yours for {formatPrice(product.price_usd)}.
+          </p>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {bundleItems.map((item) => (
+              <Link
+                key={item.id}
+                href={`/products/${item.slug}`}
+                className="bg-card hover:border-border-accent flex items-start gap-4 rounded-xl border p-4 transition-colors"
+              >
+                <div className="w-24 shrink-0">
+                  <Cover
+                    category={item.category}
+                    coverImageUrl={item.cover_image_url}
+                    title={item.title}
+                    className="aspect-[16/10] rounded-md"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="truncate font-semibold tracking-tight">
+                      {item.title}
+                    </h3>
+                    <span className="text-text-faint shrink-0 font-mono text-xs">
+                      {formatPrice(item.price_usd)}
+                    </span>
+                  </div>
+                  <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">
+                    {item.short_desc}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* About */}
       {product.long_desc && (

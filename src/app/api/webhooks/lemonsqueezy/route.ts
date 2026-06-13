@@ -142,14 +142,26 @@ async function handleOrderCreated(payload: LemonWebhook) {
     });
   }
 
-  // ---- Grant entitlement (unique on user_id+product_id → idempotent) -------
+  // ---- Grant entitlements (unique on user_id+product_id → idempotent) ------
+  // A bundle grants its included products (not the bundle row itself); a normal
+  // product grants itself.
   if (userId && productId) {
+    const { data: bundleItems } = await supabase
+      .from("product_bundle_items")
+      .select("item_product_id")
+      .eq("bundle_id", productId);
+
+    const grantIds =
+      bundleItems && bundleItems.length > 0
+        ? bundleItems.map((b) => b.item_product_id)
+        : [productId];
+
     await supabase.from("entitlements").upsert(
-      {
+      grantIds.map((pid) => ({
         user_id: userId,
-        product_id: productId,
+        product_id: pid,
         order_id: orderId,
-      },
+      })),
       { onConflict: "user_id,product_id", ignoreDuplicates: true },
     );
   }

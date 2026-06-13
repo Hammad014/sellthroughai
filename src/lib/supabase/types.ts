@@ -239,6 +239,43 @@ export interface Database {
           },
         ];
       };
+      product_bundle_items: {
+        Row: {
+          id: string;
+          bundle_id: string;
+          item_product_id: string;
+          sort_order: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          bundle_id: string;
+          item_product_id: string;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          bundle_id?: string;
+          item_product_id?: string;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "product_bundle_items_bundle_id_fkey";
+            columns: ["bundle_id"];
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "product_bundle_items_item_product_id_fkey";
+            columns: ["item_product_id"];
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       orders: {
         Row: {
           id: string;
@@ -396,6 +433,8 @@ export type CourseLesson =
   Database["public"]["Tables"]["course_lessons"]["Row"];
 export type ProductPrompt =
   Database["public"]["Tables"]["product_prompts"]["Row"];
+export type ProductBundleItem =
+  Database["public"]["Tables"]["product_bundle_items"]["Row"];
 export type Order = Database["public"]["Tables"]["orders"]["Row"];
 export type OrderItem = Database["public"]["Tables"]["order_items"]["Row"];
 export type Entitlement = Database["public"]["Tables"]["entitlements"]["Row"];

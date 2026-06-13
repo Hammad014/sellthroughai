@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getUser } from "@/lib/auth";
+import { getUser, getProfile, isAdmin } from "@/lib/auth";
 import { createServiceClient } from "@/lib/supabase/service";
 import { FILES_BUCKET } from "@/lib/storage";
 
@@ -10,8 +10,10 @@ export const dynamic = "force-dynamic";
  * Gated download broker.  GET /api/download?file=<product_files.id>
  *
  * 1. Authenticate the user.
- * 2. Verify they hold an entitlement for the file's product.
- * 3. Mint a 60-second Supabase signed URL and log a download_event.
+ * 2. Authorize: they hold an entitlement for the file's product, OR they're an
+ *    admin (so admins can download/verify any uploaded file).
+ * 3. Mint a 60-second Supabase signed URL (and log a download_event for real
+ *    buyers — admin verifications are not logged as sales).
  * 4. Redirect to it. The storage path is never exposed to the client.
  */
 export async function GET(req: Request) {
@@ -42,7 +44,11 @@ export async function GET(req: Request) {
     .eq("user_id", user.id)
     .eq("product_id", file.product_id)
     .maybeSingle();
-  if (!entitlement) {
+
+  const owns = Boolean(entitlement);
+  // Admins may download any file to verify uploads, even without owning it.
+  const admin = owns ? false : isAdmin(await getProfile());
+  if (!owns && !admin) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -56,12 +62,14 @@ export async function GET(req: Request) {
     );
   }
 
-  // Best-effort audit log (don't block the download if it fails).
-  await supabase.from("download_events").insert({
-    user_id: user.id,
-    product_id: file.product_id,
-    file_id: file.id,
-  });
+  // Best-effort audit log for real buyers only (don't block on failure).
+  if (owns) {
+    await supabase.from("download_events").insert({
+      user_id: user.id,
+      product_id: file.product_id,
+      file_id: file.id,
+    });
+  }
 
   return NextResponse.redirect(signed.signedUrl, { status: 307 });
 }

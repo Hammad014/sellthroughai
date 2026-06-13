@@ -4,6 +4,7 @@ import {
   PlayCircle,
   Zap,
   BookOpen,
+  Package,
   type LucideIcon,
 } from "lucide-react";
 
@@ -17,7 +18,8 @@ export type CategorySlug =
   | "templates"
   | "courses"
   | "automation"
-  | "ebooks";
+  | "ebooks"
+  | "bundles";
 
 export interface Category {
   slug: CategorySlug;
@@ -63,6 +65,13 @@ export const CATEGORIES: Category[] = [
     gradient: "grad-ebooks",
     icon: BookOpen,
     blurb: "Deep, skimmable playbooks you'll actually finish.",
+  },
+  {
+    slug: "bundles",
+    name: "Bundles",
+    gradient: "grad-prompts",
+    icon: Package,
+    blurb: "Our best value — multiple products at one discounted price.",
   },
 ];
 

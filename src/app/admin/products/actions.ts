@@ -192,6 +192,26 @@ export async function addLesson(
   revalidatePath(`/admin/products/${productId}`);
 }
 
+/** Edit an existing lesson's title / markdown in place. */
+export async function updateLesson(
+  lessonId: string,
+  productId: string,
+  formData: FormData,
+): Promise<void> {
+  await requireAdmin();
+  const supabase = createServiceClient();
+  const title = str(formData, "title");
+  if (!title) return;
+  await supabase
+    .from("course_lessons")
+    .update({
+      title,
+      content_md: str(formData, "content_md") || null,
+    })
+    .eq("id", lessonId);
+  revalidatePath(`/admin/products/${productId}`);
+}
+
 /** Remove a course lesson (and its video object, if any). */
 export async function deleteLesson(
   lessonId: string,
@@ -241,6 +261,34 @@ export async function addPrompt(
   revalidatePath(`/admin/products/${productId}`);
 }
 
+/** Edit an existing prompt in place. */
+export async function updatePrompt(
+  promptId: string,
+  productId: string,
+  formData: FormData,
+): Promise<void> {
+  await requireAdmin();
+  const supabase = createServiceClient();
+
+  const title = str(formData, "title");
+  const promptBody = str(formData, "prompt_body");
+  if (!title || !promptBody) return;
+
+  await supabase
+    .from("product_prompts")
+    .update({
+      title,
+      description: str(formData, "description") || null,
+      prompt_body: promptBody,
+      example_input: str(formData, "example_input") || null,
+      example_output: str(formData, "example_output") || null,
+      model: str(formData, "model") || null,
+    })
+    .eq("id", promptId);
+
+  revalidatePath(`/admin/products/${productId}`);
+}
+
 /** Remove a prompt from a product's library. */
 export async function deletePrompt(
   promptId: string,
@@ -263,6 +311,42 @@ export async function toggleProductStatus(
   await supabase.from("products").update({ status: next }).eq("id", id);
   revalidatePath("/admin/products");
   revalidatePath("/products");
+}
+
+/** Add a product to a bundle. */
+export async function addBundleItem(
+  bundleId: string,
+  formData: FormData,
+): Promise<void> {
+  await requireAdmin();
+  const itemId = str(formData, "item_product_id");
+  if (!itemId || itemId === bundleId) return; // can't bundle itself
+  const supabase = createServiceClient();
+
+  const { data: last } = await supabase
+    .from("product_bundle_items")
+    .select("sort_order")
+    .eq("bundle_id", bundleId)
+    .order("sort_order", { ascending: false })
+    .limit(1);
+  const nextOrder = last?.[0] ? last[0].sort_order + 1 : 0;
+
+  await supabase.from("product_bundle_items").upsert(
+    { bundle_id: bundleId, item_product_id: itemId, sort_order: nextOrder },
+    { onConflict: "bundle_id,item_product_id", ignoreDuplicates: true },
+  );
+  revalidatePath(`/admin/products/${bundleId}`);
+}
+
+/** Remove a product from a bundle. */
+export async function removeBundleItem(
+  itemId: string,
+  bundleId: string,
+): Promise<void> {
+  await requireAdmin();
+  const supabase = createServiceClient();
+  await supabase.from("product_bundle_items").delete().eq("id", itemId);
+  revalidatePath(`/admin/products/${bundleId}`);
 }
 
 export type ImportState = {
