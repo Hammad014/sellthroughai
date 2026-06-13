@@ -26,7 +26,13 @@ values
     'published',
     false
   )
-on conflict (slug) do nothing;
+on conflict (slug) do update set
+  title = excluded.title,
+  short_desc = excluded.short_desc,
+  long_desc = excluded.long_desc,
+  category = excluded.category,
+  price_usd = excluded.price_usd,
+  delivery_type = excluded.delivery_type;
 
 insert into public.course_lessons
   (product_id, sort_order, title, content_md)
@@ -267,7 +273,6 @@ That's the whole game: let AI do the heavy lifting on words and busywork, so you
   )
 ) as v(sort_order, title, content_md)
 where p.slug = 'ai-at-work-playbook'
-  and not exists (
-    select 1 from public.course_lessons cl
-    where cl.product_id = p.id and cl.title = v.title
-  );
+on conflict (product_id, title) do update set
+  sort_order = excluded.sort_order,
+  content_md = excluded.content_md;

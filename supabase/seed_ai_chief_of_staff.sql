@@ -23,7 +23,13 @@ values
     'published',
     false
   )
-on conflict (slug) do nothing;
+on conflict (slug) do update set
+  title = excluded.title,
+  short_desc = excluded.short_desc,
+  long_desc = excluded.long_desc,
+  category = excluded.category,
+  price_usd = excluded.price_usd,
+  delivery_type = excluded.delivery_type;
 
 insert into public.product_prompts
   (product_id, sort_order, title, description, model,
@@ -228,7 +234,10 @@ Keep it short and calming — this is a shutdown, not a new to-do list.$p$,
 ) as v(sort_order, title, description, model,
        prompt_body, example_input, example_output)
 where p.slug = 'ai-chief-of-staff'
-  and not exists (
-    select 1 from public.product_prompts pp
-    where pp.product_id = p.id and pp.title = v.title
-  );
+on conflict (product_id, title) do update set
+  sort_order = excluded.sort_order,
+  description = excluded.description,
+  model = excluded.model,
+  prompt_body = excluded.prompt_body,
+  example_input = excluded.example_input,
+  example_output = excluded.example_output;
