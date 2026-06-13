@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Download, LibraryBig, PlayCircle, Sparkles } from "lucide-react";
+import {
+  BookOpen,
+  Download,
+  LibraryBig,
+  PlayCircle,
+  Sparkles,
+} from "lucide-react";
 import { requireUser, getProfile } from "@/lib/auth";
 import { listLibrary } from "@/lib/entitlements";
 import { Cover } from "@/components/cover";
@@ -65,9 +71,14 @@ export default async function DashboardPage({
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {library.map(({ id, product, receiptUrl }) => {
             const delivery = product.delivery_type;
+            // A gated product in the 'ebooks' category is a read-in-app guide;
+            // other gated products are courses. Both use the same reader route.
+            const isGuide = delivery === "gated" && product.category === "ebooks";
             const badgeLabel =
               delivery === "gated"
-                ? "Course"
+                ? isGuide
+                  ? "Guide"
+                  : "Course"
                 : delivery === "prompts"
                   ? "Prompts"
                   : "License";
@@ -106,7 +117,15 @@ export default async function DashboardPage({
                         href={`/dashboard/courses/${product.slug}`}
                         className={cn(buttonVariants(), "w-full")}
                       >
-                        <PlayCircle className="size-4" /> Open course
+                        {isGuide ? (
+                          <>
+                            <BookOpen className="size-4" /> Read guide
+                          </>
+                        ) : (
+                          <>
+                            <PlayCircle className="size-4" /> Open course
+                          </>
+                        )}
                       </Link>
                     ) : delivery === "prompts" ? (
                       <Link
