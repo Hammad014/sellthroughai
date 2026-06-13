@@ -72,6 +72,7 @@ export default async function AdminProductsPage() {
                 <TableHead>Category</TableHead>
                 <TableHead>Price</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Checkout</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -99,6 +100,15 @@ export default async function AdminProductsPage() {
                       {p.featured && (
                         <Badge variant="secondary" className="ml-2">
                           Featured
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {p.ls_variant_id ? (
+                        <Badge variant="default">Ready</Badge>
+                      ) : (
+                        <Badge variant={published ? "destructive" : "outline"}>
+                          Needs variant ID
                         </Badge>
                       )}
                     </TableCell>

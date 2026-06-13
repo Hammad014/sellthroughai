@@ -145,14 +145,19 @@ export function ProductForm({ product }: { product?: Product }) {
       <div className="flex flex-col gap-2">
         <Label htmlFor="ls_variant_id">
           Lemon Squeezy variant ID{" "}
-          <span className="text-text-faint">(optional, for later)</span>
+          <span className="text-text-faint">(required to sell)</span>
         </Label>
         <Input
           id="ls_variant_id"
           name="ls_variant_id"
           defaultValue={product?.ls_variant_id ?? ""}
-          placeholder="Set when payments are wired up"
+          placeholder="e.g. 123456 — from the variant's URL in Lemon Squeezy"
         />
+        <p className="text-text-faint text-xs">
+          Paste the variant ID from Lemon Squeezy (Products → your product →
+          variant). Until it&apos;s set, the Buy button is disabled for this
+          product. For a bundle, use the bundle&apos;s own variant.
+        </p>
       </div>
 
       <label className="flex items-center gap-3 text-sm">

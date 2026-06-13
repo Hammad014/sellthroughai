@@ -30,7 +30,13 @@ POST /api/webhooks/lemonsqueezy   (verify HMAC, idempotent)
   keys). The library shows the order's receipt link.
 - **`gated`** → fulfilled by us from the private `product-files` bucket: the
   course player streams videos and `/api/download` serves files via 60-second
-  signed URLs.
+  signed URLs. (Also used for in-app guides/ebooks.)
+- **`prompts`** → in-app prompt library at `/dashboard/prompts/[slug]`.
+
+**Bundles** (a product with `category = 'bundles'`) get their own variant ID
+like any product. On purchase the webhook expands the bundle and grants an
+entitlement for **every included product** — the bundle row itself is never
+added to the buyer's library, the included products are.
 
 ---
 
@@ -114,9 +120,9 @@ The webhook endpoint is **`/api/webhooks/lemonsqueezy`**.
    - `order_items` has the line item.
    - `auth.users` + `profiles` now contain that email (guest → account).
    - `entitlements` has a row for `(user_id, product_id)`.
-3. **Account access:** go to `/login`, request a **magic link** for the same
-   email, and sign in. (The guest account was created confirmed, so the link
-   just logs you in.)
+3. **Account access:** go to `/login` and sign in with that email. A guest
+   checkout creates a confirmed account but no password — use **Create an
+   account** (or your provider's password reset) to set one, then sign in.
 4. **Library:** `/dashboard` lists the purchase.
    - **License product:** click **Download / license** → opens the Lemon
      Squeezy receipt with the downloadable file / license key.
@@ -139,9 +145,10 @@ the course player.
 
 ## Security notes
 
-- **Admin** is reachable only by users whose `profiles.role = 'admin'` — set
-  exclusively in Supabase (SQL). `requireAdmin()` checks this server-side in the
-  `/admin` layout; there is no in-app way to self-promote.
+- **Admin** is reachable only by recognized admins — either `profiles.role =
+  'admin'` (set in Supabase) or an email in the `ADMIN_EMAILS` env allowlist.
+  `requireAdmin()` enforces this server-side; migration 0004 blocks any in-app
+  self-promotion of `role`.
 - Gated files/videos live in the **private** `product-files` bucket and are only
   ever delivered as short-lived signed URLs after an entitlement check.
 - The webhook trusts only **signature-verified** payloads; product/user
