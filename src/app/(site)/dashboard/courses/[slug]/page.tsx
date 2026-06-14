@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, Download, FileText } from "lucide-react";
-import { requireUser } from "@/lib/auth";
+import { requireUser, getProfile, isAdmin } from "@/lib/auth";
 import { createServiceClient } from "@/lib/supabase/service";
 import { getCourseContent, hasEntitlement } from "@/lib/entitlements";
 import { FILES_BUCKET } from "@/lib/storage";
@@ -35,9 +35,10 @@ export default async function CoursePlayerPage({
     .maybeSingle<Product>();
   if (!product) notFound();
 
-  // Must own it. Non-owners are sent to the sales page.
+  // Must own it — or be an admin previewing. Otherwise → sales page.
   const owns = await hasEntitlement(user.id, product.id);
-  if (!owns) redirect(`/products/${slug}`);
+  const adminPreview = owns ? false : isAdmin(await getProfile());
+  if (!owns && !adminPreview) redirect(`/products/${slug}`);
 
   const { lessons, files } = await getCourseContent(product.id);
 
@@ -63,6 +64,12 @@ export default async function CoursePlayerPage({
       >
         <ArrowLeft className="size-4" /> Back to library
       </Link>
+
+      {adminPreview && (
+        <div className="border-brand-line bg-brand-tint text-foreground mb-6 rounded-lg border px-4 py-2 text-sm">
+          Admin preview — you&apos;re viewing this content without owning it.
+        </div>
+      )}
 
       <p className="eyebrow">{categoryName(product.category)}</p>
       <h1 className="font-display mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">

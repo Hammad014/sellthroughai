@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   Download,
   ExternalLink,
+  Eye,
   FileDown,
   Package,
   Sparkles,
@@ -80,14 +81,30 @@ export default async function EditProductPage({
         <h1 className="font-display text-2xl font-semibold tracking-tight">
           Edit product
         </h1>
-        <Link
-          href={`/products/${product.slug}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}
-        >
-          <ExternalLink className="size-4" /> View live page
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          {(isPrompts || isGated) && (
+            <Link
+              href={
+                isPrompts
+                  ? `/dashboard/prompts/${product.slug}`
+                  : `/dashboard/courses/${product.slug}`
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}
+            >
+              <Eye className="size-4" /> Preview content
+            </Link>
+          )}
+          <Link
+            href={`/products/${product.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(buttonVariants({ variant: "secondary", size: "sm" }))}
+          >
+            <ExternalLink className="size-4" /> View live page
+          </Link>
+        </div>
       </div>
 
       <ProductForm product={product} />

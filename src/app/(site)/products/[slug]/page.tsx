@@ -1,12 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Check, ChevronRight, Package, ShieldCheck } from "lucide-react";
+import { Check, ChevronRight, Lock, Package, ShieldCheck } from "lucide-react";
 import {
   getProductBySlug,
   getRelatedProducts,
   getBundleProducts,
 } from "@/lib/products";
+import {
+  getPromptPreviews,
+  getSamplePrompt,
+  getLessonPreviews,
+  getSampleLesson,
+} from "@/lib/previews";
+import { PromptItem } from "@/components/prompts/prompt-item";
 import { categoryName, formatPrice } from "@/lib/catalog";
 import { Cover } from "@/components/cover";
 import { Markdown } from "@/components/markdown";
@@ -53,6 +60,18 @@ export default async function ProductDetailPage({
   const related = await getRelatedProducts(product);
   const delivery = product.delivery_type;
   const isBundle = product.category === "bundles";
+  const isPrompts = delivery === "prompts";
+  const isGated = delivery === "gated";
+  const isGuide = product.category === "ebooks";
+
+  // "What's inside" previews (titles/curriculum + one free sample).
+  const [promptPreviews, samplePrompt, lessonPreviews, sampleLesson] =
+    await Promise.all([
+      isPrompts ? getPromptPreviews(product.id) : Promise.resolve([]),
+      isPrompts ? getSamplePrompt(product.id) : Promise.resolve(null),
+      isGated ? getLessonPreviews(product.id) : Promise.resolve([]),
+      isGated ? getSampleLesson(product.id) : Promise.resolve(null),
+    ]);
 
   const bundleItems = isBundle ? await getBundleProducts(product.id) : [];
   const bundleListTotal = bundleItems.reduce(
@@ -153,6 +172,94 @@ export default async function ProductDetailPage({
           </div>
         </div>
       </div>
+
+      {/* Preview — prompt packs */}
+      {isPrompts && promptPreviews.length > 0 && (
+        <section className="mt-12 border-t pt-12">
+          <h2 className="font-display mb-2 text-2xl font-semibold tracking-tight">
+            What&apos;s inside — {promptPreviews.length} prompts
+          </h2>
+          <p className="text-muted-foreground mb-6 max-w-[70ch]">
+            Every prompt comes with a worked example. Here&apos;s one in full,
+            free — the rest unlock the moment you buy.
+          </p>
+
+          {samplePrompt && (
+            <div className="mb-8 max-w-[820px]">
+              <Badge className="mb-3">Free sample</Badge>
+              <PromptItem prompt={samplePrompt} index={0} />
+            </div>
+          )}
+
+          {promptPreviews.length > 1 && (
+            <>
+              <p className="text-text-faint mb-3 font-mono text-xs tracking-wider uppercase">
+                Plus {promptPreviews.length - 1} more, unlocked when you buy
+              </p>
+              <ul className="grid gap-2 sm:grid-cols-2">
+                {promptPreviews.slice(1).map((p) => (
+                  <li
+                    key={p.id}
+                    className="bg-card flex items-start gap-3 rounded-lg border p-3"
+                  >
+                    <Lock className="text-text-faint mt-0.5 size-4 shrink-0" />
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">{p.title}</p>
+                      {p.description && (
+                        <p className="text-muted-foreground line-clamp-1 text-xs">
+                          {p.description}
+                        </p>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </section>
+      )}
+
+      {/* Preview — courses & guides */}
+      {isGated && lessonPreviews.length > 0 && (
+        <section className="mt-12 border-t pt-12">
+          <h2 className="font-display mb-2 text-2xl font-semibold tracking-tight">
+            {isGuide ? "What's inside" : "Course curriculum"} —{" "}
+            {lessonPreviews.length} {isGuide ? "chapters" : "lessons"}
+          </h2>
+          <p className="text-muted-foreground mb-6 max-w-[70ch]">
+            Here&apos;s the {isGuide ? "first chapter" : "first lesson"}, free.
+          </p>
+
+          {sampleLesson?.content_md && (
+            <div className="mb-8 max-w-[820px]">
+              <Badge className="mb-3">Free preview</Badge>
+              <h3 className="font-display mb-2 text-xl font-semibold tracking-tight">
+                {sampleLesson.title}
+              </h3>
+              <Markdown>{sampleLesson.content_md}</Markdown>
+            </div>
+          )}
+
+          <ol className="grid gap-2 sm:grid-cols-2">
+            {lessonPreviews.map((l, i) => (
+              <li
+                key={l.id}
+                className="bg-card flex items-center gap-3 rounded-lg border p-3"
+              >
+                <span className="text-text-faint font-mono text-xs">
+                  {i + 1}
+                </span>
+                {i === 0 ? (
+                  <Check className="text-success size-4 shrink-0" />
+                ) : (
+                  <Lock className="text-text-faint size-4 shrink-0" />
+                )}
+                <span className="truncate text-sm font-medium">{l.title}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
 
       {/* What's included (bundles) */}
       {isBundle && bundleItems.length > 0 && (
