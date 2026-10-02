@@ -1,4 +1,4 @@
-# Aiselling
+# Promptory
 
 A storefront for selling digital AI products — prompt packs, Notion templates,
 AI mini-courses, automation kits and ebooks.

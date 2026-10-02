@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 /**
- * Button — restyled from the shadcn base to match the Aiselling design system
+ * Button — restyled from the shadcn base to match the Promptory design system
  * (40px default / 48px lg, brand-accent primary, surface secondary, etc.).
  * `buttonVariants` is exported so links can be styled as buttons:
  *   <Link className={cn(buttonVariants({ variant: "outline" }))}>…</Link>

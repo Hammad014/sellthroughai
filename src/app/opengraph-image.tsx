@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-export const alt = "Aiselling — Premium AI products storefront";
+export const alt = "Promptory — Premium AI products storefront";
 
 export default function OgImage() {
   return new ImageResponse(
@@ -28,7 +28,7 @@ export default function OgImage() {
           letterSpacing: 6,
         }}
       >
-        aiselling
+        promptory
       </div>
       <div
         style={{

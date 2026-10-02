@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Why Aiselling exists: tested, ready-to-use AI products that close the gap between AI hype and AI actually helping you today.",
+    "Why Promptory exists: tested, ready-to-use AI products that close the gap between AI hype and AI actually helping you today.",
 };
 
 const VALUES = [
@@ -48,7 +48,7 @@ export default function AboutPage() {
         AI products that just work, for people who&apos;d rather ship.
       </h1>
       <p className="text-muted-foreground mt-6 max-w-2xl text-lg leading-relaxed">
-        Aiselling is a curated storefront for premium AI products — prompt
+        Promptory is a curated storefront for premium AI products — prompt
         packs, automation kits, Notion systems, mini-courses and ebooks. We
         started it because the gap between &quot;AI is amazing&quot; and
         &quot;AI actually helped me today&quot; was full of noise. We fill that
@@ -74,7 +74,7 @@ export default function AboutPage() {
         </h2>
         <p className="text-muted-foreground mt-3 max-w-2xl">
           Anyone can dump a prompt list online. Here&apos;s the bar every
-          product on Aiselling has to clear before it earns your money.
+          product on Promptory has to clear before it earns your money.
         </p>
         <div className="mt-8 grid gap-5 sm:grid-cols-3">
           {STANDARDS.map((s) => (

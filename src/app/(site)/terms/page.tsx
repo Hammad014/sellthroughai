@@ -9,7 +9,7 @@ export default function TermsPage() {
     <LegalLayout title="Terms of Service" updated="June 3, 2026">
       <p>
         These Terms of Service (&quot;Terms&quot;) govern your access to and use
-        of Aiselling and the digital products sold through it. By creating an
+        of Promptory and the digital products sold through it. By creating an
         account or making a purchase, you agree to these Terms.
       </p>
 
@@ -50,7 +50,7 @@ export default function TermsPage() {
       <h2>6. Disclaimer &amp; liability</h2>
       <p>
         Products are provided &quot;as is&quot; without warranties of any kind.
-        To the maximum extent permitted by law, Aiselling is not liable for
+        To the maximum extent permitted by law, Promptory is not liable for
         indirect or consequential damages arising from use of the products.
       </p>
 

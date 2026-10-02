@@ -8,7 +8,7 @@ export default function PrivacyPage() {
   return (
     <LegalLayout title="Privacy Policy" updated="June 3, 2026">
       <p>
-        This Privacy Policy explains what information Aiselling collects, how we
+        This Privacy Policy explains what information Promptory collects, how we
         use it, and the choices you have. We aim to collect only what we need to
         run the store and deliver your purchases.
       </p>

@@ -34,11 +34,11 @@ export function Logo({ className }: { className?: string }) {
         "font-display inline-flex items-center gap-2 text-lg font-bold tracking-tight",
         className,
       )}
-      aria-label="Aiselling home"
+      aria-label="Promptory home"
     >
       <LogoMark />
       <span>
-        ai<b className="text-primary">selling</b>
+        <b>Prompt</b><b className="text-primary">ory</b>
       </span>
     </Link>
   );

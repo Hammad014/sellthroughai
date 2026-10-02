@@ -4,7 +4,7 @@ import { categoryName, formatPrice } from "@/lib/catalog";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-export const alt = "Aiselling — AI product";
+export const alt = "Promptory — AI product";
 
 export default async function OgImage({
   params,
@@ -13,7 +13,7 @@ export default async function OgImage({
 }) {
   const { slug } = await params;
 
-  let title = "Aiselling";
+  let title = "Promptory";
   let category = "AI products";
   let price = "";
   try {
@@ -57,7 +57,7 @@ export default async function OgImage({
           letterSpacing: 4,
         }}
       >
-        aiselling · {category}
+        promptory · {category}
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
         <div

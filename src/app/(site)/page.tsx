@@ -149,7 +149,7 @@ export default async function Home() {
         <div className="mx-auto grid max-w-[1320px] gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
           <div>
             <p className="eyebrow">
-              <Target className="size-3.5" /> What is Aiselling?
+              <Target className="size-3.5" /> What is Promptory?
             </p>
             <h2 className="font-display mt-3 text-3xl font-semibold tracking-tight">
               The gap between &ldquo;AI is amazing&rdquo; and &ldquo;AI actually
@@ -158,7 +158,7 @@ export default async function Home() {
             <p className="text-muted-foreground mt-5 text-lg leading-relaxed">
               Everyone knows AI is powerful. Almost no one has time to figure out
               the right prompts, build the automations, or design the system.
-              Aiselling is a curated store of <strong>done-for-you AI products</strong>
+              Promptory is a curated store of <strong>done-for-you AI products</strong>
               — built, tested, and ready to drop into your work the moment you buy.
               No subscriptions, no learning curve, no blank page.
             </p>
@@ -307,7 +307,7 @@ export default async function Home() {
       {/* CTA band */}
       <section className="mx-auto w-full max-w-[1320px] px-4 py-20 sm:px-6">
         <div className="border-border-accent bg-card relative overflow-hidden rounded-3xl border p-10 text-center sm:p-16">
-          <p className="eyebrow justify-center">Aiselling for teams</p>
+          <p className="eyebrow justify-center">Promptory for teams</p>
           <h2 className="font-display mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
             Equip your whole team to work with AI
           </h2>

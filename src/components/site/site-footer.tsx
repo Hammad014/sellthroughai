@@ -72,7 +72,7 @@ export function SiteFooter() {
         </div>
         <div className="text-text-faint flex flex-wrap items-center justify-between gap-4 border-t py-6 text-xs">
           <p>
-            © {new Date().getFullYear()} Aiselling, Inc. — Crafted for the
+            © {new Date().getFullYear()} Promptory — Crafted for the
             AI-curious.
           </p>
           <p className="font-mono tracking-wider uppercase">
