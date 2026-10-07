@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "planners:build": "node scripts/planners/build.mjs && node scripts/planners/check-links.mjs && node scripts/planners/mockups.mjs",
+    "planners:publish": "node scripts/planners/publish.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
@@ -30,6 +32,9 @@
     "tw-animate-css": "^1.4.0"
   },
   "devDependencies": {
+    "@fontsource/hanken-grotesk": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "@fontsource/space-grotesk": "^5.3.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -37,6 +42,8 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.7",
     "eslint-config-prettier": "^10.1.8",
+    "mupdf": "^1.28.1",
+    "pdfkit": "^0.20.2",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "tailwindcss": "^4",

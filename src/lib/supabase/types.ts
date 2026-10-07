@@ -11,6 +11,12 @@ export type DeliveryType = "license" | "gated" | "prompts";
 export type ProductStatus = "draft" | "published";
 export type UserRole = "user" | "admin";
 
+/** A sales-page preview image (public URL in the product-covers bucket). */
+export interface GalleryImage {
+  url: string;
+  alt: string;
+}
+
 export type Json =
   | string
   | number
@@ -84,6 +90,7 @@ export interface Database {
           category: string;
           price_usd: number;
           cover_image_url: string | null;
+          gallery: GalleryImage[];
           delivery_type: DeliveryType;
           ls_variant_id: string | null;
           status: ProductStatus;
@@ -99,6 +106,7 @@ export interface Database {
           category: string;
           price_usd: number;
           cover_image_url?: string | null;
+          gallery?: GalleryImage[];
           delivery_type?: DeliveryType;
           ls_variant_id?: string | null;
           status?: ProductStatus;
@@ -114,6 +122,7 @@ export interface Database {
           category?: string;
           price_usd?: number;
           cover_image_url?: string | null;
+          gallery?: GalleryImage[];
           delivery_type?: DeliveryType;
           ls_variant_id?: string | null;
           status?: ProductStatus;

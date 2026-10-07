@@ -6,7 +6,11 @@ import { requireAdmin } from "@/lib/auth";
 import { createServiceClient } from "@/lib/supabase/service";
 import { COVERS_BUCKET, FILES_BUCKET } from "@/lib/storage";
 import { parseCsvToObjects } from "@/lib/csv";
-import type { DeliveryType, ProductStatus } from "@/lib/supabase/types";
+import type {
+  DeliveryType,
+  GalleryImage,
+  ProductStatus,
+} from "@/lib/supabase/types";
 
 export type ProductFormState = { error?: string };
 
@@ -20,6 +24,19 @@ function slugify(input: string): string {
 
 function str(formData: FormData, key: string): string {
   return ((formData.get(key) as string | null) ?? "").trim();
+}
+
+/** Gallery textarea: one image per line as "url | alt text". */
+function parseGallery(text: string): GalleryImage[] {
+  return text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [url, ...alt] = line.split("|");
+      return { url: url.trim(), alt: alt.join("|").trim() };
+    })
+    .filter((img) => /^https?:\/\//.test(img.url));
 }
 
 /** Create or update a product (driven by an optional hidden `id` field). */
@@ -70,7 +87,30 @@ export async function upsertProduct(
       .data.publicUrl;
   }
 
-  const payload = coverUrl ? { ...base, cover_image_url: coverUrl } : base;
+  // Gallery: edited list + any newly uploaded images appended to the end.
+  const gallery = parseGallery(str(formData, "gallery"));
+  const uploads = formData
+    .getAll("gallery_files")
+    .filter((f): f is File => f instanceof File && f.size > 0);
+  for (const [i, file] of uploads.entries()) {
+    const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+    const path = `${slug}/gallery-${Date.now()}-${i}.${ext}`;
+    const { error } = await supabase.storage
+      .from(COVERS_BUCKET)
+      .upload(path, file, { upsert: true, contentType: file.type });
+    if (error) return { error: `Gallery upload failed: ${error.message}` };
+    gallery.push({
+      url: supabase.storage.from(COVERS_BUCKET).getPublicUrl(path).data
+        .publicUrl,
+      alt: file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " "),
+    });
+  }
+
+  const payload = {
+    ...base,
+    gallery,
+    ...(coverUrl ? { cover_image_url: coverUrl } : {}),
+  };
 
   if (id) {
     const { error } = await supabase
@@ -331,10 +371,12 @@ export async function addBundleItem(
     .limit(1);
   const nextOrder = last?.[0] ? last[0].sort_order + 1 : 0;
 
-  await supabase.from("product_bundle_items").upsert(
-    { bundle_id: bundleId, item_product_id: itemId, sort_order: nextOrder },
-    { onConflict: "bundle_id,item_product_id", ignoreDuplicates: true },
-  );
+  await supabase
+    .from("product_bundle_items")
+    .upsert(
+      { bundle_id: bundleId, item_product_id: itemId, sort_order: nextOrder },
+      { onConflict: "bundle_id,item_product_id", ignoreDuplicates: true },
+    );
   revalidatePath(`/admin/products/${bundleId}`);
 }
 

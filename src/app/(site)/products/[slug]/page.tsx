@@ -16,6 +16,7 @@ import {
 import { PromptItem } from "@/components/prompts/prompt-item";
 import { categoryName, formatPrice } from "@/lib/catalog";
 import { Cover } from "@/components/cover";
+import { ProductGallery } from "@/components/product-gallery";
 import { Markdown } from "@/components/markdown";
 import { ProductCard } from "@/components/product-card";
 import { BuyButton } from "@/components/buy-button";
@@ -63,6 +64,7 @@ export default async function ProductDetailPage({
   const isPrompts = delivery === "prompts";
   const isGated = delivery === "gated";
   const isGuide = product.category === "ebooks";
+  const isPlanner = product.category === "planners";
 
   // "What's inside" previews (titles/curriculum + one free sample).
   const [promptPreviews, samplePrompt, lessonPreviews, sampleLesson] =
@@ -78,15 +80,20 @@ export default async function ProductDetailPage({
     (sum, p) => sum + Number(p.price_usd),
     0,
   );
-  const bundleSavings = Math.max(0, bundleListTotal - Number(product.price_usd));
+  const bundleSavings = Math.max(
+    0,
+    bundleListTotal - Number(product.price_usd),
+  );
 
   const deliveryBenefit = isBundle
     ? `All ${bundleItems.length} products unlocked in your library`
-    : delivery === "gated"
-      ? "Streamed lessons & gated content in your library"
-      : delivery === "prompts"
-        ? "Copy-and-go prompt library inside your dashboard"
-        : "Downloadable files in your library";
+    : isPlanner
+      ? "Instant PDF downloads in your library"
+      : delivery === "gated"
+        ? "Streamed lessons & gated content in your library"
+        : delivery === "prompts"
+          ? "Copy-and-go prompt library inside your dashboard"
+          : "Downloadable files in your library";
 
   const benefits = [
     isBundle
@@ -118,12 +125,12 @@ export default async function ProductDetailPage({
       <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-12">
         {/* Media */}
         <div>
-          <Cover
+          <ProductGallery
             category={product.category}
             coverImageUrl={product.cover_image_url}
             title={product.title}
             tag={categoryName(product.category)}
-            className="aspect-[16/11] rounded-xl"
+            gallery={Array.isArray(product.gallery) ? product.gallery : []}
           />
         </div>
 
@@ -223,11 +230,18 @@ export default async function ProductDetailPage({
       {isGated && lessonPreviews.length > 0 && (
         <section className="mt-12 border-t pt-12">
           <h2 className="font-display mb-2 text-2xl font-semibold tracking-tight">
-            {isGuide ? "What's inside" : "Course curriculum"} —{" "}
-            {lessonPreviews.length} {isGuide ? "chapters" : "lessons"}
+            {isPlanner
+              ? "Setup guide"
+              : isGuide
+                ? "What's inside"
+                : "Course curriculum"}{" "}
+            — {lessonPreviews.length}{" "}
+            {isPlanner ? "steps" : isGuide ? "chapters" : "lessons"}
           </h2>
           <p className="text-muted-foreground mb-6 max-w-[70ch]">
-            Here&apos;s the {isGuide ? "first chapter" : "first lesson"}, free.
+            {isPlanner
+              ? "Every planner comes with a short setup guide. Here's the first step, free."
+              : `Here's the ${isGuide ? "first chapter" : "first lesson"}, free.`}
           </p>
 
           {sampleLesson?.content_md && (
@@ -268,8 +282,9 @@ export default async function ProductDetailPage({
             <Package className="text-primary size-6" /> Everything included
           </h2>
           <p className="text-muted-foreground mb-6">
-            {bundleItems.length} products, normally {formatPrice(bundleListTotal)}{" "}
-            — yours for {formatPrice(product.price_usd)}.
+            {bundleItems.length} products, normally{" "}
+            {formatPrice(bundleListTotal)} — yours for{" "}
+            {formatPrice(product.price_usd)}.
           </p>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {bundleItems.map((item) => (

@@ -16,7 +16,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  return { title: `Course · ${slug}` };
+  return { title: `Library · ${slug}` };
 }
 
 export default async function CoursePlayerPage({
@@ -41,6 +41,12 @@ export default async function CoursePlayerPage({
   if (!owns && !adminPreview) redirect(`/products/${slug}`);
 
   const { lessons, files } = await getCourseContent(product.id);
+  const isPlanner = product.category === "planners";
+  const stepLabel = isPlanner
+    ? "Step"
+    : product.category === "ebooks"
+      ? "Chapter"
+      : "Lesson";
 
   // Sign lesson videos (longer-lived for streaming inside the player).
   const lessonsWithVideo = await Promise.all(
@@ -77,8 +83,45 @@ export default async function CoursePlayerPage({
       </h1>
       <p className="text-muted-foreground mt-3 text-lg">{product.short_desc}</p>
 
+      {/* Planner downloads — the product itself, so they lead the page */}
+      {isPlanner && files.length > 0 && (
+        <section className="mt-8">
+          <h2 className="font-display text-xl font-semibold tracking-tight">
+            Your planner files
+          </h2>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Download the version you like (or all of them) and open it in
+            GoodNotes, Notability, Noteshelf, Xodo or Samsung Notes. New to
+            digital planners? The setup guide below walks you through it.
+          </p>
+          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+            {files.map((f) => (
+              <li key={f.id}>
+                <a
+                  href={`/api/download?file=${f.id}`}
+                  className="bg-card hover:border-border-accent group flex items-center gap-3 rounded-xl border p-4 transition-colors"
+                >
+                  <span className="bg-brand-tint text-primary grid size-10 shrink-0 place-items-center rounded-lg">
+                    <FileText className="size-5" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium">
+                      {plannerFileLabel(f.file_name)}
+                    </span>
+                    <span className="text-text-faint block truncate font-mono text-xs">
+                      {f.file_name}
+                    </span>
+                  </span>
+                  <Download className="text-muted-foreground group-hover:text-primary size-4 shrink-0" />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {/* Downloadable resources */}
-      {files.length > 0 && (
+      {!isPlanner && files.length > 0 && (
         <section className="bg-card mt-8 rounded-xl border p-5">
           <h2 className="font-display flex items-center gap-2 text-sm font-semibold">
             <Download className="size-4" /> Resources
@@ -111,7 +154,7 @@ export default async function CoursePlayerPage({
               className="border-t pt-8 first:border-t-0 first:pt-0"
             >
               <p className="text-text-faint text-2xs font-mono tracking-wider uppercase">
-                Lesson {i + 1}
+                {stepLabel} {i + 1}
               </p>
               <h2 className="font-display mt-1 text-2xl font-semibold tracking-tight">
                 {lesson.title}
@@ -137,4 +180,13 @@ export default async function CoursePlayerPage({
       </div>
     </main>
   );
+}
+
+/** "Clarity-Planner-2027-Monday-Paper.pdf" → "2027 · Monday start · Paper". */
+function plannerFileLabel(fileName: string): string {
+  const parts = fileName.replace(/\.pdf$/i, "").split("-");
+  const tail = parts.slice(2); // drop "<Name>-Planner"
+  if (tail[0] === "Undated") return `Undated · ${tail.slice(1).join(" ")}`;
+  if (tail.length === 3) return `${tail[0]} · ${tail[1]} start · ${tail[2]}`;
+  return tail.join(" ") || fileName;
 }

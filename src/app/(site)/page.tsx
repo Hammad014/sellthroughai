@@ -246,7 +246,7 @@ export default async function Home() {
             <Link
               key={c.slug}
               href={`/products?category=${c.slug}`}
-              className="group bg-card hover:border-border-accent relative overflow-hidden rounded-xl border p-6 transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-glow)]"
+              className="group bg-card hover:border-border-accent relative overflow-hidden rounded-xl border p-6 transition-all hover:-translate-y-1 hover:shadow-[var(--shadow-glow)] sm:last:col-span-2 lg:last:col-span-1 lg:last:col-start-2"
             >
               <div
                 aria-hidden

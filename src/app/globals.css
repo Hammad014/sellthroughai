@@ -301,6 +301,14 @@
       oklch(0.4 0.16 25)
     );
   }
+  .grad-planners {
+    background: radial-gradient(
+      120% 120% at 20% 85%,
+      oklch(0.82 0.1 70),
+      oklch(0.6 0.12 230) 55%,
+      oklch(0.3 0.08 255)
+    );
+  }
   .grad-ebooks {
     background: radial-gradient(
       120% 120% at 50% 15%,

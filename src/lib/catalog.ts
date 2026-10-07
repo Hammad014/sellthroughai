@@ -5,6 +5,7 @@ import {
   Zap,
   BookOpen,
   Package,
+  CalendarDays,
   type LucideIcon,
 } from "lucide-react";
 
@@ -19,6 +20,7 @@ export type CategorySlug =
   | "courses"
   | "automation"
   | "ebooks"
+  | "planners"
   | "bundles";
 
 export interface Category {
@@ -65,6 +67,13 @@ export const CATEGORIES: Category[] = [
     gradient: "grad-ebooks",
     icon: BookOpen,
     blurb: "Deep, skimmable playbooks you'll actually finish.",
+  },
+  {
+    slug: "planners",
+    name: "Digital Planners",
+    gradient: "grad-planners",
+    icon: CalendarDays,
+    blurb: "Hyperlinked planners for iPad & tablet — tap, plan, done.",
   },
   {
     slug: "bundles",

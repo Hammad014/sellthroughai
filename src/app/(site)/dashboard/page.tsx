@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   BookOpen,
+  CalendarDays,
   Download,
   LibraryBig,
   PlayCircle,
@@ -73,12 +74,17 @@ export default async function DashboardPage({
             const delivery = product.delivery_type;
             // A gated product in the 'ebooks' category is a read-in-app guide;
             // other gated products are courses. Both use the same reader route.
-            const isGuide = delivery === "gated" && product.category === "ebooks";
+            const isGuide =
+              delivery === "gated" && product.category === "ebooks";
+            const isPlanner =
+              delivery === "gated" && product.category === "planners";
             const badgeLabel =
               delivery === "gated"
-                ? isGuide
-                  ? "Guide"
-                  : "Course"
+                ? isPlanner
+                  ? "Planner"
+                  : isGuide
+                    ? "Guide"
+                    : "Course"
                 : delivery === "prompts"
                   ? "Prompts"
                   : "License";
@@ -117,7 +123,12 @@ export default async function DashboardPage({
                         href={`/dashboard/courses/${product.slug}`}
                         className={cn(buttonVariants(), "w-full")}
                       >
-                        {isGuide ? (
+                        {isPlanner ? (
+                          <>
+                            <CalendarDays className="size-4" /> Get planner
+                            files
+                          </>
+                        ) : isGuide ? (
                           <>
                             <BookOpen className="size-4" /> Read guide
                           </>

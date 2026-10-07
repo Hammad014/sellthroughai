@@ -79,8 +79,8 @@ export function ProductForm({ product }: { product?: Product }) {
           }
         />
         <p className="text-text-faint text-xs">
-          Rendered as markdown on the product page (headings, lists, bold,
-          code blocks).
+          Rendered as markdown on the product page (headings, lists, bold, code
+          blocks).
         </p>
       </div>
 
@@ -124,7 +124,9 @@ export function ProductForm({ product }: { product?: Product }) {
           >
             <option value="license">License (downloadable files)</option>
             <option value="gated">Gated (course / gated content)</option>
-            <option value="prompts">Prompt library (in-app, copy-to-use)</option>
+            <option value="prompts">
+              Prompt library (in-app, copy-to-use)
+            </option>
           </select>
         </div>
 
@@ -183,6 +185,45 @@ export function ProductForm({ product }: { product?: Product }) {
         <p className="text-text-faint text-xs">
           Optional. Uploaded to the public product-covers bucket. Leave blank to
           keep the category gradient (or the current image).
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="gallery">Gallery images</Label>
+        {product?.gallery && product.gallery.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {product.gallery.map((img) => (
+              <img
+                key={img.url}
+                src={img.url}
+                alt={img.alt}
+                title={img.alt}
+                className="border-border h-16 w-auto rounded-md border object-cover"
+              />
+            ))}
+          </div>
+        )}
+        <Textarea
+          id="gallery"
+          name="gallery"
+          rows={4}
+          defaultValue={(product?.gallery ?? [])
+            .map((img) => (img.alt ? `${img.url} | ${img.alt}` : img.url))
+            .join("\n")}
+          placeholder="https://…/preview-1.webp | Caption shown under the image"
+          className="font-mono text-xs"
+        />
+        <Input
+          id="gallery_files"
+          name="gallery_files"
+          type="file"
+          accept="image/*"
+          multiple
+        />
+        <p className="text-text-faint text-xs">
+          Preview images shown on the sales page after the cover, one per line
+          as <span className="font-mono">url | caption</span>. Reorder or delete
+          lines to change the gallery; uploaded images are appended.
         </p>
       </div>
 
