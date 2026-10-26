@@ -84,7 +84,9 @@ The webhook endpoint is **`/api/webhooks/lemonsqueezy`**.
 - **Production:** in Lemon Squeezy **Settings → Webhooks → +**, set the URL to
   `https://<your-domain>/api/webhooks/lemonsqueezy`, choose a **signing secret**
   (put the same value in `LEMONSQUEEZY_WEBHOOK_SECRET`), and subscribe to the
-  **`order_created`** event. Save.
+  **`order_created`** and **`order_refunded`** events. Save. (A full refund
+  removes the access that order granted; a partial refund only updates the
+  order's status.)
 - **Local dev:** Lemon Squeezy can't reach `localhost`, so expose it with a
   tunnel:
   ```bash

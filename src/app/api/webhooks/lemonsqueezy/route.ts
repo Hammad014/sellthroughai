@@ -9,6 +9,8 @@ export const dynamic = "force-dynamic";
  *
  * - Verifies the X-Signature HMAC-SHA256 over the RAW body.
  * - Handles `order_created` idempotently (upsert by ls_order_id).
+ * - Handles `order_refunded`: a full refund revokes the access that order
+ *   granted (a partial refund only updates the order's status).
  * - If the buyer has no profile, creates the auth user (guest → account);
  *   our DB trigger creates the matching profiles row.
  * - Inserts the order + order_items and grants the entitlement.
@@ -34,15 +36,23 @@ export async function POST(req: Request) {
     return new Response("Bad payload", { status: 400 });
   }
 
-  // Only fulfil orders; acknowledge everything else so LS stops retrying.
-  if (payload.meta?.event_name !== "order_created") {
+  // Fulfil orders and revoke refunds; acknowledge everything else so LS
+  // stops retrying.
+  const event = payload.meta?.event_name;
+  const handler =
+    event === "order_created"
+      ? handleOrderCreated
+      : event === "order_refunded"
+        ? handleOrderRefunded
+        : null;
+  if (!handler) {
     return new Response("Ignored", { status: 200 });
   }
 
   try {
-    await handleOrderCreated(payload);
+    await handler(payload);
   } catch (err) {
-    console.error("[lemonsqueezy] order_created failed:", err);
+    console.error(`[lemonsqueezy] ${event} failed:`, err);
     return new Response("Processing error", { status: 500 });
   }
 
@@ -165,6 +175,32 @@ async function handleOrderCreated(payload: LemonWebhook) {
       { onConflict: "user_id,product_id", ignoreDuplicates: true },
     );
   }
+}
+
+async function handleOrderRefunded(payload: LemonWebhook) {
+  const supabase = createServiceClient();
+  const lsOrderId = String(payload.data.id);
+  const status = payload.data.attributes.status ?? "refunded";
+
+  const { data: order } = await supabase
+    .from("orders")
+    .update({ status })
+    .eq("ls_order_id", lsOrderId)
+    .select("id")
+    .maybeSingle();
+
+  // Never recorded (e.g. order_created failed and was never retried) — nothing
+  // was granted, so there's nothing to revoke.
+  if (!order || status !== "refunded") return;
+
+  // Only the entitlements this order granted. If the buyer already owned a
+  // product from an earlier order, that entitlement points at the earlier
+  // order and stays.
+  const { error } = await supabase
+    .from("entitlements")
+    .delete()
+    .eq("order_id", order.id);
+  if (error) throw error;
 }
 
 // ---- Minimal payload shape we rely on --------------------------------------
