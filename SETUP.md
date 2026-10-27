@@ -163,7 +163,8 @@ Useful checks:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`
-   - `NEXT_PUBLIC_SITE_URL` → your Vercel URL, e.g. `https://makeready.vercel.app`
+   - `NEXT_PUBLIC_SITE_URL` → `https://usemakeready.com` (or your Vercel URL,
+     e.g. `https://makeready.vercel.app`, until the domain is connected)
 4. Click **Deploy**.
 
 ### After the first deploy
@@ -175,6 +176,35 @@ Useful checks:
   (`https://<ref>.supabase.co/auth/v1/callback`) — no change needed.
 - Update `NEXT_PUBLIC_SITE_URL` in Vercel to the production domain and redeploy
   if it changed.
+
+### Connect the domain (usemakeready.com, registered at GoDaddy)
+
+1. **Vercel → Project → Settings → Domains**: add `usemakeready.com` and
+   `www.usemakeready.com`. Make `usemakeready.com` the primary domain and let
+   `www` redirect to it.
+2. **GoDaddy → My Products → usemakeready.com → DNS**: add the records Vercel
+   shows on that page. Usually that's:
+   - `A` record, name `@`, value `76.76.21.21`
+   - `CNAME` record, name `www`, value `cname.vercel-dns.com`
+
+   Delete GoDaddy's default "Parked" `A` record for `@` first. If Vercel shows
+   different values for your project, use Vercel's.
+3. Wait for Vercel to show both domains as **Valid** (minutes to a few hours).
+   HTTPS is issued automatically.
+4. Point everything else at the domain:
+   - Vercel env: `NEXT_PUBLIC_SITE_URL=https://usemakeready.com`, then redeploy.
+   - Supabase **Authentication → URL Configuration**: **Site URL**
+     `https://usemakeready.com`, and add `https://usemakeready.com/**` to
+     **Redirect URLs**.
+   - Lemon Squeezy webhook URL:
+     `https://usemakeready.com/api/webhooks/lemonsqueezy`.
+5. **Email on the domain:**
+   - **Inbox for `support@usemakeready.com`**: a forwarder (ImprovMX, free)
+     sends it to your Gmail; or use a mailbox (Zoho Mail, Google Workspace).
+     You don't need GoDaddy's email add-on.
+   - **Sending auth emails** (password links, confirmations): set up Resend
+     (or similar) for `usemakeready.com`, add the DNS records it gives you in
+     GoDaddy, then put its SMTP details in Supabase (see section 4).
 
 ---
 
@@ -188,7 +218,7 @@ Useful checks:
   `robots.txt`, and dynamic per-product OpenGraph images. These activate
   automatically once `NEXT_PUBLIC_SITE_URL` points at your real domain — there's
   nothing to do before launch except set that variable. After you have a domain,
-  submit `https://<domain>/sitemap.xml` to Google Search Console.
+  submit `https://usemakeready.com/sitemap.xml` to Google Search Console.
 - **Analytics is intentionally deferred** until you have a domain (it needs an
   account + live traffic to be useful). When ready, a privacy-friendly script
   (Plausible / Umami) drops into `src/app/layout.tsx`.

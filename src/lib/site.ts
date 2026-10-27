@@ -5,4 +5,4 @@
 export const SITE_NAME = "Makeready";
 
 export const SUPPORT_EMAIL =
-  process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@makeready.com";
+  process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@usemakeready.com";
