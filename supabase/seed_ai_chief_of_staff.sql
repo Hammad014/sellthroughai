@@ -1,5 +1,5 @@
 -- ============================================================
--- Aiselling — prompt product: "The AI Chief of Staff"
+-- Makeready — prompt product: "The AI Chief of Staff"
 --
 -- A 'prompts' product: 10 prompts that hand the busywork of a knowledge-work
 -- day to AI — inbox, meetings, planning, decisions, status updates.

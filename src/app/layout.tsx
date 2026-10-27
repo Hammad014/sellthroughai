@@ -31,23 +31,23 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   ),
   title: {
-    default: "Promptory — AI products, ready to use",
-    template: "%s · Promptory",
+    default: "Makeready — AI tools, done for you",
+    template: "%s · Makeready",
   },
   description:
     "Buy ready-made AI products: prompt packs, automation kits, Notion systems, mini-courses and ebooks. Instant delivery, lifetime access.",
-  applicationName: "Promptory",
+  applicationName: "Makeready",
   openGraph: {
     type: "website",
-    siteName: "Promptory",
-    title: "Promptory — AI products, ready to use",
+    siteName: "Makeready",
+    title: "Makeready — AI tools, done for you",
     description:
       "Ready-made AI products: prompt packs, automation kits, Notion systems, mini-courses and ebooks.",
     url: "/",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Promptory — AI products, ready to use",
+    title: "Makeready — AI tools, done for you",
     description:
       "Ready-made AI products: prompt packs, automation kits, Notion systems, mini-courses and ebooks.",
   },

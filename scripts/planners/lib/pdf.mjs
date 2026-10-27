@@ -1,5 +1,5 @@
 /**
- * Shared drawing primitives for Promptory's hyperlinked digital planners.
+ * Shared drawing primitives for Makeready's hyperlinked digital planners.
  *
  * Every planner is an iPad-landscape PDF (4:3) where tabs, nav pills and
  * calendar dates are internal links. Links use explicit page references with
@@ -72,9 +72,9 @@ export function createDoc({ title, subject }) {
     compress: true,
     info: {
       Title: title,
-      Author: "Promptory",
+      Author: "Makeready",
       Subject: subject,
-      Creator: "Promptory",
+      Creator: "Makeready",
     },
   });
   for (const [name, path] of Object.entries(FONTS))

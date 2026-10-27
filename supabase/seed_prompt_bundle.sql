@@ -1,5 +1,5 @@
 -- ============================================================
--- Aiselling — bundle product: "The Prompt Power Bundle"
+-- Makeready — bundle product: "The Prompt Power Bundle"
 --
 -- A bundle (category='bundles'): buying it grants entitlements to all 5 prompt
 -- libraries (see api/webhooks/lemonsqueezy — it expands bundle purchases). The

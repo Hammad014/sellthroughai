@@ -1,4 +1,4 @@
-# Aiselling — Updates & Apply Guide
+# Makeready — Updates & Apply Guide
 
 Everything built/changed in this round of work: a security fix, the email/password
 auth split, the in-app **prompt library** feature, site content, and **8 product

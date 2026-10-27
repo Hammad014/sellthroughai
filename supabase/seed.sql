@@ -1,5 +1,5 @@
 -- ============================================================
--- Promptory — demo product cleanup
+-- Makeready — demo product cleanup
 --
 -- This file used to insert 3 published DEMO products (The Operator's Prompt
 -- Vault, AI in 7 Days, Second Brain OS). They had no real content behind them

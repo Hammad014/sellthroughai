@@ -1,5 +1,5 @@
 -- ============================================================
--- Aiselling — lock down the profiles.role column
+-- Makeready — lock down the profiles.role column
 --
 -- WHY: the "profiles: update own" / "profiles: insert own" RLS policies let a
 -- user write their OWN row, but place no restriction on WHICH columns. Supabase

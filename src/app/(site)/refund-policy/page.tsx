@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SUPPORT_EMAIL } from "@/lib/site";
 import { LegalLayout } from "@/components/site/legal-layout";
 
 export const metadata: Metadata = { title: "Refund Policy" };
@@ -18,8 +19,8 @@ export default function RefundPolicyPage() {
         You may request a refund within 14 days of purchase if the product
         didn&apos;t meet a reasonable expectation set by its description. Just
         reply to your receipt or email{" "}
-        <a href="mailto:[support@yourdomain.com]">[support@yourdomain.com]</a>{" "}
-        with your order number.
+        <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a> with your order
+        number.
       </p>
 
       <h2>What qualifies</h2>

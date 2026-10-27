@@ -1,5 +1,5 @@
 /**
- * Clarity Planner — Promptory's hyperlinked digital planner.
+ * Clarity Planner — Makeready's hyperlinked digital planner.
  *
  * Editions:
  *   dated   — a specific year (Monday- or Sunday-start), real dates everywhere,
@@ -148,7 +148,7 @@ export async function buildClarity({
     title: dated
       ? `Clarity Planner ${year} (${weekStart === "sun" ? "Sunday" : "Monday"} start, ${t.name})`
       : `Clarity Planner — Undated (${t.name})`,
-    subject: "Hyperlinked digital planner by Promptory",
+    subject: "Hyperlinked digital planner by Makeready",
   });
   const c = new Ctx(doc, t);
   const pages = planPages({ edition, year, weekStart });
@@ -302,7 +302,7 @@ function weekTitle(S, p) {
 const RENDER = {
   cover(S) {
     const { c, t, go, dated, year, weekStart } = S;
-    c.label("Promptory  ·  Digital planner", 96, 92, { color: t.muted });
+    c.label("Makeready  ·  Digital planner", 96, 92, { color: t.muted });
     const dy = dated ? 40 : 80; // optically centre the title block
 
     const big = dated ? String(year) : "Undated";

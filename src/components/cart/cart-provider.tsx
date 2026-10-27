@@ -16,7 +16,7 @@ import {
 } from "@/lib/actions/cart";
 import type { Product } from "@/lib/supabase/types";
 
-const STORAGE_KEY = "aiselling-cart";
+const STORAGE_KEY = "makeready-cart";
 
 type CartContextValue = {
   items: Product[];

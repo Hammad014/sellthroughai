@@ -1,4 +1,4 @@
-# Aiselling — Setup & Deployment
+# Makeready — Setup & Deployment
 
 Exact, ordered steps to take this from a fresh clone to a live Vercel
 deployment. Payments (Lemon Squeezy) are **not** part of this — there's a clean
@@ -24,7 +24,7 @@ npm install
 ## 1. Create the Supabase project
 
 1. Go to <https://supabase.com/dashboard> → **New project**.
-2. Pick an org, name it (e.g. `aiselling`), set a strong **database password**,
+2. Pick an org, name it (e.g. `makeready`), set a strong **database password**,
    choose a region close to your users, and create it.
 3. Wait ~2 minutes for it to finish provisioning.
 
@@ -163,7 +163,7 @@ Useful checks:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`
-   - `NEXT_PUBLIC_SITE_URL` → your Vercel URL, e.g. `https://aiselling.vercel.app`
+   - `NEXT_PUBLIC_SITE_URL` → your Vercel URL, e.g. `https://makeready.vercel.app`
 4. Click **Deploy**.
 
 ### After the first deploy

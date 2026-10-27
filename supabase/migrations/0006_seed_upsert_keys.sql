@@ -1,5 +1,5 @@
 -- ============================================================
--- Aiselling — uniqueness keys so seed files can UPSERT safely
+-- Makeready — uniqueness keys so seed files can UPSERT safely
 --
 -- WHY: the seed files insert prompts/lessons keyed by (product_id, title).
 -- With a unique index on those columns, the seeds can use
