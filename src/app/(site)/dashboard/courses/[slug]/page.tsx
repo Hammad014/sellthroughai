@@ -42,11 +42,16 @@ export default async function CoursePlayerPage({
 
   const { lessons, files } = await getCourseContent(product.id);
   const isPlanner = product.category === "planners";
+  const isKit = product.category === "automation";
+  // Planners and automation kits ARE their files, so downloads lead the page.
+  const leadWithFiles = isPlanner || isKit;
   const stepLabel = isPlanner
     ? "Step"
-    : product.category === "ebooks"
-      ? "Chapter"
-      : "Lesson";
+    : isKit
+      ? "Guide"
+      : product.category === "ebooks"
+        ? "Chapter"
+        : "Lesson";
 
   // Sign lesson videos (longer-lived for streaming inside the player).
   const lessonsWithVideo = await Promise.all(
@@ -83,16 +88,16 @@ export default async function CoursePlayerPage({
       </h1>
       <p className="text-muted-foreground mt-3 text-lg">{product.short_desc}</p>
 
-      {/* Planner downloads — the product itself, so they lead the page */}
-      {isPlanner && files.length > 0 && (
+      {/* Planner / kit downloads — the product itself, so they lead the page */}
+      {leadWithFiles && files.length > 0 && (
         <section className="mt-8">
           <h2 className="font-display text-xl font-semibold tracking-tight">
-            Your planner files
+            {isKit ? "Your workflow files" : "Your planner files"}
           </h2>
           <p className="text-muted-foreground mt-1 text-sm">
-            Download the version you like (or all of them) and open it in
-            GoodNotes, Notability, Noteshelf, Xodo or Samsung Notes. New to
-            digital planners? The setup guide below walks you through it.
+            {isKit
+              ? "Start with the complete kit: one .zip with every workflow plus the Google Sheets templates. Or download single workflows. The guides below walk you through importing them into n8n."
+              : "Download the version you like (or all of them) and open it in GoodNotes, Notability, Noteshelf, Xodo or Samsung Notes. New to digital planners? The setup guide below walks you through it."}
           </p>
           <ul className="mt-4 grid gap-3 sm:grid-cols-2">
             {files.map((f) => (
@@ -106,7 +111,9 @@ export default async function CoursePlayerPage({
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-medium">
-                      {plannerFileLabel(f.file_name)}
+                      {isKit
+                        ? kitFileLabel(f.file_name)
+                        : plannerFileLabel(f.file_name)}
                     </span>
                     <span className="text-text-faint block truncate font-mono text-xs">
                       {f.file_name}
@@ -121,7 +128,7 @@ export default async function CoursePlayerPage({
       )}
 
       {/* Downloadable resources */}
-      {!isPlanner && files.length > 0 && (
+      {!leadWithFiles && files.length > 0 && (
         <section className="bg-card mt-8 rounded-xl border p-5">
           <h2 className="font-display flex items-center gap-2 text-sm font-semibold">
             <Download className="size-4" /> Resources
@@ -183,6 +190,14 @@ export default async function CoursePlayerPage({
 }
 
 /** "Clarity-Planner-2027-Monday-Paper.pdf" → "2027 · Monday start · Paper". */
+/** "01-AI-Inbox-Triage.json" → "01 · AI Inbox Triage"; the .zip → "Complete kit". */
+function kitFileLabel(fileName: string): string {
+  if (/\.zip$/i.test(fileName))
+    return "Complete kit · all workflows + sheet templates";
+  const m = fileName.replace(/\.json$/i, "").match(/^(\d+)-(.+)$/);
+  return m ? `${m[1]} · ${m[2].replace(/-/g, " ")}` : fileName;
+}
+
 function plannerFileLabel(fileName: string): string {
   const parts = fileName.replace(/\.pdf$/i, "").split("-");
   const tail = parts.slice(2); // drop "<Name>-Planner"

@@ -4,6 +4,7 @@ import {
   BookOpen,
   CalendarDays,
   Download,
+  Workflow,
   LibraryBig,
   PlayCircle,
   Sparkles,
@@ -78,13 +79,17 @@ export default async function DashboardPage({
               delivery === "gated" && product.category === "ebooks";
             const isPlanner =
               delivery === "gated" && product.category === "planners";
+            const isKit =
+              delivery === "gated" && product.category === "automation";
             const badgeLabel =
               delivery === "gated"
                 ? isPlanner
                   ? "Planner"
-                  : isGuide
-                    ? "Guide"
-                    : "Course"
+                  : isKit
+                    ? "Kit"
+                    : isGuide
+                      ? "Guide"
+                      : "Course"
                 : delivery === "prompts"
                   ? "Prompts"
                   : "License";
@@ -127,6 +132,10 @@ export default async function DashboardPage({
                           <>
                             <CalendarDays className="size-4" /> Get planner
                             files
+                          </>
+                        ) : isKit ? (
+                          <>
+                            <Workflow className="size-4" /> Get automation kit
                           </>
                         ) : isGuide ? (
                           <>

@@ -37,6 +37,7 @@ safe to run more than once.
 | `supabase/seed_ai_at_work_playbook.sql` | The AI-at-Work Playbook | Guide | $19 |
 | `supabase/seed_prompt_bundle.sql` | The Prompt Power Bundle (all 5 packs) | Bundle | $99 |
 | `supabase/seed_clarity_planner.sql` | Clarity Digital Planner (✅ applied) | Planner | $19 |
+| `supabase/seed_ai_automation_kit.sql` | The AI Automation Starter Kit (seeded as **draft**) | Automation kit | $29 |
 
 > **Run `seed_prompt_bundle.sql` last** — it links the 5 prompt packs, so they
 > must already be seeded (and migration 0007 applied).
@@ -190,6 +191,37 @@ PDF, then the setup guide. Admins can edit any product's gallery on its edit pag
 
 **To change the planner:** edit `clarity.mjs`, run both commands above. The PDF
 paths are stable, so buyers who download again get the new version.
+
+## 3e. Automation kits (n8n workflows generated from code)
+
+The **AI Automation Starter Kit** is 10 n8n workflows written as code in
+`scripts/automation/` (no hand-edited JSON), plus Google Sheets templates.
+
+| File | What it does |
+|---|---|
+| `lib/workflow.mjs`, `lib/nodes.mjs` | Tiny workflow builder + node factories pinned to n8n 2.45's node versions |
+| `workflows/NN-*.mjs` | One file per workflow: nodes, wires, prompts, on-canvas setup note |
+| `sheets/*.csv` | Google Sheets templates the workflows read/write |
+| `build.mjs` | Writes each workflow `.json` + `Makeready-AI-Automation-Kit.zip` → `scripts/automation/out/` (gitignored) |
+| `validate.mjs` | Dev check with **n8n's own validator** (needs an n8n install, see the file header) |
+| `store-images.mjs` | Dev tool: screenshots the workflows in a running n8n editor → `store/` (committed) |
+| `publish.mjs` | Uploads the zip + JSON files (private bucket + `product_files`) and the store images; sets cover + gallery. Idempotent |
+
+```bash
+npm run automation:build     # build the workflow files + zip
+npm run automation:publish   # push files + images to Supabase (needs .env.local)
+```
+
+**How it was tested:** every workflow passes n8n's validator, imports into
+n8n 2.45 and opens cleanly in the editor, and runs end to end in a real n8n
+with sample data and a mock AI (Gmail/Sheets/Slack steps bypassed). **Run
+each one once with your own accounts before launch**: that's the one thing
+that couldn't be tested here.
+
+**How it shows up in the app:** category `automation` + `delivery_type='gated'`.
+The buyer's library card says **Get automation kit**; the kit page leads with
+the downloads (complete .zip first, then each workflow), then one setup guide
+per workflow. The first guide is the free preview on the sales page.
 
 ## 4. Still on you (not code)
 

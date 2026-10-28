@@ -65,6 +65,7 @@ export default async function ProductDetailPage({
   const isGated = delivery === "gated";
   const isGuide = product.category === "ebooks";
   const isPlanner = product.category === "planners";
+  const isKit = product.category === "automation";
 
   // "What's inside" previews (titles/curriculum + one free sample).
   const [promptPreviews, samplePrompt, lessonPreviews, sampleLesson] =
@@ -89,11 +90,13 @@ export default async function ProductDetailPage({
     ? `All ${bundleItems.length} products unlocked in your library`
     : isPlanner
       ? "Instant PDF downloads in your library"
-      : delivery === "gated"
-        ? "Streamed lessons & gated content in your library"
-        : delivery === "prompts"
-          ? "Copy-and-go prompt library inside your dashboard"
-          : "Downloadable files in your library";
+      : isKit
+        ? "Ready-to-import n8n files + step-by-step setup guides"
+        : delivery === "gated"
+          ? "Streamed lessons & gated content in your library"
+          : delivery === "prompts"
+            ? "Copy-and-go prompt library inside your dashboard"
+            : "Downloadable files in your library";
 
   const benefits = [
     isBundle
@@ -232,16 +235,26 @@ export default async function ProductDetailPage({
           <h2 className="font-display mb-2 text-2xl font-semibold tracking-tight">
             {isPlanner
               ? "Setup guide"
-              : isGuide
+              : isKit
                 ? "What's inside"
-                : "Course curriculum"}{" "}
+                : isGuide
+                  ? "What's inside"
+                  : "Course curriculum"}{" "}
             — {lessonPreviews.length}{" "}
-            {isPlanner ? "steps" : isGuide ? "chapters" : "lessons"}
+            {isPlanner
+              ? "steps"
+              : isKit
+                ? "guides"
+                : isGuide
+                  ? "chapters"
+                  : "lessons"}
           </h2>
           <p className="text-muted-foreground mb-6 max-w-[70ch]">
             {isPlanner
               ? "Every planner comes with a short setup guide. Here's the first step, free."
-              : `Here's the ${isGuide ? "first chapter" : "first lesson"}, free.`}
+              : isKit
+                ? "Every workflow comes with its own setup guide. Here's the getting-started guide, free."
+                : `Here's the ${isGuide ? "first chapter" : "first lesson"}, free.`}
           </p>
 
           {sampleLesson?.content_md && (
