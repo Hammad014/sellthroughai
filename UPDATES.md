@@ -38,6 +38,7 @@ safe to run more than once.
 | `supabase/seed_prompt_bundle.sql` | The Prompt Power Bundle (all 5 packs) | Bundle | $99 |
 | `supabase/seed_clarity_planner.sql` | Clarity Digital Planner (✅ applied) | Planner | $19 |
 | `supabase/seed_ai_automation_kit.sql` | The AI Automation Starter Kit (seeded as **draft**) | Automation kit | $29 |
+| `supabase/seed_focus_planner.sql` | Focus Planner: ADHD-Friendly (seeded as **draft**) | Planner | $17 |
 
 > **Run `seed_prompt_bundle.sql` last** — it links the 5 prompt packs, so they
 > must already be seeded (and migration 0007 applied).
@@ -169,17 +170,23 @@ no design tools needed, and every link is machine-checked.
 
 | File | What it does |
 |---|---|
-| `lib/pdf.mjs` | Page size (iPad landscape 4:3), Paper/Midnight themes, fonts, drawing + link primitives |
+| `planners.mjs` | **Registry** of every planner (slug, builder, themes, gallery shots, cover, palette). Add a planner here and every script below picks it up |
+| `lib/pdf.mjs` | Page size (iPad landscape 4:3), themes (Paper/Midnight, Sage/Night), fonts, drawing + link primitives |
+| `lib/layout.mjs` | Shared page grid, header + pill buttons, month tabs, mini calendars |
 | `lib/calendar.mjs` | UTC date helpers (weeks, month grids, Monday/Sunday start) |
 | `clarity.mjs` | The Clarity Planner: page plan + every page layout + link wiring |
-| `build.mjs` | Builds the 6 buyer files → `scripts/planners/out/clarity/` (gitignored) |
+| `focus.mjs` | The Focus Planner (ADHD-friendly): just 3 things, time blocks, brain dump + sort, task breakdowns, routines, dopamine menu |
+| `build.mjs` | Builds each planner's 6 buyer files → `scripts/planners/out/<id>/` (gitignored) |
 | `check-links.mjs` | Fails if any link is broken or any page is unreachable |
-| `mockups.mjs` | Renders REAL pages (MuPDF) into tablet mockups → cover + 8 gallery images |
-| `publish.mjs` | Uploads PDFs (private bucket + `product_files`) and images (public bucket), sets cover + gallery. Idempotent |
+| `mockups.mjs` | Renders REAL pages (MuPDF) into tablet mockups → cover + 8 gallery images per planner |
+| `publish.mjs` | Uploads PDFs (private bucket + `product_files`) and images (public bucket), sets cover + gallery. Idempotent; skips planners whose product isn't seeded yet |
+
+Every script takes optional planner ids (`clarity`, `focus`); no ids = all.
 
 ```bash
-npm run planners:build     # build PDFs, verify links, render store images
-npm run planners:publish   # push files + images to Supabase (needs .env.local)
+npm run planners:build                      # build PDFs, verify links, render store images (all planners)
+npm run planners:publish                    # push files + images to Supabase (needs .env.local)
+node scripts/planners/publish.mjs focus     # just one planner
 ```
 
 **How planners show up in the app:** category `planners` ("Digital Planners") +
