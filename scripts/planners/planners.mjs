@@ -8,6 +8,7 @@ import path from "node:path";
 import { THEMES } from "./lib/pdf.mjs";
 import { buildClarity } from "./clarity.mjs";
 import { buildFocus } from "./focus.mjs";
+import { buildBudget } from "./budget.mjs";
 
 export const YEAR = 2027;
 const OUT_ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "out");
@@ -117,28 +118,92 @@ export const PLANNERS = {
     cover: { back: [1, "dump-3"], front: [0, "day-2027-04-05"] },
     palette: ["#3c7d61", "#1d3b30", "#0d1a15", "#7fd3a8"],
   },
+  budget: {
+    name: "Budget",
+    slug: "budget-digital-planner",
+    build: buildBudget,
+    themes: ["linen", "ink"],
+    // Only the no-spend calendars show weekdays, so no Sunday-start files.
+    editions: ["dated-mon", "undated"],
+    shots: [
+      [
+        0,
+        "month-0",
+        "01-monthly-budget",
+        "Monthly budget — income, bills, spending categories and what's left",
+      ],
+      [
+        1,
+        "month-1",
+        "02-budget-ink",
+        "The same budget page in the dark Ink theme",
+      ],
+      [
+        0,
+        "bills-0",
+        "03-bills",
+        "Bill tracker — due dates, amounts and a tick when it's paid",
+      ],
+      [
+        0,
+        "spend1-0",
+        "04-spending",
+        "Spending log — every purchase, need or want",
+      ],
+      [
+        0,
+        "saving-1",
+        "05-savings",
+        "Savings goals — shade a box every time you save",
+      ],
+      [
+        0,
+        "debt-1",
+        "06-debt",
+        "Debt payoff tracker — log payments and watch the balance drop",
+      ],
+      [
+        0,
+        "nospend-0",
+        "07-no-spend",
+        "No-spend challenge calendar for every month",
+      ],
+      [
+        0,
+        "year",
+        "08-year",
+        "Year at a glance — the whole year's money on one page",
+      ],
+    ],
+    cover: { back: [1, "month-0"], front: [0, "saving-1"] },
+    palette: ["#2f6f78", "#173740", "#0b1a1f", "#e3b25a"],
+  },
 };
 
 export const outDir = (id) => path.join(OUT_ROOT, id);
 
-/** The six files buyers receive (order = order shown in their library). */
+const EDITIONS = {
+  "dated-mon": { edition: "dated", weekStart: "mon" },
+  "dated-sun": { edition: "dated", weekStart: "sun" },
+  undated: { edition: "undated", weekStart: "mon" },
+};
+
+/** The files buyers receive (order = order shown in their library). */
 export function variants(id) {
-  const { name, themes } = PLANNERS[id];
-  const [light, dark] = themes;
-  return [
-    { edition: "dated", weekStart: "mon", theme: light },
-    { edition: "dated", weekStart: "mon", theme: dark },
-    { edition: "dated", weekStart: "sun", theme: light },
-    { edition: "dated", weekStart: "sun", theme: dark },
-    { edition: "undated", weekStart: "mon", theme: light },
-    { edition: "undated", weekStart: "mon", theme: dark },
-  ].map((v) => ({
-    ...v,
-    file:
-      v.edition === "dated"
-        ? `${name}-Planner-${YEAR}-${v.weekStart === "mon" ? "Monday" : "Sunday"}-${THEMES[v.theme].name}.pdf`
-        : `${name}-Planner-Undated-${THEMES[v.theme].name}.pdf`,
-  }));
+  const {
+    name,
+    themes,
+    editions = ["dated-mon", "dated-sun", "undated"],
+  } = PLANNERS[id];
+  return editions
+    .flatMap((e) => themes.map((theme) => ({ ...EDITIONS[e], theme })))
+    .map((v) => ({
+      ...v,
+      file:
+        v.edition === "dated"
+          ? `${name}-Planner-${YEAR}-${v.weekStart === "mon" ? "Monday" : "Sunday"}-${THEMES[v.theme].name}.pdf`
+          : `${name}-Planner-Undated-${THEMES[v.theme].name}.pdf`,
+    }));
 }
 
 /** Planner ids named on the command line, or all of them. */
