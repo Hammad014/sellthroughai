@@ -9,7 +9,7 @@ export const PACKAGES = {
     extras: { dir: "sheets", folder: "sheets" },
     zip: "Makeready-AI-Automation-Kit.zip",
     folder: "AI-Automation-Kit",
-    readme: (titles) => `MAKEREADY · AI AUTOMATION STARTER KIT
+    readme: (titles, guides) => `MAKEREADY · AI AUTOMATION STARTER KIT
 =====================================
 
 What's in this folder
@@ -30,7 +30,7 @@ For Google Sheets: in Google Drive, File → Import the matching CSV from
 sheets/ (or create a sheet with the same header row), then paste the
 sheet's URL into the workflow's Settings node.
 
-The full step-by-step guides are in your Makeready library.
+The full step-by-step guides are ${guides}.
 Questions: support@usemakeready.com
 `,
     /** Store screenshots: n8n import-id prefix + [workflow no., file, caption]. */
@@ -85,7 +85,7 @@ Questions: support@usemakeready.com
     extras: { dir: "course-files", folder: "" },
     zip: "Makeready-AI-Agent-Course-Files.zip",
     folder: "AI-Agent-Course",
-    readme: (titles) => `MAKEREADY · BUILD YOUR FIRST AI AGENT
+    readme: (titles, guides) => `MAKEREADY · BUILD YOUR FIRST AI AGENT
 =====================================
 
 What's in this folder
@@ -96,7 +96,7 @@ System-Prompt-Template.txt   the instructions template from lesson 5
 
 How to use
 ----------
-Follow the lessons in your Makeready library. Each agent matches a lesson:
+Follow the lessons (${guides}). Each agent matches a lesson:
 import it (Workflows → Create → "..." → Import from file), read the note on
 the canvas, add your OpenAI key and click "Open chat".
 
@@ -133,6 +133,9 @@ Questions: support@usemakeready.com
     },
   },
 };
+
+/** Where buyers find the guides, as worded in each README. */
+export const GUIDES_ON_SITE = "in your Makeready library";
 
 /** Package ids named on the command line, or all of them. */
 export function selected(argv = process.argv.slice(2)) {

@@ -30,7 +30,7 @@ Every new email is read by AI, sorted into **Urgent**, **Lead**, **Support** or 
 6. **Alert me on Slack**: connect Slack and set the channel, or delete it
 7. Run once with **Execute workflow**, then click **Publish**
 
-Full guide: your Makeready library → AI Automation Starter Kit.`,
+Full step-by-step guide: see the kit's setup guide (01 · AI Inbox Triage).`,
     [-520, -260],
     { width: 440 },
   );

@@ -12,7 +12,8 @@
     "planners:build": "node scripts/planners/build.mjs && node scripts/planners/check-links.mjs && node scripts/planners/mockups.mjs",
     "planners:publish": "node scripts/planners/publish.mjs",
     "automation:build": "node scripts/automation/build.mjs",
-    "automation:publish": "node scripts/automation/publish.mjs"
+    "automation:publish": "node scripts/automation/publish.mjs",
+    "etsy:build": "node scripts/etsy/build.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
