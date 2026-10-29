@@ -1,26 +1,26 @@
 /**
  * Store imagery from the REAL n8n editor: opens each imported workflow,
  * crops the canvas around its nodes (16:10), and composes a cover.
- * Output → scripts/automation/store/ (committed, so publishing doesn't need n8n).
+ * Output → scripts/automation/store/<package>/ (committed, so publishing
+ * doesn't need n8n).
  *
- * Dev-only. Needs a running n8n with the kit imported under ids
- * kitreal01xxxxxxx … kitreal10xxxxxxx and a login:
+ * Dev-only. Needs a running n8n with each package's workflows imported under
+ * 16-character ids "<screenshotIds><NN>" padded with x (e.g. kitreal01xxxxxxx)
+ * and a login:
  *   N8N_URL=http://localhost:5678 N8N_EMAIL=… N8N_PASSWORD=… \
- *     node scripts/automation/store-images.mjs
+ *     node scripts/automation/store-images.mjs [kit|course]
  */
 import { mkdir } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
-import { SHOTS } from "./lib/gallery.mjs";
+import { PACKAGES, selected } from "./lib/packages.mjs";
+import { storeDir } from "./build.mjs";
 
 // Playwright is a dev tool, not a project dependency: use whichever copy
 // `require` can find (a global install works).
 const { chromium } = createRequire(import.meta.url)("playwright");
-
-const HERE = path.dirname(fileURLToPath(import.meta.url));
-export const STORE = path.join(HERE, "store");
 
 const W = 1600;
 const H = 1000;
@@ -38,8 +38,9 @@ const HIDE = [
   .map((id) => `[data-test-id^="${id}"]`)
   .join(",");
 
-async function shoot(page, n) {
-  await page.goto(`${process.env.N8N_URL}/workflow/kitreal${n}xxxxxxx`, {
+async function shoot(page, prefix, n) {
+  const id = `${prefix}${n}`.padEnd(16, "x");
+  await page.goto(`${process.env.N8N_URL}/workflow/${id}`, {
     waitUntil: "networkidle",
   });
   await page.waitForTimeout(2500);
@@ -85,7 +86,11 @@ async function shoot(page, n) {
   return page.screenshot({ clip: { x, y, width: w, height: h } });
 }
 
-async function cover(canvasPng) {
+/** Escape text for SVG/XML. */
+const esc = (s) =>
+  s.replace(/[&<>]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[ch]);
+
+async function cover(canvasPng, { eyebrow, title, sub, bullets }) {
   const shot = await sharp(canvasPng).resize(880, 550).png().toBuffer();
   const rounded = await sharp(shot)
     .composite([
@@ -106,13 +111,10 @@ async function cover(canvasPng) {
       </radialGradient>
     </defs>
     <rect width="${W}" height="${H}" fill="url(#g)"/>
-    <text x="96" y="150" font-family="Space Grotesk, Hanken Grotesk, sans-serif" font-size="24" letter-spacing="5" fill="#7cc4ff">MAKEREADY · AUTOMATION KIT</text>
-    <text x="92" y="250" font-family="Space Grotesk, sans-serif" font-weight="700" font-size="84" fill="#ffffff">AI Automation</text>
-    <text x="92" y="345" font-family="Space Grotesk, sans-serif" font-weight="700" font-size="84" fill="#ffffff">Starter Kit</text>
-    <text x="96" y="420" font-family="Hanken Grotesk, sans-serif" font-size="32" fill="#9fb3c8">10 ready-to-import n8n workflows</text>
-    <text x="96" y="560" font-family="Hanken Grotesk, sans-serif" font-size="26" fill="#d6e4f0">✓  Inbox, leads, content, invoices</text>
-    <text x="96" y="610" font-family="Hanken Grotesk, sans-serif" font-size="26" fill="#d6e4f0">✓  Setup guide for every workflow</text>
-    <text x="96" y="660" font-family="Hanken Grotesk, sans-serif" font-size="26" fill="#d6e4f0">✓  Google Sheets templates included</text>
+    <text x="96" y="150" font-family="Space Grotesk, Hanken Grotesk, sans-serif" font-size="24" letter-spacing="5" fill="#7cc4ff">${esc(eyebrow)}</text>
+    ${title.map((line, i) => `<text x="92" y="${250 + i * 95}" font-family="Space Grotesk, sans-serif" font-weight="700" font-size="84" fill="#ffffff">${esc(line)}</text>`).join("")}
+    <text x="96" y="420" font-family="Hanken Grotesk, sans-serif" font-size="32" fill="#9fb3c8">${esc(sub)}</text>
+    ${bullets.map((b, i) => `<text x="96" y="${560 + i * 50}" font-family="Hanken Grotesk, sans-serif" font-size="26" fill="#d6e4f0">✓  ${esc(b)}</text>`).join("")}
   </svg>`);
   const shadow = await sharp({
     create: {
@@ -135,7 +137,6 @@ async function cover(canvasPng) {
 }
 
 async function main() {
-  await mkdir(STORE, { recursive: true });
   const browser = await chromium.launch();
   const page = await browser.newPage({
     viewport: { width: 1600, height: 1000 },
@@ -152,18 +153,24 @@ async function main() {
   await page.keyboard.press("Enter");
   await page.waitForTimeout(3000);
 
-  for (const [n, file] of SHOTS) {
-    const png = await shoot(page, n);
-    await sharp(png)
-      .resize(W, H, { fit: "contain", background: "#f5f5f5" })
-      .webp({ quality: 88 })
-      .toFile(path.join(STORE, `${file}.webp`));
-    console.log(`image  ${file}.webp`);
+  for (const id of selected()) {
+    const { shots, screenshotIds, cover: coverSpec } = PACKAGES[id];
+    const store = storeDir(id);
+    await mkdir(store, { recursive: true });
+    for (const [n, file] of shots) {
+      const png = await shoot(page, screenshotIds, n);
+      await sharp(png)
+        .resize(W, H, { fit: "contain", background: "#f5f5f5" })
+        .webp({ quality: 88 })
+        .toFile(path.join(store, `${file}.webp`));
+      console.log(`${id}  image  ${file}.webp`);
+    }
+    const png = await shoot(page, screenshotIds, coverSpec.shot);
+    await sharp(await cover(png, coverSpec)).toFile(
+      path.join(store, "cover.webp"),
+    );
+    console.log(`${id}  image  cover.webp`);
   }
-  await sharp(await cover(await shoot(page, "01"))).toFile(
-    path.join(STORE, "cover.webp"),
-  );
-  console.log("image  cover.webp");
   await browser.close();
 }
 

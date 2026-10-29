@@ -11,7 +11,8 @@
 import { readdir, readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
-import { OUT } from "./build.mjs";
+import { outDir } from "./build.mjs";
+import { selected } from "./lib/packages.mjs";
 
 const modules = process.env.N8N_MODULES;
 if (!modules) {
@@ -27,24 +28,27 @@ sdk.setSchemaBaseDirs([
   path.join(modules, "@n8n/n8n-nodes-langchain/dist/node-definitions"),
 ]);
 
-const dir = path.join(OUT, "workflows");
 let problems = 0;
-for (const file of (await readdir(dir)).filter((f) => f.endsWith(".json"))) {
-  const json = JSON.parse(await readFile(path.join(dir, file), "utf8"));
-  const { errors, warnings } = sdk.validateWorkflow(json, {
-    validateSchema: true,
-  });
-  const issues = [...errors, ...warnings].filter(
-    (i) => !sdk.isInformationalIssue?.(i) || i.code === "DISCONNECTED_NODE",
-  );
-  issues.push(...wiringIssues(json));
-  problems += issues.length;
-  console.log(`${issues.length ? "✗" : "✓"} ${file}`);
-  for (const i of issues)
-    console.log(
-      `    ${i.severity} ${i.code}${i.nodeName ? ` [${i.nodeName}]` : ""}: ${i.message}`,
+for (const id of selected()) {
+  const dir = path.join(outDir(id), "workflows");
+  for (const file of (await readdir(dir)).filter((f) => f.endsWith(".json"))) {
+    const json = JSON.parse(await readFile(path.join(dir, file), "utf8"));
+    const { errors, warnings } = sdk.validateWorkflow(json, {
+      validateSchema: true,
+    });
+    const issues = [...errors, ...warnings].filter(
+      (i) => !sdk.isInformationalIssue?.(i) || i.code === "DISCONNECTED_NODE",
     );
+    issues.push(...wiringIssues(json));
+    problems += issues.length;
+    console.log(`${issues.length ? "✗" : "✓"} ${id}/${file}`);
+    for (const i of issues)
+      console.log(
+        `    ${i.severity} ${i.code}${i.nodeName ? ` [${i.nodeName}]` : ""}: ${i.message}`,
+      );
+  }
 }
+
 /** Checks n8n's validator leaves out: every wire must point at a real node. */
 function wiringIssues(json) {
   const names = new Set(json.nodes.map((n) => n.name));

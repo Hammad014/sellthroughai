@@ -39,6 +39,10 @@ safe to run more than once.
 | `supabase/seed_clarity_planner.sql` | Clarity Digital Planner (✅ applied) | Planner | $19 |
 | `supabase/seed_ai_automation_kit.sql` | The AI Automation Starter Kit (seeded as **draft**) | Automation kit | $29 |
 | `supabase/seed_focus_planner.sql` | Focus Planner: ADHD-Friendly (seeded as **draft**) | Planner | $17 |
+| `supabase/seed_budget_planner.sql` | Budget Planner (seeded as **draft**) | Planner | $15 |
+| `supabase/seed_ai_agent_course.sql` | Build Your First AI Agent (No Code) (seeded as **draft**) | Course | $39 |
+| `supabase/seed_automation_bundle.sql` | The AI Automation Bundle: kit + agent course (**draft**, run after both) | Bundle | $55 |
+| `supabase/seed_planner_bundle.sql` | The New Year Planner Bundle: Clarity + Focus + Budget (**draft**, run after all three) | Bundle | $35 |
 
 > **Run `seed_prompt_bundle.sql` last** — it links the 5 prompt packs, so they
 > must already be seeded (and migration 0007 applied).
@@ -199,23 +203,30 @@ PDF, then the setup guide. Admins can edit any product's gallery on its edit pag
 **To change the planner:** edit `clarity.mjs`, run both commands above. The PDF
 paths are stable, so buyers who download again get the new version.
 
-## 3e. Automation kits (n8n workflows generated from code)
+## 3e. n8n products (workflows generated from code)
 
-The **AI Automation Starter Kit** is 10 n8n workflows written as code in
-`scripts/automation/` (no hand-edited JSON), plus Google Sheets templates.
+Two products are built from `scripts/automation/` (no hand-edited JSON),
+listed in `lib/packages.mjs`:
+
+- **kit**: the AI Automation Starter Kit, 10 workflows (`workflows/`) + Google Sheets templates (`sheets/`)
+- **course**: Build Your First AI Agent, 3 example agents (`agents/`) + the system-prompt template (`course-files/`)
+
+Every script takes an optional package id (`kit`, `course`); no id = both.
+Build output goes to `out/<id>/`, store images live in `store/<id>/`.
 
 | File | What it does |
 |---|---|
 | `lib/workflow.mjs`, `lib/nodes.mjs` | Tiny workflow builder + node factories pinned to n8n 2.45's node versions |
-| `workflows/NN-*.mjs` | One file per workflow: nodes, wires, prompts, on-canvas setup note |
+| `workflows/NN-*.mjs`, `agents/*.mjs` | One file per workflow/agent: nodes, wires, prompts, on-canvas setup note |
+| `lib/packages.mjs` | Package registry: slug, source folder, zip name, extras, README, gallery shots, cover text |
 | `sheets/*.csv` | Google Sheets templates the workflows read/write |
-| `build.mjs` | Writes each workflow `.json` + `Makeready-AI-Automation-Kit.zip` → `scripts/automation/out/` (gitignored) |
+| `build.mjs` | Writes each workflow `.json` + the package zip → `scripts/automation/out/<id>/` (gitignored) |
 | `validate.mjs` | Dev check with **n8n's own validator** (needs an n8n install, see the file header) |
-| `store-images.mjs` | Dev tool: screenshots the workflows in a running n8n editor → `store/` (committed) |
+| `store-images.mjs` | Dev tool: screenshots the workflows in a running n8n editor → `store/<id>/` (committed) |
 | `publish.mjs` | Uploads the zip + JSON files (private bucket + `product_files`) and the store images; sets cover + gallery. Idempotent |
 
 ```bash
-npm run automation:build     # build the workflow files + zip
+npm run automation:build     # build both packages (workflow files + zips)
 npm run automation:publish   # push files + images to Supabase (needs .env.local)
 ```
 

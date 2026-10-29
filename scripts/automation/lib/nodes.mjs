@@ -435,3 +435,51 @@ export function addAiStep(w, { name, at, prompt, system, example }) {
   }
   return chain;
 }
+
+// ---- Agents ----------------------------------------------------------------
+
+/** Private chat for testing an agent inside the n8n editor ("Open chat"). */
+export const chatTrigger = ({ name = "Chat with your agent", at }) => ({
+  name,
+  type: "@n8n/n8n-nodes-langchain.chatTrigger",
+  version: 1.5,
+  at,
+  params: { options: {} },
+});
+
+/** Tools-agent driven by the chat input, with a system message. */
+export const agent = ({ name, at, system }) => ({
+  name,
+  type: "@n8n/n8n-nodes-langchain.agent",
+  version: 3.1,
+  at,
+  params: {
+    promptType: "auto",
+    options: { systemMessage: system },
+  },
+});
+
+export const windowMemory = ({ name = "Memory", at, turns = 10 }) => ({
+  name,
+  type: "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+  version: 1.4,
+  at,
+  params: { contextWindowLength: turns },
+});
+
+/** An app node used as an agent tool (e.g. "n8n-nodes-base.gmailTool"). */
+export const appTool = ({ name, type, version, at, description, params }) => ({
+  name,
+  type,
+  version,
+  at,
+  params: {
+    descriptionType: "manual",
+    toolDescription: description,
+    ...params,
+  },
+});
+
+/** Let the agent fill a parameter: $fromAI(key, hint, type). */
+export const fromAI = (key, hint, type = "string") =>
+  `={{ $fromAI('${key}', ${JSON.stringify(hint).replace(/'/g, "\\'")}, '${type}') }}`;

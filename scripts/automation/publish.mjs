@@ -1,30 +1,28 @@
 /**
- * Publish the AI Automation Starter Kit's files to Supabase:
+ * Publish each n8n package's files to Supabase (see lib/packages.mjs):
  *   - the .zip + each workflow .json → PRIVATE product-files bucket +
  *     product_files rows (zip first, so it leads the buyer's download list)
- *   - cover + gallery images (scripts/automation/store/) → PUBLIC
+ *   - cover + gallery images (scripts/automation/store/<id>/) → PUBLIC
  *     product-covers bucket, and set products.cover_image_url / gallery
  *
  * Idempotent: files use stable paths (overwritten in place), images use
  * content-hashed names (so CDN caches never serve a stale preview).
  *
- * Prereqs: the product row exists (supabase/seed_ai_automation_kit.sql),
- * migration 0008 is applied, and build.mjs has run.
+ * Prereqs: the product row exists (its supabase/seed_*.sql — packages
+ * without one are skipped), migration 0008 is applied, and build.mjs has run.
  * Reads NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY from .env.local.
  *
- *   node scripts/automation/publish.mjs
+ *   node scripts/automation/publish.mjs [kit|course]
  */
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
-import { OUT, ZIP_NAME, kitFiles } from "./build.mjs";
-import { SHOTS } from "./lib/gallery.mjs";
+import { outDir, packageFiles, storeDir } from "./build.mjs";
+import { PACKAGES, selected } from "./lib/packages.mjs";
 
-const SLUG = "ai-automation-starter-kit";
 const FILES_BUCKET = "product-files";
 const COVERS_BUCKET = "product-covers";
-const STORE = path.join(path.dirname(OUT), "store");
 
 async function loadEnv() {
   const text = await readFile(path.resolve(".env.local"), "utf8");
@@ -41,13 +39,6 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY,
   { auth: { persistSession: false } },
 );
-
-const { data: product, error: pErr } = await supabase
-  .from("products")
-  .select("id")
-  .eq("slug", SLUG)
-  .single();
-if (pErr) throw new Error(`Product ${SLUG} not found — run the seed first.`);
 
 /** Run a Supabase call that returns { data, error }, retrying on failure. */
 async function retry(label, fn) {
@@ -66,60 +57,73 @@ const upload = (bucket, storagePath, body, contentType) =>
       .upload(storagePath, body, { upsert: true, contentType }),
   );
 
-// ---- Kit files → private bucket ----
-for (const [i, file] of (await kitFiles()).entries()) {
-  const isZip = file === ZIP_NAME;
-  const local = isZip
-    ? path.join(OUT, file)
-    : path.join(OUT, "workflows", file);
-  const storagePath = `${product.id}/${file}`;
-  await upload(
-    FILES_BUCKET,
-    storagePath,
-    await readFile(local),
-    isZip ? "application/zip" : "application/json",
-  );
+for (const id of selected()) {
+  const { slug, zip, shots } = PACKAGES[id];
+  const { data: product } = await supabase
+    .from("products")
+    .select("id")
+    .eq("slug", slug)
+    .maybeSingle();
+  if (!product) {
+    console.warn(`skip   ${slug}: product not found — run its seed first.`);
+    continue;
+  }
 
-  // Keyed on storage_path, so re-runs never create duplicate rows.
-  const row = { file_name: file, sort_order: i };
-  await retry(`${file} row`, async () => {
-    const found = await supabase
-      .from("product_files")
-      .select("id")
-      .eq("product_id", product.id)
-      .eq("storage_path", storagePath)
-      .maybeSingle();
-    if (found.error) return found;
-    return found.data
-      ? supabase.from("product_files").update(row).eq("id", found.data.id)
-      : supabase.from("product_files").insert({
-          ...row,
-          product_id: product.id,
-          storage_path: storagePath,
-        });
-  });
-  console.log(`file   ${file}`);
+  // ---- Files → private bucket ----
+  for (const [i, file] of (await packageFiles(id)).entries()) {
+    const isZip = file === zip;
+    const local = isZip
+      ? path.join(outDir(id), file)
+      : path.join(outDir(id), "workflows", file);
+    const storagePath = `${product.id}/${file}`;
+    await upload(
+      FILES_BUCKET,
+      storagePath,
+      await readFile(local),
+      isZip ? "application/zip" : "application/json",
+    );
+
+    // Keyed on storage_path, so re-runs never create duplicate rows.
+    const row = { file_name: file, sort_order: i };
+    await retry(`${file} row`, async () => {
+      const found = await supabase
+        .from("product_files")
+        .select("id")
+        .eq("product_id", product.id)
+        .eq("storage_path", storagePath)
+        .maybeSingle();
+      if (found.error) return found;
+      return found.data
+        ? supabase.from("product_files").update(row).eq("id", found.data.id)
+        : supabase.from("product_files").insert({
+            ...row,
+            product_id: product.id,
+            storage_path: storagePath,
+          });
+    });
+    console.log(`file   ${file}`);
+  }
+
+  // ---- Images → public bucket ----
+  const uploadImage = async (name) => {
+    const body = await readFile(path.join(storeDir(id), `${name}.webp`));
+    const hash = createHash("sha1").update(body).digest("hex").slice(0, 10);
+    const storagePath = `${slug}/${name}-${hash}.webp`;
+    await upload(COVERS_BUCKET, storagePath, body, "image/webp");
+    console.log(`image  ${storagePath}`);
+    return supabase.storage.from(COVERS_BUCKET).getPublicUrl(storagePath).data
+      .publicUrl;
+  };
+
+  const cover = await uploadImage("cover");
+  const gallery = [];
+  for (const [, name, alt] of shots)
+    gallery.push({ url: await uploadImage(name), alt });
+
+  const { error: uErr } = await supabase
+    .from("products")
+    .update({ cover_image_url: cover, gallery })
+    .eq("id", product.id);
+  if (uErr) throw new Error(uErr.message);
+  console.log(`${slug}: cover + ${gallery.length} gallery images`);
 }
-
-// ---- Images → public bucket ----
-async function uploadImage(name) {
-  const body = await readFile(path.join(STORE, `${name}.webp`));
-  const hash = createHash("sha1").update(body).digest("hex").slice(0, 10);
-  const storagePath = `${SLUG}/${name}-${hash}.webp`;
-  await upload(COVERS_BUCKET, storagePath, body, "image/webp");
-  console.log(`image  ${storagePath}`);
-  return supabase.storage.from(COVERS_BUCKET).getPublicUrl(storagePath).data
-    .publicUrl;
-}
-
-const cover = await uploadImage("cover");
-const gallery = [];
-for (const [, name, alt] of SHOTS)
-  gallery.push({ url: await uploadImage(name), alt });
-
-const { error: uErr } = await supabase
-  .from("products")
-  .update({ cover_image_url: cover, gallery })
-  .eq("id", product.id);
-if (uErr) throw new Error(uErr.message);
-console.log(`product updated: cover + ${gallery.length} gallery images`);
