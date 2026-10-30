@@ -1,7 +1,7 @@
 # Cover Image Prompts
 
 Ready-to-paste prompts to generate cover art for each product, tuned to the
-Aiselling brand. Works with Midjourney, DALL·E / ChatGPT, Ideogram, Leonardo,
+Makeready brand. Works with Midjourney, DALL·E / ChatGPT, Ideogram, Leonardo,
 Flux, etc.
 
 ## How to use

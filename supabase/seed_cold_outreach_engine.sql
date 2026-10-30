@@ -1,5 +1,5 @@
 -- ============================================================
--- Aiselling — prompt product: "The Cold Outreach Engine"
+-- Makeready — prompt product: "The Cold Outreach Engine"
 --
 -- A 'prompts' product: 10 chained prompts that take you from "who do I email?"
 -- to booked meetings — research, cold email, follow-ups, objection handling.

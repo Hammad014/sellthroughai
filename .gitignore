@@ -45,3 +45,6 @@ next-env.d.ts
 
 # generated planner PDFs / previews
 /scripts/planners/out/
+/scripts/automation/out/
+/scripts/etsy/out/
+/scripts/webapps/out/

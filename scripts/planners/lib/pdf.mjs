@@ -1,5 +1,5 @@
 /**
- * Shared drawing primitives for Promptory's hyperlinked digital planners.
+ * Shared drawing primitives for Makeready's hyperlinked digital planners.
  *
  * Every planner is an iPad-landscape PDF (4:3) where tabs, nav pills and
  * calendar dates are internal links. Links use explicit page references with
@@ -61,6 +61,76 @@ export const THEMES = {
     accentSoft: "#1D3045",
     onAccent: "#0D1117",
   },
+  // Focus Planner: calmer sage palette + a warm second accent for wins.
+  sage: {
+    id: "sage",
+    name: "Sage",
+    bg: "#F4F2EC",
+    surface: "#E9E7DE",
+    surface2: "#DFDCD1",
+    ink: "#1F2421",
+    muted: "#6C746D",
+    faint: "#A6ACA3",
+    line: "#D7D5CA",
+    dot: "#B5B8AD",
+    accent: "#3E8A67",
+    accentSoft: "#D8E7DD",
+    onAccent: "#FFFFFF",
+    warm: "#D9822B",
+    warmSoft: "#F3E2CF",
+  },
+  night: {
+    id: "night",
+    name: "Night",
+    bg: "#14181A",
+    surface: "#1C2124",
+    surface2: "#252B2F",
+    ink: "#E6ECE8",
+    muted: "#8D9792",
+    faint: "#56605B",
+    line: "#2A3135",
+    dot: "#4A5550",
+    accent: "#6CC49A",
+    accentSoft: "#1C3328",
+    onAccent: "#0D1411",
+    warm: "#F0A75A",
+    warmSoft: "#3A2A1A",
+  },
+  // Budget Planner: teal for structure, gold for money saved.
+  linen: {
+    id: "linen",
+    name: "Linen",
+    bg: "#F6F2EA",
+    surface: "#ECE6DA",
+    surface2: "#E2DBCC",
+    ink: "#22201C",
+    muted: "#77705F",
+    faint: "#ADA592",
+    line: "#DAD2C2",
+    dot: "#BBB29E",
+    accent: "#2F7D7A",
+    accentSoft: "#D6E8E6",
+    onAccent: "#FFFFFF",
+    warm: "#C08A25",
+    warmSoft: "#F2E6CC",
+  },
+  ink: {
+    id: "ink",
+    name: "Ink",
+    bg: "#13161B",
+    surface: "#1B1F26",
+    surface2: "#242932",
+    ink: "#E8E6E1",
+    muted: "#8D919B",
+    faint: "#575C67",
+    line: "#2B3039",
+    dot: "#4B515D",
+    accent: "#4FB3AE",
+    accentSoft: "#17322F",
+    onAccent: "#0B1312",
+    warm: "#E3B25A",
+    warmSoft: "#33291A",
+  },
 };
 
 export function createDoc({ title, subject }) {
@@ -72,9 +142,9 @@ export function createDoc({ title, subject }) {
     compress: true,
     info: {
       Title: title,
-      Author: "Promptory",
+      Author: "Makeready",
       Subject: subject,
-      Creator: "Promptory",
+      Creator: "Makeready",
     },
   });
   for (const [name, path] of Object.entries(FONTS))

@@ -1,4 +1,4 @@
-# Aiselling — Updates & Apply Guide
+# Makeready — Updates & Apply Guide
 
 Everything built/changed in this round of work: a security fix, the email/password
 auth split, the in-app **prompt library** feature, site content, and **8 product
@@ -37,6 +37,13 @@ safe to run more than once.
 | `supabase/seed_ai_at_work_playbook.sql` | The AI-at-Work Playbook | Guide | $19 |
 | `supabase/seed_prompt_bundle.sql` | The Prompt Power Bundle (all 5 packs) | Bundle | $99 |
 | `supabase/seed_clarity_planner.sql` | Clarity Digital Planner (✅ applied) | Planner | $19 |
+| `supabase/seed_ai_automation_kit.sql` | The AI Automation Starter Kit (seeded as **draft**) | Automation kit | $29 |
+| `supabase/seed_focus_planner.sql` | Focus Planner: ADHD-Friendly (seeded as **draft**) | Planner | $17 |
+| `supabase/seed_budget_planner.sql` | Budget Planner (seeded as **draft**) | Planner | $15 |
+| `supabase/seed_ai_agent_course.sql` | Build Your First AI Agent (No Code) (seeded as **draft**) | Course | $39 |
+| `supabase/seed_automation_bundle.sql` | The AI Automation Bundle: kit + agent course (**draft**, run after both) | Bundle | $55 |
+| `supabase/seed_planner_bundle.sql` | The New Year Planner Bundle: Clarity + Focus + Budget (**draft**, run after all three) | Bundle | $35 |
+| `supabase/seed_life_planner_web.sql` | Life Planner: interactive web-app planner, one HTML file (**draft**) | Planner | $19 |
 
 > **Run `seed_prompt_bundle.sql` last** — it links the 5 prompt packs, so they
 > must already be seeded (and migration 0007 applied).
@@ -168,17 +175,48 @@ no design tools needed, and every link is machine-checked.
 
 | File | What it does |
 |---|---|
-| `lib/pdf.mjs` | Page size (iPad landscape 4:3), Paper/Midnight themes, fonts, drawing + link primitives |
+| `planners.mjs` | **Registry** of every planner (slug, builder, themes, gallery shots, cover, palette). Add a planner here and every script below picks it up |
+| `lib/pdf.mjs` | Page size (iPad landscape 4:3), themes (Paper/Midnight, Sage/Night), fonts, drawing + link primitives |
+| `lib/layout.mjs` | Shared page grid, header + pill buttons, month tabs, mini calendars |
 | `lib/calendar.mjs` | UTC date helpers (weeks, month grids, Monday/Sunday start) |
 | `clarity.mjs` | The Clarity Planner: page plan + every page layout + link wiring |
-| `build.mjs` | Builds the 6 buyer files → `scripts/planners/out/clarity/` (gitignored) |
+| `focus.mjs` | The Focus Planner (ADHD-friendly): just 3 things, time blocks, brain dump + sort, task breakdowns, routines, dopamine menu |
+| `build.mjs` | Builds each planner's 6 buyer files → `scripts/planners/out/<id>/` (gitignored) |
 | `check-links.mjs` | Fails if any link is broken or any page is unreachable |
-| `mockups.mjs` | Renders REAL pages (MuPDF) into tablet mockups → cover + 8 gallery images |
-| `publish.mjs` | Uploads PDFs (private bucket + `product_files`) and images (public bucket), sets cover + gallery. Idempotent |
+| `mockups.mjs` | Renders REAL pages (MuPDF) into tablet mockups → cover + 8 gallery images per planner |
+| `publish.mjs` | Uploads PDFs (private bucket + `product_files`) and images (public bucket), sets cover + gallery. Idempotent; skips planners whose product isn't seeded yet |
+
+Every script takes optional planner ids (`clarity`, `focus`); no ids = all.
 
 ```bash
-npm run planners:build     # build PDFs, verify links, render store images
-npm run planners:publish   # push files + images to Supabase (needs .env.local)
+npm run planners:build                      # build PDFs, verify links, render store images (all planners)
+npm run planners:publish                    # push files + images to Supabase (needs .env.local)
+node scripts/planners/publish.mjs focus     # just one planner
+```
+
+### Interactive Life Planner (web app) — `scripts/webapps/`
+
+For buyers who don't want to set anything up: **one HTML file** they
+double-click. It opens in the browser on today, saves as they type
+(localStorage), works offline, and has backup / restore in Settings. Today
+(top 3, to-dos, time blocks, mood/energy/water, habits, wins), Week, Month,
+Habit tracker, Goals, Brain dump, Money (budget by category, spending log,
+savings) and Settings (theme, week start, currency). Made for computers: phones
+can't run a downloaded HTML file reliably (iPhone only previews it), and every
+listing says so.
+
+| File | What it does |
+|---|---|
+| `planner/app.js`, `planner/styles.css` | The app (vanilla JS, no dependencies) |
+| `build.mjs` | Inlines CSS, JS and fonts → `scripts/webapps/out/Makeready-Life-Planner.html` (~145 KB) |
+| `test.mjs` | Real-browser test: every screen, saving, reload, backup/erase/restore, dark mode, phone widths |
+| `mockups.mjs` | Demo week loaded into the real app → cover + 6 gallery images |
+| `publish.mjs` | Uploads the HTML (private bucket + `product_files`) and images, sets cover + gallery |
+
+```bash
+npm run webapps:build      # HTML file + store images
+npm run webapps:test       # must say ALL PASSED
+npm run webapps:publish    # after running seed_life_planner_web.sql (needs .env.local)
 ```
 
 **How planners show up in the app:** category `planners` ("Digital Planners") +
@@ -190,6 +228,44 @@ PDF, then the setup guide. Admins can edit any product's gallery on its edit pag
 
 **To change the planner:** edit `clarity.mjs`, run both commands above. The PDF
 paths are stable, so buyers who download again get the new version.
+
+## 3e. n8n products (workflows generated from code)
+
+Two products are built from `scripts/automation/` (no hand-edited JSON),
+listed in `lib/packages.mjs`:
+
+- **kit**: the AI Automation Starter Kit, 10 workflows (`workflows/`) + Google Sheets templates (`sheets/`)
+- **course**: Build Your First AI Agent, 3 example agents (`agents/`) + the system-prompt template (`course-files/`)
+
+Every script takes an optional package id (`kit`, `course`); no id = both.
+Build output goes to `out/<id>/`, store images live in `store/<id>/`.
+
+| File | What it does |
+|---|---|
+| `lib/workflow.mjs`, `lib/nodes.mjs` | Tiny workflow builder + node factories pinned to n8n 2.45's node versions |
+| `workflows/NN-*.mjs`, `agents/*.mjs` | One file per workflow/agent: nodes, wires, prompts, on-canvas setup note |
+| `lib/packages.mjs` | Package registry: slug, source folder, zip name, extras, README, gallery shots, cover text |
+| `sheets/*.csv` | Google Sheets templates the workflows read/write |
+| `build.mjs` | Writes each workflow `.json` + the package zip → `scripts/automation/out/<id>/` (gitignored) |
+| `validate.mjs` | Dev check with **n8n's own validator** (needs an n8n install, see the file header) |
+| `store-images.mjs` | Dev tool: screenshots the workflows in a running n8n editor → `store/<id>/` (committed) |
+| `publish.mjs` | Uploads the zip + JSON files (private bucket + `product_files`) and the store images; sets cover + gallery. Idempotent |
+
+```bash
+npm run automation:build     # build both packages (workflow files + zips)
+npm run automation:publish   # push files + images to Supabase (needs .env.local)
+```
+
+**How it was tested:** every workflow passes n8n's validator, imports into
+n8n 2.45 and opens cleanly in the editor, and runs end to end in a real n8n
+with sample data and a mock AI (Gmail/Sheets/Slack steps bypassed). **Run
+each one once with your own accounts before launch**: that's the one thing
+that couldn't be tested here.
+
+**How it shows up in the app:** category `automation` + `delivery_type='gated'`.
+The buyer's library card says **Get automation kit**; the kit page leads with
+the downloads (complete .zip first, then each workflow), then one setup guide
+per workflow. The first guide is the free preview on the sales page.
 
 ## 4. Still on you (not code)
 

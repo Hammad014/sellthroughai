@@ -1,5 +1,5 @@
 -- ============================================================
--- Aiselling — payments add-on (Lemon Squeezy)
+-- Makeready — payments add-on (Lemon Squeezy)
 -- Additive only; existing schema is unchanged. Run after 0001_init.sql.
 -- ============================================================
 

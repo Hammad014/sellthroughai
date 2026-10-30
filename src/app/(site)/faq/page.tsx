@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SUPPORT_EMAIL } from "@/lib/site";
 import Link from "next/link";
 
 export const metadata: Metadata = { title: "FAQ" };
@@ -62,11 +63,8 @@ export default function FaqPage() {
       </h1>
       <p className="text-muted-foreground mt-4">
         Can&apos;t find what you need? Email{" "}
-        <a
-          href="mailto:[support@yourdomain.com]"
-          className="text-primary underline"
-        >
-          [support@yourdomain.com]
+        <a href={`mailto:${SUPPORT_EMAIL}`} className="text-primary underline">
+          {SUPPORT_EMAIL}
         </a>
         .
       </p>

@@ -1,4 +1,4 @@
-# Aiselling — Setup & Deployment
+# Makeready — Setup & Deployment
 
 Exact, ordered steps to take this from a fresh clone to a live Vercel
 deployment. Payments (Lemon Squeezy) are **not** part of this — there's a clean
@@ -24,7 +24,7 @@ npm install
 ## 1. Create the Supabase project
 
 1. Go to <https://supabase.com/dashboard> → **New project**.
-2. Pick an org, name it (e.g. `aiselling`), set a strong **database password**,
+2. Pick an org, name it (e.g. `makeready`), set a strong **database password**,
    choose a region close to your users, and create it.
 3. Wait ~2 minutes for it to finish provisioning.
 
@@ -39,8 +39,10 @@ npm install
    - `supabase/migrations/0002_payments.sql` — `orders.receipt_url` (Lemon
      Squeezy).
    - `supabase/migrations/0003_cart.sql` — the persistent `cart_items` table.
-3. (Optional, recommended) Open `supabase/seed.sql`, paste it into a new query,
-   and **Run** it to insert 3 published demo products.
+3. Add the real products: run the remaining migrations and the
+   `supabase/seed_*.sql` files in the order listed in **[UPDATES.md](./UPDATES.md)**.
+   (`supabase/seed.sql` no longer adds demo products. It only unpublishes the
+   old demo ones, if you ran an earlier version.)
 
 > Using the Supabase CLI instead? `supabase link` to your project, then
 > `supabase db push`. `supabase db reset` will also auto-run `seed.sql`.
@@ -69,20 +71,23 @@ Open **Storage** in the dashboard and create **two** buckets:
 
 ## 4. Configure authentication
 
-### Email magic link
+### Email + password
 
-1. **Authentication → Providers → Email**: ensure **Enable Email provider** is
-   on. (Magic links work out of the box; no password needed.)
+1. **Authentication → Providers → Email**: make sure **Enable Email provider**
+   and **Confirm email** are on. Buyers sign in with email + password.
+2. **Set up custom SMTP** (**Authentication → Emails → SMTP Settings**), e.g.
+   with Resend, Postmark or your email host. Supabase's built-in sender only
+   delivers to your own team's addresses and is heavily rate-limited, so
+   without this, customers never get their confirmation or password emails.
+3. Optional: edit the **Reset password** template (**Authentication → Emails**)
+   so it also reads well for first-time buyers, e.g. subject "Set your
+   password" and "Click below to set your password and open your library."
 
-### Google OAuth
-
-1. In **Google Cloud Console** → **APIs & Services → Credentials**, create an
-   **OAuth client ID** (type: Web application).
-2. Under **Authorized redirect URIs**, add:
-   `https://<YOUR-PROJECT-REF>.supabase.co/auth/v1/callback`
-3. Copy the **Client ID** and **Client secret**.
-4. In Supabase: **Authentication → Providers → Google**, enable it and paste the
-   Client ID + secret. Save.
+**Guest buyers:** anyone can check out without an account. The webhook creates
+an account for their checkout email with no password. After paying they land on
+`/login?purchased=1`, which asks them to set a password (the "Forgot password?"
+flow → email link → `/dashboard/set-password`). They can do the same later from
+the login page.
 
 ### Redirect / Site URLs
 
@@ -158,7 +163,8 @@ Useful checks:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`
-   - `NEXT_PUBLIC_SITE_URL` → your Vercel URL, e.g. `https://aiselling.vercel.app`
+   - `NEXT_PUBLIC_SITE_URL` → `https://usemakeready.com` (or your Vercel URL,
+     e.g. `https://makeready.vercel.app`, until the domain is connected)
 4. Click **Deploy**.
 
 ### After the first deploy
@@ -170,6 +176,35 @@ Useful checks:
   (`https://<ref>.supabase.co/auth/v1/callback`) — no change needed.
 - Update `NEXT_PUBLIC_SITE_URL` in Vercel to the production domain and redeploy
   if it changed.
+
+### Connect the domain (usemakeready.com, registered at GoDaddy)
+
+1. **Vercel → Project → Settings → Domains**: add `usemakeready.com` and
+   `www.usemakeready.com`. Make `usemakeready.com` the primary domain and let
+   `www` redirect to it.
+2. **GoDaddy → My Products → usemakeready.com → DNS**: add the records Vercel
+   shows on that page. Usually that's:
+   - `A` record, name `@`, value `76.76.21.21`
+   - `CNAME` record, name `www`, value `cname.vercel-dns.com`
+
+   Delete GoDaddy's default "Parked" `A` record for `@` first. If Vercel shows
+   different values for your project, use Vercel's.
+3. Wait for Vercel to show both domains as **Valid** (minutes to a few hours).
+   HTTPS is issued automatically.
+4. Point everything else at the domain:
+   - Vercel env: `NEXT_PUBLIC_SITE_URL=https://usemakeready.com`, then redeploy.
+   - Supabase **Authentication → URL Configuration**: **Site URL**
+     `https://usemakeready.com`, and add `https://usemakeready.com/**` to
+     **Redirect URLs**.
+   - Lemon Squeezy webhook URL:
+     `https://usemakeready.com/api/webhooks/lemonsqueezy`.
+5. **Email on the domain:**
+   - **Inbox for `support@usemakeready.com`**: a forwarder (ImprovMX, free)
+     sends it to your Gmail; or use a mailbox (Zoho Mail, Google Workspace).
+     You don't need GoDaddy's email add-on.
+   - **Sending auth emails** (password links, confirmations): set up Resend
+     (or similar) for `usemakeready.com`, add the DNS records it gives you in
+     GoDaddy, then put its SMTP details in Supabase (see section 4).
 
 ---
 
@@ -183,7 +218,7 @@ Useful checks:
   `robots.txt`, and dynamic per-product OpenGraph images. These activate
   automatically once `NEXT_PUBLIC_SITE_URL` points at your real domain — there's
   nothing to do before launch except set that variable. After you have a domain,
-  submit `https://<domain>/sitemap.xml` to Google Search Console.
+  submit `https://usemakeready.com/sitemap.xml` to Google Search Console.
 - **Analytics is intentionally deferred** until you have a domain (it needs an
   account + live traffic to be useful). When ready, a privacy-friendly script
   (Plausible / Umami) drops into `src/app/layout.tsx`.

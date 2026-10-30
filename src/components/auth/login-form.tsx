@@ -3,26 +3,51 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Loader2, Lock, Mail } from "lucide-react";
+import { KeyRound, Loader2, Lock, Mail } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-type Mode = "signin" | "signup";
+export type Mode = "signin" | "signup" | "forgot";
 
-export function LoginForm({ next }: { next: string }) {
+export function LoginForm({
+  next,
+  initialMode = "signin",
+}: {
+  next: string;
+  initialMode?: Mode;
+}) {
   const supabase = createClient();
   const router = useRouter();
-  const [mode, setMode] = useState<Mode>("signin");
+  const [mode, setMode] = useState<Mode>(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
+  // Which "check your inbox" screen to show, if any.
+  const [sent, setSent] = useState<"confirm" | "reset" | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email || !password) return;
+    if (!email) return;
+
+    // Password reset — also how guest buyers (whose account was created at
+    // checkout, with no password) set their first password.
+    if (mode === "forgot") {
+      setLoading(true);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(`/dashboard/set-password?next=${encodeURIComponent(next)}`)}`,
+      });
+      setLoading(false);
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      setSent("reset");
+      return;
+    }
+
+    if (!password) return;
     setLoading(true);
 
     if (mode === "signup") {
@@ -40,7 +65,7 @@ export function LoginForm({ next }: { next: string }) {
       }
       // When email confirmation is enabled, no session is returned yet.
       if (!data.session) {
-        setSent(true);
+        setSent("confirm");
         return;
       }
       router.push(next);
@@ -68,18 +93,29 @@ export function LoginForm({ next }: { next: string }) {
           <Mail className="size-5" />
         </div>
         <h2 className="font-display mt-4 text-xl font-semibold">
-          Confirm your email
+          {sent === "confirm" ? "Confirm your email" : "Check your inbox"}
         </h2>
         <p className="text-muted-foreground mt-2 text-sm">
-          We sent a confirmation link to{" "}
-          <span className="text-foreground">{email}</span>. Click it to activate
-          your account, then sign in.
+          {sent === "confirm" ? (
+            <>
+              We sent a confirmation link to{" "}
+              <span className="text-foreground">{email}</span>. Click it to
+              activate your account, then sign in.
+            </>
+          ) : (
+            <>
+              If an account exists for{" "}
+              <span className="text-foreground">{email}</span>, we&apos;ve sent
+              a link to set your password. Open it in this browser. Nothing
+              after a minute? Check spam, or try again.
+            </>
+          )}
         </p>
         <Button
           variant="ghost"
           className="mt-4"
           onClick={() => {
-            setSent(false);
+            setSent(null);
             setMode("signin");
           }}
         >
@@ -89,8 +125,18 @@ export function LoginForm({ next }: { next: string }) {
     );
   }
 
+  const linkClass =
+    "text-foreground font-medium underline-offset-4 hover:underline";
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      {mode === "forgot" && (
+        <p className="text-muted-foreground text-sm">
+          Enter the email you signed up or bought with and we&apos;ll send you a
+          link to set a new password.
+        </p>
+      )}
+
       <div className="flex flex-col gap-2">
         <Label htmlFor="email">Email</Label>
         <Input
@@ -105,27 +151,48 @@ export function LoginForm({ next }: { next: string }) {
         />
       </div>
 
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="password">Password</Label>
-        <Input
-          id="password"
-          type="password"
-          autoComplete={mode === "signup" ? "new-password" : "current-password"}
-          placeholder="••••••••"
-          minLength={6}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-      </div>
+      {mode !== "forgot" && (
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="password">Password</Label>
+            {mode === "signin" && (
+              <button
+                type="button"
+                className="text-muted-foreground hover:text-foreground text-xs underline-offset-4 hover:underline"
+                onClick={() => setMode("forgot")}
+              >
+                Forgot password?
+              </button>
+            )}
+          </div>
+          <Input
+            id="password"
+            type="password"
+            autoComplete={
+              mode === "signup" ? "new-password" : "current-password"
+            }
+            placeholder="••••••••"
+            minLength={6}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+      )}
 
       <Button type="submit" className="h-11 w-full" disabled={loading}>
         {loading ? (
           <Loader2 className="size-4 animate-spin" />
+        ) : mode === "forgot" ? (
+          <KeyRound className="size-4" />
         ) : (
           <Lock className="size-4" />
         )}
-        {mode === "signup" ? "Create account" : "Sign in"}
+        {mode === "signup"
+          ? "Create account"
+          : mode === "forgot"
+            ? "Send password link"
+            : "Sign in"}
       </Button>
 
       <p className="text-muted-foreground text-center text-sm">
@@ -134,10 +201,21 @@ export function LoginForm({ next }: { next: string }) {
             Already have an account?{" "}
             <button
               type="button"
-              className="text-foreground font-medium underline-offset-4 hover:underline"
+              className={linkClass}
               onClick={() => setMode("signin")}
             >
               Sign in
+            </button>
+          </>
+        ) : mode === "forgot" ? (
+          <>
+            Remembered it?{" "}
+            <button
+              type="button"
+              className={linkClass}
+              onClick={() => setMode("signin")}
+            >
+              Back to sign in
             </button>
           </>
         ) : (
@@ -145,7 +223,7 @@ export function LoginForm({ next }: { next: string }) {
             New here?{" "}
             <button
               type="button"
-              className="text-foreground font-medium underline-offset-4 hover:underline"
+              className={linkClass}
               onClick={() => setMode("signup")}
             >
               Create an account

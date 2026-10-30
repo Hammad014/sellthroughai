@@ -1,5 +1,5 @@
 -- ============================================================
--- Aiselling — prompt product: "The Marketing & Ads Engine"
+-- Makeready — prompt product: "The Marketing & Ads Engine"
 --
 -- A 'prompts' product: 10 prompts that take an offer from raw angle to running
 -- ads, landing pages and email funnels that convert.

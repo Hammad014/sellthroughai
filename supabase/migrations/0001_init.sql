@@ -1,5 +1,5 @@
 -- ============================================================
--- Aiselling — initial schema + Row Level Security
+-- Makeready — initial schema + Row Level Security
 -- Single migration. Run via Supabase SQL Editor or `supabase db push`.
 -- ============================================================
 

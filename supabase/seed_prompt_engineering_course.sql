@@ -1,5 +1,5 @@
 -- ============================================================
--- Aiselling — course product: "Prompt Engineering Fundamentals"
+-- Makeready — course product: "Prompt Engineering Fundamentals"
 --
 -- A 'gated' course (delivery_type='gated', category='courses'): 7 markdown
 -- lessons in course_lessons, read at /dashboard/courses/prompt-engineering-fundamentals.
