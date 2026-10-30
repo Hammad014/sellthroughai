@@ -26,6 +26,7 @@ scripts/etsy/out/<product>/
 | AI Automation Bundle | Kit + course files and PDFs | $39.99 |
 | Clarity / Focus planners | 3 zips (2027 Mon, 2027 Sun, undated; light + dark) + setup guide | $12.99 / $11.99 |
 | Budget Planner | 4 PDFs + setup guide | $9.99 |
+| Life Planner (web app) | One HTML file that opens in the browser + Start Here PDF. Computers only | $14.99 |
 | New Year Planner Bundle | All editions of all 3 planners (3 zips) + setup guide | $24.99 |
 
 Etsy prices are lower than the website's because Etsy shoppers compare a lot of
@@ -67,6 +68,7 @@ Run these after changing a product (needs Playwright + Chromium:
 ```bash
 npm run planners:build      # planner PDFs + store images
 npm run automation:build    # n8n kit + course files
+npm run webapps:build       # interactive Life Planner (HTML) + store images
 npm run etsy:build          # all Etsy editions, from the live database
 npm run etsy:build -- budget-digital-planner   # just one
 ```

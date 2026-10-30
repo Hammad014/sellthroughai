@@ -7,7 +7,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { getCourseContent, hasEntitlement } from "@/lib/entitlements";
 import { FILES_BUCKET } from "@/lib/storage";
 import { Markdown } from "@/components/markdown";
-import { categoryName } from "@/lib/catalog";
+import { categoryName, isWebApp } from "@/lib/catalog";
 import type { Product } from "@/lib/supabase/types";
 
 export async function generateMetadata({
@@ -45,6 +45,7 @@ export default async function CoursePlayerPage({
   const isKit = product.category === "automation";
   // Planners and automation kits ARE their files, so downloads lead the page.
   const leadWithFiles = isPlanner || isKit;
+  const webApp = isWebApp(product.slug);
   const stepLabel = isPlanner
     ? "Step"
     : isKit
@@ -97,7 +98,9 @@ export default async function CoursePlayerPage({
           <p className="text-muted-foreground mt-1 text-sm">
             {isKit
               ? "Start with the complete kit: one .zip with every workflow plus the Google Sheets templates. Or download single workflows. The guides below walk you through importing them into n8n."
-              : "Download the version you like (or all of them) and open it in GoodNotes, Notability, Noteshelf, Xodo or Samsung Notes. New to digital planners? The setup guide below walks you through it."}
+              : webApp
+                ? "Download it to your computer and double-click it: it opens in your browser, ready to use. Everything you type saves automatically. The guide below has the details."
+                : "Download the version you like (or all of them) and open it in GoodNotes, Notability, Noteshelf, Xodo or Samsung Notes. New to digital planners? The setup guide below walks you through it."}
           </p>
           <ul className="mt-4 grid gap-3 sm:grid-cols-2">
             {files.map((f) => (
@@ -199,6 +202,7 @@ function kitFileLabel(fileName: string): string {
 }
 
 function plannerFileLabel(fileName: string): string {
+  if (/\.html$/i.test(fileName)) return "Your planner · opens in your browser";
   const parts = fileName.replace(/\.pdf$/i, "").split("-");
   const tail = parts.slice(2); // drop "<Name>-Planner"
   if (tail[0] === "Undated") return `Undated · ${tail.slice(1).join(" ")}`;

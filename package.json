@@ -13,6 +13,9 @@
     "planners:publish": "node scripts/planners/publish.mjs",
     "automation:build": "node scripts/automation/build.mjs",
     "automation:publish": "node scripts/automation/publish.mjs",
+    "webapps:build": "node scripts/webapps/build.mjs && node scripts/webapps/mockups.mjs",
+    "webapps:test": "node scripts/webapps/test.mjs",
+    "webapps:publish": "node scripts/webapps/publish.mjs",
     "etsy:build": "node scripts/etsy/build.mjs"
   },
   "dependencies": {

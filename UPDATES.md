@@ -43,6 +43,7 @@ safe to run more than once.
 | `supabase/seed_ai_agent_course.sql` | Build Your First AI Agent (No Code) (seeded as **draft**) | Course | $39 |
 | `supabase/seed_automation_bundle.sql` | The AI Automation Bundle: kit + agent course (**draft**, run after both) | Bundle | $55 |
 | `supabase/seed_planner_bundle.sql` | The New Year Planner Bundle: Clarity + Focus + Budget (**draft**, run after all three) | Bundle | $35 |
+| `supabase/seed_life_planner_web.sql` | Life Planner: interactive web-app planner, one HTML file (**draft**) | Planner | $19 |
 
 > **Run `seed_prompt_bundle.sql` last** — it links the 5 prompt packs, so they
 > must already be seeded (and migration 0007 applied).
@@ -191,6 +192,31 @@ Every script takes optional planner ids (`clarity`, `focus`); no ids = all.
 npm run planners:build                      # build PDFs, verify links, render store images (all planners)
 npm run planners:publish                    # push files + images to Supabase (needs .env.local)
 node scripts/planners/publish.mjs focus     # just one planner
+```
+
+### Interactive Life Planner (web app) — `scripts/webapps/`
+
+For buyers who don't want to set anything up: **one HTML file** they
+double-click. It opens in the browser on today, saves as they type
+(localStorage), works offline, and has backup / restore in Settings. Today
+(top 3, to-dos, time blocks, mood/energy/water, habits, wins), Week, Month,
+Habit tracker, Goals, Brain dump, Money (budget by category, spending log,
+savings) and Settings (theme, week start, currency). Made for computers: phones
+can't run a downloaded HTML file reliably (iPhone only previews it), and every
+listing says so.
+
+| File | What it does |
+|---|---|
+| `planner/app.js`, `planner/styles.css` | The app (vanilla JS, no dependencies) |
+| `build.mjs` | Inlines CSS, JS and fonts → `scripts/webapps/out/Makeready-Life-Planner.html` (~145 KB) |
+| `test.mjs` | Real-browser test: every screen, saving, reload, backup/erase/restore, dark mode, phone widths |
+| `mockups.mjs` | Demo week loaded into the real app → cover + 6 gallery images |
+| `publish.mjs` | Uploads the HTML (private bucket + `product_files`) and images, sets cover + gallery |
+
+```bash
+npm run webapps:build      # HTML file + store images
+npm run webapps:test       # must say ALL PASSED
+npm run webapps:publish    # after running seed_life_planner_web.sql (needs .env.local)
 ```
 
 **How planners show up in the app:** category `planners` ("Digital Planners") +

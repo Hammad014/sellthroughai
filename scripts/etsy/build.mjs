@@ -7,8 +7,8 @@
  *   node scripts/etsy/build.mjs --catalog snapshot.json [slug…]
  *   node scripts/etsy/build.mjs [slug…]        (reads the live database)
  *
- * Needs the planner and n8n builds first (npm run planners:build,
- * npm run automation:build) and Playwright + Chromium.
+ * Needs the planner, n8n and web-app builds first (npm run planners:build,
+ * npm run automation:build, npm run webapps:build) and Playwright + Chromium.
  */
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -36,6 +36,11 @@ import {
   outDir as plannerOut,
   variants,
 } from "../planners/planners.mjs";
+import { APPS, outDir as webappOut } from "../webapps/build.mjs";
+import {
+  SHOTS as WEBAPP_SHOTS,
+  storeDir as webappStore,
+} from "../webapps/mockups.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(HERE, "out");
@@ -394,6 +399,8 @@ const NEED = {
   planner:
     "a tablet with GoodNotes, Notability, Noteshelf, Xodo or Samsung Notes",
   n8n: "an n8n account (cloud or self-hosted) and an OpenAI API key",
+  webapp:
+    "a computer or laptop (Windows, Mac or Chromebook) with Chrome, Edge, Firefox or Safari. Not for phones",
 };
 
 const STEPS = {
@@ -416,6 +423,11 @@ const STEPS = {
     "Download and unzip the files",
     "Import the workflows into n8n",
     "Follow the guide to connect your accounts",
+  ],
+  webapp: [
+    "Download the planner file to your computer",
+    "Double-click it: it opens in your browser",
+    "Type and tick. It saves as you go",
   ],
 };
 
@@ -554,6 +566,31 @@ async function packageProduct(slug, l, catalog, cache) {
     images.push(cover);
     for (const [, , name] of PLANNERS[id].shots)
       images.push(await storeImage(path.join(store, `${name}.webp`)));
+  }
+
+  if (l.kind === "webapp") {
+    const app = APPS[l.app];
+    files.push({
+      name: app.file,
+      data: await readFile(path.join(webappOut, app.file)),
+    });
+    files.push({
+      name: app.file.replace(/\.html$/, "-Start-Here.pdf"),
+      data: await lessonsPdf(p, {
+        kind: "Guide",
+        label: "Step",
+        title: `${app.title}: Start Here`,
+      }),
+    });
+    fileLines = [
+      `${app.title} (one file that opens in your browser)`,
+      "Start Here guide PDF",
+    ];
+    const cover = await storeImage(path.join(webappStore, "cover.webp"));
+    cache.set(slug, { hero: cover });
+    images.push(cover);
+    for (const [name] of WEBAPP_SHOTS)
+      images.push(await storeImage(path.join(webappStore, `${name}.webp`)));
   }
 
   if (l.kind === "n8n") {

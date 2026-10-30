@@ -14,7 +14,7 @@ import {
   getSampleLesson,
 } from "@/lib/previews";
 import { PromptItem } from "@/components/prompts/prompt-item";
-import { categoryName, formatPrice } from "@/lib/catalog";
+import { categoryName, formatPrice, isWebApp } from "@/lib/catalog";
 import { Cover } from "@/components/cover";
 import { ProductGallery } from "@/components/product-gallery";
 import { Markdown } from "@/components/markdown";
@@ -88,15 +88,17 @@ export default async function ProductDetailPage({
 
   const deliveryBenefit = isBundle
     ? `All ${bundleItems.length} products unlocked in your library`
-    : isPlanner
-      ? "Instant PDF downloads in your library"
-      : isKit
-        ? "Ready-to-import n8n files + step-by-step setup guides"
-        : delivery === "gated"
-          ? "Streamed lessons & gated content in your library"
-          : delivery === "prompts"
-            ? "Copy-and-go prompt library inside your dashboard"
-            : "Downloadable files in your library";
+    : isWebApp(product.slug)
+      ? "Instant download: one file that opens in your browser"
+      : isPlanner
+        ? "Instant PDF downloads in your library"
+        : isKit
+          ? "Ready-to-import n8n files + step-by-step setup guides"
+          : delivery === "gated"
+            ? "Streamed lessons & gated content in your library"
+            : delivery === "prompts"
+              ? "Copy-and-go prompt library inside your dashboard"
+              : "Downloadable files in your library";
 
   const benefits = [
     isBundle

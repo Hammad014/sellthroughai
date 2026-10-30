@@ -6,7 +6,7 @@
  * Etsy limits: title ≤ 140 chars, 13 tags of ≤ 20 chars, 5 files ≤ 20 MB.
  */
 
-/** kind: prompts | ebook | planner | n8n | bundle */
+/** kind: prompts | ebook | planner | n8n | webapp | bundle */
 export const LISTINGS = {
   // ---- Prompt packs ------------------------------------------------------
   "founder-content-engine": {
@@ -331,6 +331,28 @@ export const LISTINGS = {
       "2027 planner",
       "money planner",
       "no spend challenge",
+      "undated planner",
+    ],
+  },
+  "life-planner-web-app": {
+    kind: "webapp",
+    app: "planner",
+    price: 14.99,
+    title:
+      "Life Planner for Your Computer, Interactive Daily Weekly Monthly Planner With Habit Tracker, Goals & Budget, Saves Automatically",
+    tags: [
+      "digital planner",
+      "life planner",
+      "interactive planner",
+      "daily planner",
+      "weekly planner",
+      "habit tracker",
+      "budget planner",
+      "goal planner",
+      "to do list",
+      "productivity",
+      "planner for laptop",
+      "2027 planner",
       "undated planner",
     ],
   },
