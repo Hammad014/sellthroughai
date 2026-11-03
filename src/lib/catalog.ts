@@ -42,10 +42,10 @@ export const CATEGORIES: Category[] = [
   },
   {
     slug: "templates",
-    name: "Notion & Templates",
+    name: "Spreadsheets & Templates",
     gradient: "grad-templates",
     icon: Layers,
-    blurb: "Plug-and-play systems to run your work and life.",
+    blurb: "Google Sheets and Excel templates that do the maths for you.",
   },
   {
     slug: "courses",

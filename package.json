@@ -16,6 +16,9 @@
     "webapps:build": "node scripts/webapps/build.mjs && node scripts/webapps/mockups.mjs",
     "webapps:test": "node scripts/webapps/test.mjs",
     "webapps:publish": "node scripts/webapps/publish.mjs",
+    "sheets:build": "node scripts/sheets/build.mjs && node scripts/sheets/mockups.mjs",
+    "sheets:test": "node scripts/sheets/test.mjs",
+    "sheets:publish": "node scripts/sheets/publish.mjs",
     "etsy:build": "node scripts/etsy/build.mjs"
   },
   "dependencies": {
@@ -48,6 +51,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.7",
     "eslint-config-prettier": "^10.1.8",
+    "exceljs": "^4.4.0",
     "mupdf": "^1.28.1",
     "pdfkit": "^0.20.2",
     "prettier": "^3.8.3",

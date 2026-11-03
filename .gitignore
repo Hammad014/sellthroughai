@@ -48,3 +48,4 @@ next-env.d.ts
 /scripts/automation/out/
 /scripts/etsy/out/
 /scripts/webapps/out/
+/scripts/sheets/out/

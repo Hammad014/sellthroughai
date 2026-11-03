@@ -321,7 +321,7 @@ const BG =
   "background: radial-gradient(120% 100% at 80% 0%, #f7efe2 0%, #efe6d6 45%, #e4d8c4 100%);";
 
 /** Laptop with the screenshot on its screen (16:10 viewport). */
-const laptop = (src, w) => {
+export const laptop = (src, w) => {
   const sh = Math.round((w * 900) / 1440);
   return `<div style="width:${w + 56}px">
     <div style="background:#16171b;border-radius:28px 28px 0 0;padding:28px 28px 34px;box-shadow:0 60px 120px rgba(60,40,10,.35)">
@@ -331,12 +331,12 @@ const laptop = (src, w) => {
   </div>`;
 };
 
-const label = (eyebrow, title, sub) => `
+export const label = (eyebrow, title, sub) => `
   <div style="font-family:Mono;font-size:30px;letter-spacing:.22em;color:#2b78c9">${eyebrow}</div>
   <div style="font-family:Display;font-weight:600;font-size:84px;line-height:1.05;letter-spacing:-.02em;color:#1f1d1a;margin:20px 0 24px">${title}</div>
   ${sub ? `<div style="font-family:Body;font-size:40px;line-height:1.4;color:#5e574d">${sub}</div>` : ""}`;
 
-async function compose(page, html) {
+export async function compose(page, html) {
   await page.setContent(
     `<!doctype html><meta charset="utf-8"><style>${await fontCss()} html,body{margin:0}</style>
     <div style="width:${W}px;height:${H}px;${BG}position:relative;overflow:hidden">${html}</div>`,

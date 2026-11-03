@@ -153,12 +153,17 @@ async function printPdf(name, html, { footer } = {}) {
   return pdf;
 }
 
-/** Merge PDFs (buffers) into one, in order. */
+/**
+ * Merge PDFs (buffers) into one, in order. Grafted pages lose their link
+ * annotations, so the LAST document is kept as the base (its links survive)
+ * and the earlier ones (covers, no links) are grafted in front of it.
+ */
 function mergePdfs(buffers) {
-  const out = new mupdf.PDFDocument();
-  for (const buf of buffers) {
+  const out = mupdf.Document.openDocument(buffers.at(-1), "application/pdf");
+  let at = 0;
+  for (const buf of buffers.slice(0, -1)) {
     const src = mupdf.Document.openDocument(buf, "application/pdf");
-    for (let i = 0; i < src.countPages(); i++) out.graftPage(-1, src, i);
+    for (let i = 0; i < src.countPages(); i++) out.graftPage(at++, src, i);
   }
   return Buffer.from(out.saveToBuffer("compress").asUint8Array());
 }

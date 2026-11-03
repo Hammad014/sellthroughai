@@ -6,7 +6,7 @@
  * Etsy limits: title ≤ 140 chars, 13 tags of ≤ 20 chars, 5 files ≤ 20 MB.
  */
 
-/** kind: prompts | ebook | planner | n8n | webapp | bundle */
+/** kind: prompts | ebook | planner | n8n | webapp | sheet | bundle */
 export const LISTINGS = {
   // ---- Prompt packs ------------------------------------------------------
   "founder-content-engine": {
@@ -354,6 +354,51 @@ export const LISTINGS = {
       "planner for laptop",
       "2027 planner",
       "undated planner",
+    ],
+  },
+  // ---- Spreadsheets (Google Sheets + Excel) ------------------------------
+  "budget-spreadsheet": {
+    kind: "sheet",
+    sheet: "budget",
+    price: 11.99,
+    title:
+      "Budget Spreadsheet Google Sheets & Excel, Paycheck Budget, Debt Snowball Calculator, Sinking Funds, Bill Tracker, Monthly Budget Template",
+    tags: [
+      "budget spreadsheet",
+      "google sheets budget",
+      "budget template",
+      "excel budget",
+      "paycheck budget",
+      "debt snowball",
+      "sinking funds",
+      "bill tracker",
+      "monthly budget",
+      "zero based budget",
+      "savings tracker",
+      "net worth tracker",
+      "personal finance",
+    ],
+  },
+  "adhd-student-planner": {
+    kind: "sheet",
+    sheet: "student",
+    price: 9.99,
+    title:
+      "ADHD Student Planner Spreadsheet, Google Sheets & Excel Assignment Tracker, College Homework Planner, Exam Countdown, Study Log",
+    tags: [
+      "adhd planner",
+      "student planner",
+      "assignment tracker",
+      "college planner",
+      "google sheets",
+      "homework planner",
+      "study planner",
+      "adhd student",
+      "exam tracker",
+      "academic planner",
+      "excel template",
+      "university planner",
+      "study tracker",
     ],
   },
   "new-year-planner-bundle": {

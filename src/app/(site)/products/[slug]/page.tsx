@@ -66,6 +66,7 @@ export default async function ProductDetailPage({
   const isGuide = product.category === "ebooks";
   const isPlanner = product.category === "planners";
   const isKit = product.category === "automation";
+  const isSheet = product.category === "templates";
 
   // "What's inside" previews (titles/curriculum + one free sample).
   const [promptPreviews, samplePrompt, lessonPreviews, sampleLesson] =
@@ -94,11 +95,13 @@ export default async function ProductDetailPage({
         ? "Instant PDF downloads in your library"
         : isKit
           ? "Ready-to-import n8n files + step-by-step setup guides"
-          : delivery === "gated"
-            ? "Streamed lessons & gated content in your library"
-            : delivery === "prompts"
-              ? "Copy-and-go prompt library inside your dashboard"
-              : "Downloadable files in your library";
+          : isSheet
+            ? "Instant download: works in Google Sheets and Excel"
+            : delivery === "gated"
+              ? "Streamed lessons & gated content in your library"
+              : delivery === "prompts"
+                ? "Copy-and-go prompt library inside your dashboard"
+                : "Downloadable files in your library";
 
   const benefits = [
     isBundle

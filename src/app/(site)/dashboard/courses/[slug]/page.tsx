@@ -43,16 +43,18 @@ export default async function CoursePlayerPage({
   const { lessons, files } = await getCourseContent(product.id);
   const isPlanner = product.category === "planners";
   const isKit = product.category === "automation";
+  const isSheet = product.category === "templates";
   // Planners and automation kits ARE their files, so downloads lead the page.
-  const leadWithFiles = isPlanner || isKit;
+  const leadWithFiles = isPlanner || isKit || isSheet;
   const webApp = isWebApp(product.slug);
-  const stepLabel = isPlanner
-    ? "Step"
-    : isKit
-      ? "Guide"
-      : product.category === "ebooks"
-        ? "Chapter"
-        : "Lesson";
+  const stepLabel =
+    isPlanner || isSheet
+      ? "Step"
+      : isKit
+        ? "Guide"
+        : product.category === "ebooks"
+          ? "Chapter"
+          : "Lesson";
 
   // Sign lesson videos (longer-lived for streaming inside the player).
   const lessonsWithVideo = await Promise.all(
@@ -93,14 +95,20 @@ export default async function CoursePlayerPage({
       {leadWithFiles && files.length > 0 && (
         <section className="mt-8">
           <h2 className="font-display text-xl font-semibold tracking-tight">
-            {isKit ? "Your workflow files" : "Your planner files"}
+            {isKit
+              ? "Your workflow files"
+              : isSheet
+                ? "Your spreadsheet"
+                : "Your planner files"}
           </h2>
           <p className="text-muted-foreground mt-1 text-sm">
             {isKit
               ? "Start with the complete kit: one .zip with every workflow plus the Google Sheets templates. Or download single workflows. The guides below walk you through importing them into n8n."
-              : webApp
-                ? "Download it to your computer and double-click it: it opens in your browser, ready to use. Everything you type saves automatically. The guide below has the details."
-                : "Download the version you like (or all of them) and open it in GoodNotes, Notability, Noteshelf, Xodo or Samsung Notes. New to digital planners? The setup guide below walks you through it."}
+              : isSheet
+                ? "Download the file, then open it in Google Sheets or Excel. The first step below shows exactly how (about 2 minutes)."
+                : webApp
+                  ? "Download it to your computer and double-click it: it opens in your browser, ready to use. Everything you type saves automatically. The guide below has the details."
+                  : "Download the version you like (or all of them) and open it in GoodNotes, Notability, Noteshelf, Xodo or Samsung Notes. New to digital planners? The setup guide below walks you through it."}
           </p>
           <ul className="mt-4 grid gap-3 sm:grid-cols-2">
             {files.map((f) => (
@@ -116,7 +124,9 @@ export default async function CoursePlayerPage({
                     <span className="block truncate text-sm font-medium">
                       {isKit
                         ? kitFileLabel(f.file_name)
-                        : plannerFileLabel(f.file_name)}
+                        : isSheet
+                          ? "Spreadsheet · Google Sheets & Excel"
+                          : plannerFileLabel(f.file_name)}
                     </span>
                     <span className="text-text-faint block truncate font-mono text-xs">
                       {f.file_name}

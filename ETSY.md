@@ -26,6 +26,8 @@ scripts/etsy/out/<product>/
 | AI Automation Bundle | Kit + course files and PDFs | $39.99 |
 | Clarity / Focus planners | 3 zips (2027 Mon, 2027 Sun, undated; light + dark) + setup guide | $12.99 / $11.99 |
 | Budget Planner | 4 PDFs + setup guide | $9.99 |
+| Budget Spreadsheet | .xlsx for Google Sheets + Excel, Start Here PDF | $11.99 |
+| ADHD Student Planner | .xlsx for Google Sheets + Excel, Start Here PDF | $9.99 |
 | Life Planner (web app) | One HTML file that opens in the browser + Start Here PDF. Computers only | $14.99 |
 | New Year Planner Bundle | All editions of all 3 planners (3 zips) + setup guide | $24.99 |
 
@@ -69,6 +71,8 @@ Run these after changing a product (needs Playwright + Chromium:
 npm run planners:build      # planner PDFs + store images
 npm run automation:build    # n8n kit + course files
 npm run webapps:build       # interactive Life Planner (HTML) + store images
+npm run sheets:build        # spreadsheets (.xlsx) + store images
+npm run sheets:test         # recalculates them in LibreOffice and checks every number
 npm run etsy:build          # all Etsy editions, from the live database
 npm run etsy:build -- budget-digital-planner   # just one
 ```
@@ -79,3 +83,12 @@ point it at a JSON snapshot with `--catalog snapshot.json` (format in
 
 Listing titles, tags and prices live in `scripts/etsy/listings.mjs`; the script
 refuses to build if a title is over 140 characters or a tag over 20.
+
+## Spreadsheets: the one-click Google Sheets link (recommended)
+
+Spreadsheet buyers can already upload the .xlsx to Google Drive, but a
+"Make a copy" link is smoother: one click and they have their own copy. To
+set it up once per spreadsheet, follow the steps at the top of
+`scripts/sheets/links.mjs`, paste the link there and rebuild with
+`npm run etsy:build`. The Start Here PDF then opens with a clickable
+"Make your own copy" step.

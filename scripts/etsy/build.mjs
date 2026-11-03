@@ -37,6 +37,12 @@ import {
   variants,
 } from "../planners/planners.mjs";
 import { APPS, outDir as webappOut } from "../webapps/build.mjs";
+import { SHEETS, outDir as sheetsOut } from "../sheets/build.mjs";
+import { SHEET_LINKS } from "../sheets/links.mjs";
+import {
+  STORE as SHEET_STORE,
+  storeDir as sheetStore,
+} from "../sheets/mockups.mjs";
 import {
   SHOTS as WEBAPP_SHOTS,
   storeDir as webappStore,
@@ -399,6 +405,8 @@ const NEED = {
   planner:
     "a tablet with GoodNotes, Notability, Noteshelf, Xodo or Samsung Notes",
   n8n: "an n8n account (cloud or self-hosted) and an OpenAI API key",
+  sheet:
+    "a free Google account (Google Sheets) or Microsoft Excel. Easiest on a computer; the Google Sheets app works on phones",
   webapp:
     "a computer or laptop (Windows, Mac or Chromebook) with Chrome, Edge, Firefox or Safari. Not for phones",
 };
@@ -423,6 +431,11 @@ const STEPS = {
     "Download and unzip the files",
     "Import the workflows into n8n",
     "Follow the guide to connect your accounts",
+  ],
+  sheet: [
+    "Download the spreadsheet file",
+    "Open it in Google Sheets (free) or Excel",
+    "Type in the yellow cells. It does the maths",
   ],
   webapp: [
     "Download the planner file to your computer",
@@ -565,6 +578,48 @@ async function packageProduct(slug, l, catalog, cache) {
     cache.set(slug, { hero: cover, id });
     images.push(cover);
     for (const [, , name] of PLANNERS[id].shots)
+      images.push(await storeImage(path.join(store, `${name}.webp`)));
+  }
+
+  if (l.kind === "sheet") {
+    const sh = SHEETS[l.sheet];
+    files.push({
+      name: sh.file,
+      data: await readFile(path.join(sheetsOut, sh.file)),
+    });
+    // With a "Make a copy" link, Google Sheets buyers get a one-click step 1.
+    const link = SHEET_LINKS[l.sheet];
+    const guide = link
+      ? {
+          ...p,
+          lessons: [
+            {
+              title: "Fastest way: one click into Google Sheets",
+              content_md: `[**Click here to make your own copy in Google Sheets**](${link})\n\nSign in to Google if asked, then click **Make a copy**. That's it: the copy is yours, and nobody else can see it.\n\nPrefer Excel, or want to keep the file? Use the .xlsx in your download and follow the next step.`,
+            },
+            ...p.lessons,
+          ],
+        }
+      : p;
+    files.push({
+      name: sh.file.replace(/\.xlsx$/, "-Start-Here.pdf"),
+      data: await lessonsPdf(guide, {
+        kind: "Guide",
+        label: "Step",
+        title: `${sh.title}: Start Here`,
+      }),
+    });
+    fileLines = [
+      `${sh.title} (.xlsx for Google Sheets and Excel)`,
+      link
+        ? "Start Here guide PDF with a one-click Google Sheets copy"
+        : "Start Here guide PDF",
+    ];
+    const store = sheetStore(l.sheet);
+    const cover = await storeImage(path.join(store, "cover.webp"));
+    cache.set(slug, { hero: cover });
+    images.push(cover);
+    for (const [, name] of SHEET_STORE[l.sheet].shots)
       images.push(await storeImage(path.join(store, `${name}.webp`)));
   }
 
