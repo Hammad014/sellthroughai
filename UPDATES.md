@@ -45,6 +45,8 @@ safe to run more than once.
 | `supabase/seed_planner_bundle.sql` | The New Year Planner Bundle: Clarity + Focus + Budget (**draft**, run after all three) | Bundle | $35 |
 | `supabase/seed_budget_spreadsheet.sql` | Budget Spreadsheet: Google Sheets & Excel (**draft**) | Spreadsheet | $15 |
 | `supabase/seed_student_planner_sheet.sql` | ADHD Student Planner: Assignment Tracker (**draft**) | Spreadsheet | $12 |
+| `supabase/seed_adhd_daily_planner.sql` | ADHD Daily Planner: Brain Dump, Habits & Routines (**draft**) | Spreadsheet | $12 |
+| `supabase/seed_life_planner_sheet.sql` | Life Planner Spreadsheet: Goals, Weekly Plan & Habits (**draft**) | Spreadsheet | $15 |
 | `supabase/seed_life_planner_web.sql` | Life Planner: interactive web-app planner, one HTML file (**draft**) | Planner | $19 |
 
 > **Run `seed_prompt_bundle.sql` last** — it links the 5 prompt packs, so they
@@ -209,6 +211,14 @@ everything else is a formula.
   assign", 50/30/20), monthly Dashboard with a month picker, Transactions,
   Year at a glance, Bills & paychecks, Debt Payoff (snowball/avalanche with a
   360-month simulation), Debt Plan, Savings & sinking funds, Net Worth.
+- **ADHD Daily Planner** (7 tabs): Today (energy check-in with a suggestion,
+  just 3 things, everything marked Today in the brain dump, habits), Brain
+  Dump (When: today / tomorrow / this week / someday / let it go), Habits
+  (year-long log with current and best streaks), Routines, Dopamine Menu,
+  Focus Log.
+- **Life Planner** (8 tabs): Dashboard, Weekly Plan (top 3, daily tasks,
+  review), Goals (progress and next step from Milestones), Milestones,
+  Habits, Dates (birthdays roll over yearly), Monthly Review.
 - **ADHD Student Planner** (7 tabs): Today (next 12 open tasks, most urgent
   first, each with a tiny first step), This Week, Assignments (auto priority
   and colours), Classes (progress, next due, average grade), Exams countdown,
@@ -217,9 +227,10 @@ everything else is a formula.
 | File | What it does |
 |---|---|
 | `lib.mjs` | Shared styles and helpers (cards, inputs, dropdowns, text progress bars) |
-| `budget.mjs`, `student.mjs` | The two workbooks, plus demo data for tests and screenshots |
+| `budget.mjs`, `student.mjs`, `adhd.mjs`, `life.mjs` | The four workbooks, plus demo data for tests and screenshots |
+| `blocks.mjs` | Shared tabs: Start Here, habit log with streaks, focus log |
 | `build.mjs` | Writes `scripts/sheets/out/*.xlsx` (and `out/demo/` with example data) |
-| `test.mjs` | Recalculates the demos in LibreOffice and checks every key number against an independent JS calculation (72 checks) |
+| `test.mjs` | Recalculates the demos in LibreOffice and checks every key number against an independent JS calculation (134 checks) |
 | `render.mjs`, `mockups.mjs` | Real renders of each tab → cover + gallery images |
 | `links.mjs` | Optional Google Sheets "Make a copy" links for the Etsy guide |
 | `publish.mjs` | Uploads the .xlsx and images to Supabase |

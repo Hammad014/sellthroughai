@@ -3,7 +3,7 @@
  * so the ebooks get real typography in the brand fonts. Dev tool: needs
  * Playwright + Chromium (`npx playwright install chromium`).
  */
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -211,11 +211,3 @@ export async function htmlImage(name, html, width, height) {
   await page.close();
   return jpg;
 }
-
-export const dataUrl = async (fileOrBuffer, mime = "image/png") => {
-  const buf =
-    typeof fileOrBuffer === "string"
-      ? await readFile(fileOrBuffer)
-      : fileOrBuffer;
-  return `data:${mime};base64,${buf.toString("base64")}`;
-};

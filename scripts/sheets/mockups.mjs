@@ -147,6 +147,126 @@ export const STORE = {
       ],
     ],
   },
+  adhd: {
+    cover: {
+      sheet: "Today",
+      eyebrow: "MAKEREADY · ADHD DAILY PLANNER",
+      title: "Start, even on the hard days",
+      sub: "Dump everything. Today shows just what's next, with a tiny first step.",
+      chips: [
+        "Google Sheets",
+        "Excel",
+        "Brain dump",
+        "Habit streaks",
+        "Routines",
+        "Dopamine menu",
+      ],
+    },
+    shots: [
+      [
+        "Today",
+        "01-today",
+        "TODAY",
+        "Energy check, just 3 things, nothing else",
+        "Today: energy check, just 3 things, today's tasks and habits",
+      ],
+      [
+        "Brain Dump",
+        "02-brain-dump",
+        "BRAIN DUMP",
+        "Empty your head, then give each a When",
+        "Brain dump sorted into today, tomorrow, this week, someday or let it go",
+      ],
+      [
+        "Habits",
+        "03-habits",
+        "HABITS",
+        "Tick today. Streaks count themselves.",
+        "Habit tracker with current and best streaks",
+      ],
+      [
+        "Routines",
+        "04-routines",
+        "ROUTINES",
+        "Morning, after-work and evening, step by step",
+        "Morning, after-work and evening routines with daily ticks",
+      ],
+      [
+        "Dopamine Menu",
+        "05-dopamine",
+        "DOPAMINE MENU",
+        "Your own list for when you're stuck",
+        "Dopamine menu: starters, mains, sides, desserts and specials",
+      ],
+      [
+        "Focus Log",
+        "06-focus",
+        "FOCUS LOG",
+        "Every focused minute counts",
+        "Focus log with today, this week and all-time totals",
+      ],
+    ],
+  },
+  life: {
+    cover: {
+      sheet: "Dashboard",
+      eyebrow: "MAKEREADY · LIFE PLANNER",
+      title: "Goals, week and habits on one screen",
+      sub: "Break goals into steps and watch the progress fill in by itself.",
+      chips: [
+        "Google Sheets",
+        "Excel",
+        "Goals",
+        "Weekly plan",
+        "Habit streaks",
+        "Birthdays",
+      ],
+    },
+    shots: [
+      [
+        "Dashboard",
+        "01-dashboard",
+        "DASHBOARD",
+        "Everything that matters, on one screen",
+        "Dashboard: week progress, goals, upcoming dates and habits",
+      ],
+      [
+        "Weekly Plan",
+        "02-week",
+        "WEEKLY PLAN",
+        "Top 3, every day, and a 3-line review",
+        "Weekly plan with top 3, daily tasks and reflection",
+      ],
+      [
+        "Goals",
+        "03-goals",
+        "GOALS",
+        "Progress and next step, worked out for you",
+        "Goals with progress bars and next step",
+      ],
+      [
+        "Milestones",
+        "04-milestones",
+        "MILESTONES",
+        "Big goals, small steps",
+        "Milestones for each goal",
+      ],
+      [
+        "Dates",
+        "05-dates",
+        "DATES",
+        "Birthdays roll over every year",
+        "Important dates with countdowns",
+      ],
+      [
+        "Monthly Review",
+        "06-review",
+        "MONTHLY REVIEW",
+        "Rate the month, keep the lesson",
+        "Monthly review with ratings, wins and lessons",
+      ],
+    ],
+  },
 };
 
 const png64 = (b) => `data:image/png;base64,${b.toString("base64")}`;
@@ -170,11 +290,11 @@ export async function sheetMockups(id) {
   const { cover } = s;
   out.cover = await compose(
     page,
-    `<div style="position:absolute;left:150px;top:190px;width:860px">${label(cover.eyebrow, cover.title, cover.sub)}
+    `<div style="position:absolute;left:150px;top:190px;width:820px">${label(cover.eyebrow, cover.title, cover.sub)}
       <div style="margin-top:56px;display:flex;flex-wrap:wrap;gap:16px;font-family:Body;font-size:30px;color:#1f1d1a">
         ${cover.chips.map((t) => `<span style="background:#fffdf8;border:2px solid #e2d6c2;border-radius:99px;padding:12px 26px">${t}</span>`).join("")}
       </div>
-      <div style="margin-top:56px;display:inline-block;font-family:Mono;font-size:30px;letter-spacing:.14em;color:#fff;background:#2b78c9;border-radius:99px;padding:20px 40px">INSTANT DOWNLOAD · NO SUBSCRIPTION</div>
+      <div style="margin-top:56px;display:inline-block;font-family:Mono;font-size:27px;letter-spacing:.12em;white-space:nowrap;color:#fff;background:#2b78c9;border-radius:99px;padding:20px 36px">INSTANT DOWNLOAD · NO SUBSCRIPTION</div>
     </div>
     <div style="position:absolute;left:990px;top:440px">${laptop(pngs[0], 1240)}</div>`,
   );

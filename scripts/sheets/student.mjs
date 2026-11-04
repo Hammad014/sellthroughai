@@ -24,6 +24,7 @@ import {
   title,
   workbook,
 } from "./lib.mjs";
+import { guideSheet } from "./blocks.mjs";
 
 const A0 = 6; // Assignments rows
 const A1 = 305;
@@ -67,71 +68,55 @@ export function buildStudent() {
 }
 
 function startHere(wb) {
-  const ws = sheet(wb, "Start Here", { tab: C.navy, widths: [4, 92] });
-  title(
-    ws,
+  guideSheet(
+    wb,
     "Student Planner",
     "by Makeready · made for ADHD brains · works in Google Sheets and Excel",
-    2,
+    [
+      ["", "SET IT UP (10 MINUTES, ONCE)", "h"],
+      [
+        "1",
+        "Classes: type your classes (and teacher, room, office hours if you like).",
+      ],
+      [
+        "2",
+        "Assignments: add everything from your syllabus: class, task, type and due date. Don't sort anything; the planner does that.",
+      ],
+      ["3", "Exams: add your exam dates to get a countdown."],
+      ["", ""],
+      ["", "EVERY DAY (2 MINUTES)", "h"],
+      [
+        "→",
+        "Open Today. It shows only what's next, most urgent first. Do the top one's tiny first step. That's it.",
+      ],
+      [
+        "→",
+        "Finished something? Set its Status to Done in Assignments and it disappears from Today.",
+      ],
+      [
+        "→",
+        "Studied? Log the minutes in Focus Log. Seeing the minutes add up is the point.",
+      ],
+      ["", ""],
+      ["", "WHY IT WORKS FOR ADHD", "h"],
+      ["•", "One screen, one question: what now? No long lists to scan."],
+      [
+        "•",
+        "Every task gets a tiny first step (“open the doc and write the title”), so starting is easy.",
+      ],
+      [
+        "•",
+        "Overdue isn't hidden or shamed: it's just first in line, in red, until it's done.",
+      ],
+      ["", ""],
+      ["", "COLOUR KEY", "h"],
+      [
+        "",
+        "Yellow cells are yours to type in. Everything else updates itself, so don't type over it.",
+        "key",
+      ],
+    ],
   );
-  const rows = [
-    ["", "SET IT UP (10 MINUTES, ONCE)", "h"],
-    [
-      "1",
-      "Classes: type your classes (and teacher, room, office hours if you like).",
-    ],
-    [
-      "2",
-      "Assignments: add everything from your syllabus: class, task, type and due date. Don't sort anything; the planner does that.",
-    ],
-    ["3", "Exams: add your exam dates to get a countdown."],
-    ["", ""],
-    ["", "EVERY DAY (2 MINUTES)", "h"],
-    [
-      "→",
-      "Open Today. It shows only what's next, most urgent first. Do the top one's tiny first step. That's it.",
-    ],
-    [
-      "→",
-      "Finished something? Set its Status to Done in Assignments and it disappears from Today.",
-    ],
-    [
-      "→",
-      "Studied? Log the minutes in Focus Log. Seeing the minutes add up is the point.",
-    ],
-    ["", ""],
-    ["", "WHY IT WORKS FOR ADHD", "h"],
-    ["•", "One screen, one question: what now? No long lists to scan."],
-    [
-      "•",
-      "Every task gets a tiny first step (“open the doc and write the title”), so starting is easy.",
-    ],
-    [
-      "•",
-      "Overdue isn't hidden or shamed: it's just first in line, in red, until it's done.",
-    ],
-    ["", ""],
-    ["", "COLOUR KEY", "h"],
-    [
-      "",
-      "Yellow cells are yours to type in. Everything else updates itself, so don't type over it.",
-      "key",
-    ],
-  ];
-  rows.forEach(([n, text, kind], i) => {
-    const r = 5 + i;
-    ws.getRow(r).height = kind === "h" ? 24 : 28;
-    put(ws, `B${r}`, n, {
-      font: { bold: true, color: { argb: C.blue } },
-      align: "center",
-    });
-    put(ws, `C${r}`, text, {
-      wrap: true,
-      font:
-        kind === "h" ? { bold: true, size: 9, color: { argb: C.blue } } : {},
-      fill: kind === "key" ? C.input : undefined,
-    });
-  });
 }
 
 /** k-th open assignment by due date: key, then any column of that row. */

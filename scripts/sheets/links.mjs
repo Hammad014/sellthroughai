@@ -13,4 +13,6 @@
 export const SHEET_LINKS = {
   budget: "",
   student: "",
+  adhd: "",
+  life: "",
 };

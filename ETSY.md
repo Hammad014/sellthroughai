@@ -1,8 +1,9 @@
 # Selling on Etsy
 
-The Etsy shop has one niche: **planners and spreadsheets**. (The prompt packs,
-AI guides, AI course and automation kit are sold on the website only: they
-don't fit the shop, and Etsy's rules on AI-generated guides are tightening.)
+The Etsy shop has one niche: **practical planners that do the work for the
+buyer**: spreadsheets for Google Sheets and Excel, plus the web-app planner.
+The GoodNotes PDF planners, prompt packs, AI guides, AI course and automation
+kit are sold on the website only.
 
 Every Etsy product has an **Etsy edition**: downloadable files that work on
 their own (no website account needed), listing photos, and the listing text
@@ -21,11 +22,10 @@ scripts/etsy/out/<product>/
 | Product | Buyers get | Suggested Etsy price |
 |---|---|---|
 | Budget Spreadsheet | .xlsx for Google Sheets + Excel, Start Here PDF | $11.99 |
+| Life Planner Spreadsheet | .xlsx for Google Sheets + Excel, Start Here PDF | $11.99 |
+| ADHD Daily Planner | .xlsx for Google Sheets + Excel, Start Here PDF | $9.99 |
 | ADHD Student Planner | .xlsx for Google Sheets + Excel, Start Here PDF | $9.99 |
-| Clarity / Focus planners | 3 zips (2027 Mon, 2027 Sun, undated; light + dark) + setup guide | $12.99 / $11.99 |
-| Budget Planner | 4 PDFs + setup guide | $9.99 |
 | Life Planner (web app) | One HTML file that opens in the browser + Start Here PDF. Computers only | $14.99 |
-| New Year Planner Bundle | All editions of all 3 planners (3 zips) + setup guide | $24.99 |
 
 List the spreadsheets first: the research (`reports/`, not in git) found far
 fewer competing listings per search for spreadsheets than for PDF planners.
@@ -67,7 +67,6 @@ Run these after changing a product (needs Playwright + Chromium:
 `npx playwright install chromium`):
 
 ```bash
-npm run planners:build      # planner PDFs + store images
 npm run webapps:build       # interactive Life Planner (HTML) + store images
 npm run sheets:build        # spreadsheets (.xlsx) + store images
 npm run sheets:test         # recalculates them in LibreOffice and checks every number

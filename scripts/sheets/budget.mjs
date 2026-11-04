@@ -26,6 +26,7 @@ import {
   title,
   workbook,
 } from "./lib.mjs";
+import { guideSheet } from "./blocks.mjs";
 
 // ---- Shared ranges -------------------------------------------------------
 const CAT0 = 11; // Setup category rows
@@ -123,81 +124,65 @@ export function buildBudget() {
 }
 
 function startHere(wb) {
-  const ws = sheet(wb, "Start Here", { tab: C.navy, widths: [4, 92] });
-  title(
-    ws,
+  guideSheet(
+    wb,
     "Budget Planner",
     "by Makeready · works in Google Sheets and Excel",
-    2,
+    [
+      ["", "HOW IT WORKS", "h"],
+      [
+        "1",
+        "Setup: set your year and currency, then edit the categories and monthly budgets. Aim for “Left to assign” = 0, so all your income has a job.",
+      ],
+      [
+        "2",
+        "Bills: list your regular bills, choose which paycheck pays each one, and tick them off every month.",
+      ],
+      [
+        "3",
+        "Transactions: log money in and out. Pick a category from the dropdown; amounts are always positive. Two minutes a day, or once a week from your banking app.",
+      ],
+      [
+        "4",
+        "Dashboard: choose a month to see planned vs actual for every category, with progress bars.",
+      ],
+      [
+        "5",
+        "Year: all 12 months side by side, so you can spot where your money really goes.",
+      ],
+      [
+        "6",
+        "Debt Payoff: enter your debts, choose Snowball or Avalanche and see your debt-free date. Debt Plan shows every month.",
+      ],
+      [
+        "7",
+        "Savings: set goals and sinking funds and see how much to put aside each month.",
+      ],
+      ["8", "Net Worth: update once a month and watch it grow."],
+      ["", ""],
+      ["", "COLOUR KEY", "h"],
+      [
+        "",
+        "Yellow cells are yours: type over the examples. Everything else calculates for you, so don't type over it.",
+        "key",
+      ],
+      ["", ""],
+      ["", "GOOD TO KNOW", "h"],
+      [
+        "•",
+        "The categories, bills, debts and goals are examples. Replace them with your own; delete what you don't need.",
+      ],
+      [
+        "•",
+        "Savings goals count automatically when the goal has the same name as a Savings category.",
+      ],
+      [
+        "•",
+        "Renamed a category? Rename it in old transactions too, so they keep counting.",
+      ],
+      ["•", "Any currency works: just type numbers, no symbols."],
+    ],
   );
-  const rows = [
-    ["", "HOW IT WORKS", "h"],
-    [
-      "1",
-      "Setup: set your year and currency, then edit the categories and monthly budgets. Aim for “Left to assign” = 0, so all your income has a job.",
-    ],
-    [
-      "2",
-      "Bills: list your regular bills, choose which paycheck pays each one, and tick them off every month.",
-    ],
-    [
-      "3",
-      "Transactions: log money in and out. Pick a category from the dropdown; amounts are always positive. Two minutes a day, or once a week from your banking app.",
-    ],
-    [
-      "4",
-      "Dashboard: choose a month to see planned vs actual for every category, with progress bars.",
-    ],
-    [
-      "5",
-      "Year: all 12 months side by side, so you can spot where your money really goes.",
-    ],
-    [
-      "6",
-      "Debt Payoff: enter your debts, choose Snowball or Avalanche and see your debt-free date. Debt Plan shows every month.",
-    ],
-    [
-      "7",
-      "Savings: set goals and sinking funds and see how much to put aside each month.",
-    ],
-    ["8", "Net Worth: update once a month and watch it grow."],
-    ["", ""],
-    ["", "COLOUR KEY", "h"],
-    [
-      "",
-      "Yellow cells are yours: type over the examples. Everything else calculates for you, so don't type over it.",
-      "key",
-    ],
-    ["", ""],
-    ["", "GOOD TO KNOW", "h"],
-    [
-      "•",
-      "The categories, bills, debts and goals are examples. Replace them with your own; delete what you don't need.",
-    ],
-    [
-      "•",
-      "Savings goals count automatically when the goal has the same name as a Savings category.",
-    ],
-    [
-      "•",
-      "Renamed a category? Rename it in old transactions too, so they keep counting.",
-    ],
-    ["•", "Any currency works: just type numbers, no symbols."],
-  ];
-  rows.forEach(([n, text, kind], i) => {
-    const r = 5 + i;
-    ws.getRow(r).height = kind === "h" ? 24 : 30;
-    put(ws, `B${r}`, n, {
-      font: { bold: true, color: { argb: C.blue } },
-      align: "center",
-    });
-    put(ws, `C${r}`, text, {
-      wrap: true,
-      font:
-        kind === "h" ? { bold: true, size: 9, color: { argb: C.blue } } : {},
-      fill: kind === "key" ? C.input : undefined,
-    });
-  });
 }
 
 function setup(wb) {

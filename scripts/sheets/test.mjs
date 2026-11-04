@@ -13,6 +13,8 @@ import ExcelJS from "exceljs";
 import { CATEGORIES, DEBT_EXAMPLES, buildBudget, fillDemo } from "./budget.mjs";
 import { SHEETS, demoDir } from "./build.mjs";
 import { buildStudent, fillDemo as studentDemo } from "./student.mjs";
+import { buildAdhd, fillDemo as adhdDemo } from "./adhd.mjs";
+import { buildLife, fillDemo as lifeDemo } from "./life.mjs";
 
 let fails = 0;
 const ok = (cond, msg) => {
@@ -447,7 +449,216 @@ async function testStudent() {
   );
 }
 
+// ---- ADHD Daily Planner -------------------------------------------------
+
+/** Current (alive through today or yesterday) and best streak of an "x." string. */
+function streaks(p, length = 21) {
+  const days = [...p.padEnd(length, ".")].map((c) => c === "x");
+  let best = 0;
+  let run = 0;
+  const runs = days.map((d) => {
+    run = d ? run + 1 : 0;
+    best = Math.max(best, run);
+    return run;
+  });
+  const t = runs.length - 1;
+  return { current: Math.max(runs[t], runs[t - 1]), best, today: days[t] };
+}
+
+async function testAdhd() {
+  const wb = await recalc(path.join(demoDir, SHEETS.adhd.file));
+  const errors = scanErrors(wb);
+  ok(
+    errors.length === 0,
+    `adhd: no formula errors ${errors.slice(0, 5).join(" ")}`,
+  );
+  const modern = scanModern(buildAdhd());
+  ok(
+    modern.length === 0,
+    `adhd: only classic functions ${modern.slice(0, 3).join(" ")}`,
+  );
+  const { items, pattern } = adhdDemo(buildAdhd());
+
+  const today = wb.getWorksheet("Today");
+  const open = items.filter((i) => i[1] === "Today" && i[4] !== "✓");
+  open.forEach((it, k) =>
+    ok(
+      value(today.getCell(`C${18 + k}`)) === it[0],
+      `today list #${k + 1}: ${value(today.getCell(`C${18 + k}`))}`,
+    ),
+  );
+  ok(
+    [null, ""].includes(value(today.getCell(`C${18 + open.length}`)) ?? null),
+    "today list stops after the last one",
+  );
+  ok(
+    value(today.getCell("F18")) === open[0][3],
+    `tiny first step: ${value(today.getCell("F18"))}`,
+  );
+  ok(
+    String(value(today.getCell("F7"))).startsWith("Steady"),
+    `energy 3 suggestion: ${value(today.getCell("F7"))}`,
+  );
+  ok(
+    value(today.getCell("B10")) === 2 + open.length,
+    `to do today: ${value(today.getCell("B10"))} (expected ${2 + open.length})`,
+  );
+
+  const s = pattern.map(streaks);
+  const hab = wb.getWorksheet("Habits");
+  s.forEach((x, h) => {
+    const col = String.fromCharCode(67 + h);
+    // exceljs drops a cached result of exactly 0 when reading, hence ?? 0.
+    ok(
+      (value(hab.getCell(`${col}7`)) ?? 0) === x.current,
+      `habit ${h + 1} current streak ${value(hab.getCell(`${col}7`))} (expected ${x.current})`,
+    );
+    ok(
+      value(hab.getCell(`${col}8`)) === x.best,
+      `habit ${h + 1} best streak ${value(hab.getCell(`${col}8`))} (expected ${x.best})`,
+    );
+    ok(
+      value(today.getCell(`D${32 + h}`)) === (x.today ? "✓" : "–"),
+      `today shows habit ${h + 1} ${value(today.getCell(`D${32 + h}`))}`,
+    );
+  });
+  const ticked = s.filter((x) => x.today).length;
+  ok(
+    value(today.getCell("D10")) === `${ticked} / ${pattern.length}`,
+    `habits card ${value(today.getCell("D10"))}`,
+  );
+
+  const rt = wb.getWorksheet("Routines");
+  ok(
+    value(rt.getCell("C14")) === 29,
+    `morning routine minutes ${value(rt.getCell("C14"))}`,
+  );
+  ok(
+    value(rt.getCell("D14")) === "3/5",
+    `morning steps done Monday ${value(rt.getCell("D14"))}`,
+  );
+
+  ok(
+    value(today.getCell("F10")) === 40,
+    `focus today ${value(today.getCell("F10"))}`,
+  );
+  const fl = wb.getWorksheet("Focus Log");
+  ok(
+    near(value(fl.getCell("E6")), 115 / 60),
+    `focus all time ${value(fl.getCell("E6"))}`,
+  );
+}
+
+// ---- Life Planner --------------------------------------------------------
+
+async function testLife() {
+  const wb = await recalc(path.join(demoDir, SHEETS.life.file));
+  const errors = scanErrors(wb);
+  ok(
+    errors.length === 0,
+    `life: no formula errors ${errors.slice(0, 5).join(" ")}`,
+  );
+  const modern = scanModern(buildLife());
+  ok(
+    modern.length === 0,
+    `life: only classic functions ${modern.slice(0, 3).join(" ")}`,
+  );
+  const { tasks, pattern } = lifeDemo(buildLife());
+
+  const goals = wb.getWorksheet("Goals");
+  const expectGoals = [
+    ["Run a 10k", 3, 1, "Sign up for a 10k race"],
+    ["Save a 3-month emergency fund", 2, 1, "Automate a monthly transfer"],
+    ["Read 12 books", 2, 1, "Finish book 1"],
+  ];
+  expectGoals.forEach(([name, steps, done, next], i) => {
+    const r = 6 + i;
+    ok(
+      value(goals.getCell(`F${r}`)) === steps &&
+        value(goals.getCell(`G${r}`)) === done,
+      `${name}: ${value(goals.getCell(`G${r}`))}/${value(goals.getCell(`F${r}`))} steps`,
+    );
+    ok(
+      value(goals.getCell(`J${r}`)) === next,
+      `${name} next step: ${value(goals.getCell(`J${r}`))}`,
+    );
+  });
+
+  const dash = wb.getWorksheet("Dashboard");
+  ok(
+    near(value(dash.getCell("B8")), 3 / 7),
+    `goals progress ${value(dash.getCell("B8"))}`,
+  );
+  const all = tasks.flatMap((l) => l.filter((_, i) => i % 2 === 0));
+  const done = tasks
+    .flatMap((l) => l.filter((_, i) => i % 2 === 1))
+    .filter((x) => x === "✓");
+  ok(
+    near(value(dash.getCell("C8")), done.length / all.length),
+    `this week ${value(dash.getCell("C8"))} = ${done.length}/${all.length}`,
+  );
+  ok(
+    value(dash.getCell("B11")) === "Finish the Q1 budget",
+    `top 3 shows: ${value(dash.getCell("B11"))}`,
+  );
+  ok(value(dash.getCell("E12")) === "✓", "top 3 done tick shows");
+  ok(
+    value(wb.getWorksheet("Weekly Plan").getCell("B21")) === "2 of 4 done",
+    `day count: ${value(wb.getWorksheet("Weekly Plan").getCell("B21"))}`,
+  );
+
+  const upcoming = [
+    "Project deadline",
+    "Dentist 4pm",
+    "Mum's birthday",
+    "Weekend in Lisbon",
+  ];
+  upcoming.forEach((what, k) =>
+    ok(
+      value(dash.getCell(`B${28 + k}`)) === what,
+      `coming up #${k + 1}: ${value(dash.getCell(`B${28 + k}`))}`,
+    ),
+  );
+  ok(
+    [null, ""].includes(value(dash.getCell("B32")) ?? null),
+    "past dates are not shown",
+  );
+  ok(
+    value(dash.getCell("C28")) === "Tomorrow",
+    `first date wording: ${value(dash.getCell("C28"))}`,
+  );
+  ok(
+    value(dash.getCell("C30")) === "In 10 days",
+    `birthday rolls over: ${value(dash.getCell("C30"))}`,
+  );
+  ok(
+    value(dash.getCell("F8")) === "Tomorrow",
+    `next date card: ${value(dash.getCell("F8"))}`,
+  );
+
+  const hab = wb.getWorksheet("Habits");
+  pattern
+    .map((p) => streaks(p, 10))
+    .forEach((x, h) => {
+      const col = String.fromCharCode(67 + h);
+      ok(
+        (value(hab.getCell(`${col}7`)) ?? 0) === x.current,
+        `life habit ${h + 1} streak ${value(hab.getCell(`${col}7`)) ?? 0} (expected ${x.current})`,
+      );
+      ok(
+        value(dash.getCell(`C${35 + h}`)) === (x.today ? "✓" : "–"),
+        `dashboard habit ${h + 1}: ${value(dash.getCell(`C${35 + h}`))}`,
+      );
+    });
+  ok(
+    near(value(wb.getWorksheet("Monthly Review").getCell("C20")), 7),
+    `monthly average ${value(wb.getWorksheet("Monthly Review").getCell("C20"))}`,
+  );
+}
+
 await testBudget();
 await testStudent();
+await testAdhd();
+await testLife();
 console.log(fails ? `${fails} FAILED` : "ALL PASSED");
 if (fails) process.exit(1);

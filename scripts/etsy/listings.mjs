@@ -1,6 +1,7 @@
 /**
- * The Etsy shop's niche: planners and spreadsheets. (Prompt packs, guides,
- * the AI course and the automation kit are sold on the website only.)
+ * The Etsy shop's niche: practical planners that do the work for the buyer
+ * (spreadsheets and the web-app planner). The GoodNotes PDF planners, prompt
+ * packs, guides, the AI course and the automation kit are website only.
  *
  * Etsy listing details per product: what goes in the listing form (title,
  * tags, price) and how the files are packaged. The description is built
@@ -9,72 +10,9 @@
  * Etsy limits: title ≤ 140 chars, 13 tags of ≤ 20 chars, 5 files ≤ 20 MB.
  */
 
-/** kind: planner | webapp | sheet | bundle (of planners) */
+/** kind: webapp | sheet */
 export const LISTINGS = {
-  // ---- Planners ----------------------------------------------------------
-  "clarity-digital-planner": {
-    kind: "planner",
-    price: 12.99,
-    title:
-      "2027 Digital Planner, Hyperlinked iPad Planner for GoodNotes & Notability, Undated Option, Daily Weekly Monthly, Light & Dark",
-    tags: [
-      "digital planner",
-      "2027 planner",
-      "goodnotes planner",
-      "ipad planner",
-      "hyperlinked planner",
-      "undated planner",
-      "daily planner",
-      "weekly planner",
-      "notability planner",
-      "dark mode planner",
-      "minimalist planner",
-      "goal planner",
-      "android planner",
-    ],
-  },
-  "focus-adhd-digital-planner": {
-    kind: "planner",
-    price: 11.99,
-    title:
-      "ADHD Digital Planner 2027, Hyperlinked GoodNotes Planner, Brain Dump, Time Blocks, Task Breakdown, Undated, Light & Dark",
-    tags: [
-      "adhd planner",
-      "digital planner",
-      "adhd digital planner",
-      "goodnotes planner",
-      "ipad planner",
-      "2027 planner",
-      "undated planner",
-      "brain dump",
-      "time blocking",
-      "neurodivergent",
-      "focus planner",
-      "habit tracker",
-      "daily planner",
-    ],
-  },
-  "budget-digital-planner": {
-    kind: "planner",
-    price: 9.99,
-    title:
-      "Digital Budget Planner 2027, Hyperlinked GoodNotes Finance Planner, Bill Tracker, Savings & Debt Payoff, Undated Option",
-    tags: [
-      "budget planner",
-      "digital budget",
-      "finance planner",
-      "goodnotes planner",
-      "ipad planner",
-      "bill tracker",
-      "savings tracker",
-      "debt payoff",
-      "expense tracker",
-      "2027 planner",
-      "money planner",
-      "no spend challenge",
-      "undated planner",
-    ],
-  },
+  // ---- Web app -----------------------------------------------------------
   "life-planner-web-app": {
     kind: "webapp",
     app: "planner",
@@ -142,25 +80,49 @@ export const LISTINGS = {
       "study tracker",
     ],
   },
-  "new-year-planner-bundle": {
-    kind: "bundle",
-    price: 24.99,
+
+  "adhd-daily-planner": {
+    kind: "sheet",
+    sheet: "adhd",
+    price: 9.99,
     title:
-      "2027 Digital Planner Bundle: Life Planner + ADHD Planner + Budget Planner, Hyperlinked GoodNotes iPad Planners, Light & Dark",
+      "ADHD Daily Planner Spreadsheet, Google Sheets & Excel, Brain Dump, Habit Tracker, Routines, Dopamine Menu, Focus Planner Template",
     tags: [
-      "planner bundle",
-      "digital planner",
-      "2027 planner",
       "adhd planner",
-      "budget planner",
-      "goodnotes planner",
-      "ipad planner",
-      "hyperlinked planner",
+      "adhd daily planner",
+      "brain dump",
+      "habit tracker",
+      "google sheets",
+      "routine planner",
+      "dopamine menu",
+      "neurodivergent",
       "daily planner",
-      "finance planner",
-      "dark mode planner",
-      "android planner",
-      "new year planner",
+      "to do list",
+      "focus planner",
+      "excel template",
+      "adhd tools",
+    ],
+  },
+  "life-planner-spreadsheet": {
+    kind: "sheet",
+    sheet: "life",
+    price: 11.99,
+    title:
+      "Life Planner Spreadsheet Google Sheets & Excel, Goal Tracker, Weekly Planner, Habit Tracker, Birthday Reminder, Undated Digital Planner",
+    tags: [
+      "life planner",
+      "goal planner",
+      "google sheets",
+      "weekly planner",
+      "habit tracker",
+      "goal tracker",
+      "digital planner",
+      "excel planner",
+      "undated planner",
+      "monthly review",
+      "productivity",
+      "2027 planner",
+      "planner template",
     ],
   },
 };

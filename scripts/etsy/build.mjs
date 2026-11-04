@@ -1,7 +1,7 @@
 /**
- * Etsy editions of the planners and spreadsheets → scripts/etsy/out/<slug>/
- * (the Etsy shop is planners + spreadsheets only; the AI products are sold on
- * the website)
+ * Etsy editions of the practical planners → scripts/etsy/out/<slug>/
+ * (the Etsy shop sells spreadsheets and the web-app planner only; everything
+ * else is sold on the website)
  *   files/        what buyers download (≤ 5 files, ≤ 20 MB each: Etsy's limits)
  *   images/       listing photos, 2400×1800 JPG (Etsy wants ≥ 2000 px)
  *   LISTING.txt   title, price, 13 tags and description to paste into Etsy
@@ -9,9 +9,8 @@
  *   node scripts/etsy/build.mjs --catalog snapshot.json [slug…]
  *   node scripts/etsy/build.mjs [slug…]        (reads the live database)
  *
- * Needs the planner, web-app and spreadsheet builds first (npm run
- * planners:build, npm run webapps:build, npm run sheets:build) and
- * Playwright + Chromium.
+ * Needs the web-app and spreadsheet builds first (npm run webapps:build,
+ * npm run sheets:build) and Playwright + Chromium.
  */
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -22,19 +21,12 @@ import { LISTINGS, checkListing } from "./listings.mjs";
 import {
   BRAND,
   closeBrowser,
-  dataUrl,
   ebookPdf,
   esc,
   htmlImage,
   md,
   TMP,
 } from "./render.mjs";
-import { zip } from "../automation/lib/zip.mjs";
-import {
-  PLANNERS,
-  outDir as plannerOut,
-  variants,
-} from "../planners/planners.mjs";
 import { APPS, outDir as webappOut } from "../webapps/build.mjs";
 import { SHEETS, outDir as sheetsOut } from "../sheets/build.mjs";
 import { SHEET_LINKS } from "../sheets/links.mjs";
@@ -61,15 +53,7 @@ const IMG_H = 1800;
 const ETSY_WORDING = [
   [/^.*(Lifetime access|no-questions refund).*$\n?/gm, ""],
   [/Instant download from your library, plus/g, "Instant download, plus"],
-  [
-    /Open your Makeready library on the iPad or tablet you'll plan on and tap the file\./g,
-    "On the iPad or tablet you'll plan on, open Etsy → **You → Purchases**, download the files and unzip them, then tap the PDF.",
-  ],
   [/from your library/g, "from your Etsy purchase"],
-  [
-    /Buy once and (both|all three) unlock in your library straight away\./g,
-    "Instant download: everything comes as files you can download straight away.",
-  ],
   [
     /(Questions or stuck\? )?Email (us at )?support@usemakeready\.com/g,
     "$1Message us on Etsy",
@@ -119,12 +103,6 @@ function plainText(markdown) {
     .replace(/\n{3,}/g, "\n\n")
     .trim();
 }
-
-const fileStem = (title) =>
-  `Makeready-${title
-    .replace(/['’]/g, "")
-    .replace(/[^A-Za-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")}`;
 
 // ======================================================================
 // Ebook PDFs
@@ -224,37 +202,11 @@ async function storeImage(file) {
     .toBuffer();
 }
 
-/** Grid of other products' hero images (for bundles). */
-async function collageImage(name, { title, sub, images }) {
-  const pics = await Promise.all(images.map((b) => dataUrl(b, "image/jpeg")));
-  // Fit every item: up to 3 per row, sized to the space left under the title.
-  const cols = Math.min(images.length, 3);
-  const rows = Math.ceil(images.length / cols);
-  const w = Math.min(
-    1000,
-    (IMG_W - 300 - (cols - 1) * 50) / cols,
-    ((IMG_H - 560 - (rows - 1) * 50) / rows) * (IMG_W / IMG_H),
-  );
-  return htmlImage(
-    name,
-    `<div style="width:${IMG_W}px;height:${IMG_H}px;${bg}font-family:Body;color:#fff;box-sizing:border-box;padding:110px 150px;text-align:center;display:flex;flex-direction:column;justify-content:center">
-      <div style="font-family:Mono;font-size:32px;letter-spacing:.22em;color:${BRAND.sky}">MAKEREADY · BUNDLE</div>
-      <div style="font-family:Display;font-weight:700;font-size:100px;margin:24px 0 18px">${esc(title)}</div>
-      <div style="font-size:44px;color:#c9d6e4;margin-bottom:80px">${esc(sub)}</div>
-      <div style="display:flex;flex-wrap:wrap;gap:50px;justify-content:center">${pics.map((src) => `<img src="${src}" style="width:${w}px;border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.5)">`).join("")}</div>
-    </div>`,
-    IMG_W,
-    IMG_H,
-  );
-}
-
 // ======================================================================
 // Per-kind packaging
 // ======================================================================
 
 const NEED = {
-  planner:
-    "a tablet with GoodNotes, Notability, Noteshelf, Xodo or Samsung Notes",
   sheet:
     "a free Google account (Google Sheets) or Microsoft Excel. Easiest on a computer; the Google Sheets app works on phones",
   webapp:
@@ -262,11 +214,6 @@ const NEED = {
 };
 
 const STEPS = {
-  planner: [
-    "Download and unzip the files on your tablet",
-    "Import the PDF into your planner app",
-    "Tap tabs, dates and buttons to get around",
-  ],
   sheet: [
     "Download the spreadsheet file",
     "Open it in Google Sheets (free) or Excel",
@@ -280,58 +227,12 @@ const STEPS = {
 };
 
 /** Build one product's files; returns { files: [{name, data}], images, … }. */
-async function packageProduct(slug, l, catalog, cache) {
+async function packageProduct(slug, l, catalog) {
   const p = catalog.get(slug);
   if (!p) throw new Error(`${slug} is not in the catalog`);
   const files = [];
   const images = [];
   let fileLines = [];
-
-  if (l.kind === "planner") {
-    const id = Object.keys(PLANNERS).find((k) => PLANNERS[k].slug === slug);
-    const vs = variants(id);
-    const dir = plannerOut(id);
-    const read = (v) => readFile(path.join(dir, v.file));
-    const guide = await lessonsPdf(p, {
-      kind: "Setup guide",
-      label: "Step",
-      title: `${p.title}: Setup Guide`,
-    });
-    if (vs.length <= 4) {
-      for (const v of vs) files.push({ name: v.file, data: await read(v) });
-    } else {
-      // Group light + dark of each edition into one zip.
-      const groups = new Map();
-      for (const v of vs) {
-        const key =
-          v.edition === "dated"
-            ? `2027-${v.weekStart === "mon" ? "Monday" : "Sunday"}-Start`
-            : "Undated";
-        groups.set(key, [...(groups.get(key) ?? []), v]);
-      }
-      for (const [key, list] of groups) {
-        const entries = [];
-        for (const v of list)
-          entries.push({ name: v.file, data: await read(v) });
-        files.push({
-          name: `${PLANNERS[id].name}-Planner-${key}.zip`,
-          data: zip(entries),
-        });
-      }
-    }
-    files.push({ name: `${fileStem(p.title)}-Setup-Guide.pdf`, data: guide });
-    fileLines = files.map(
-      (f) =>
-        f.name.replace(/\.(pdf|zip)$/, "").replace(/-/g, " ") +
-        (f.name.endsWith(".zip") ? " (light + dark PDFs)" : ""),
-    );
-    const store = path.join(dir, "store");
-    const cover = await storeImage(path.join(store, "cover.webp"));
-    cache.set(slug, { hero: cover, id });
-    images.push(cover);
-    for (const [, , name] of PLANNERS[id].shots)
-      images.push(await storeImage(path.join(store, `${name}.webp`)));
-  }
 
   if (l.kind === "sheet") {
     const sh = SHEETS[l.sheet];
@@ -369,7 +270,6 @@ async function packageProduct(slug, l, catalog, cache) {
     ];
     const store = sheetStore(l.sheet);
     const cover = await storeImage(path.join(store, "cover.webp"));
-    cache.set(slug, { hero: cover });
     images.push(cover);
     for (const [, name] of SHEET_STORE[l.sheet].shots)
       images.push(await storeImage(path.join(store, `${name}.webp`)));
@@ -394,69 +294,13 @@ async function packageProduct(slug, l, catalog, cache) {
       "Start Here guide PDF",
     ];
     const cover = await storeImage(path.join(webappStore, "cover.webp"));
-    cache.set(slug, { hero: cover });
     images.push(cover);
     for (const [name] of WEBAPP_SHOTS)
       images.push(await storeImage(path.join(webappStore, `${name}.webp`)));
   }
 
-  if (l.kind === "bundle") {
-    const items = p.bundle;
-    for (const s of items)
-      if (!cache.has(s)) await packageProduct(s, LISTINGS[s], catalog, cache);
-    {
-      // Planners: every edition of each, one zip per planner (zipped PDFs
-      // shrink about 3×, so all of them fit Etsy's 20 MB per file).
-      for (const s of items) {
-        const id = cache.get(s).id;
-        const entries = [];
-        for (const v of variants(id))
-          entries.push({
-            name: v.file,
-            data: await readFile(path.join(plannerOut(id), v.file)),
-          });
-        files.push({
-          name: `${PLANNERS[id].name}-Planner-All-Editions.zip`,
-          data: zip(entries),
-        });
-      }
-      // Every planner's setup guide, each step labelled with its planner.
-      const lessons = items.flatMap((s) =>
-        catalog.get(s).lessons.map((les) => ({
-          ...les,
-          title: `${PLANNERS[cache.get(s).id].name}: ${les.title}`,
-        })),
-      );
-      files.push({
-        name: `${fileStem(p.title)}-Setup-Guide.pdf`,
-        data: await lessonsPdf(
-          { ...p, lessons },
-          {
-            kind: "Setup guide",
-            label: "Step",
-            title: `${p.title}: Setup Guide`,
-          },
-        ),
-      });
-      fileLines = [
-        ...items.map(
-          (s) => `${catalog.get(s).title}: every edition, light + dark (zip)`,
-        ),
-        "Setup guide PDF",
-      ];
-    }
-    images.push(
-      await collageImage(`${slug}-collage`, {
-        title: p.title,
-        sub: `${items.length} products in one download`,
-        images: items.map((s) => cache.get(s).hero),
-      }),
-    );
-  }
-
-  const need = NEED[l.kind === "bundle" ? LISTINGS[p.bundle[0]].kind : l.kind];
-  const steps =
-    STEPS[l.kind === "bundle" ? LISTINGS[p.bundle[0]].kind : l.kind];
+  const need = NEED[l.kind];
+  const steps = STEPS[l.kind];
   images.push(
     await infoImage(`${slug}-info`, { files: fileLines, need, steps }),
   );
@@ -515,11 +359,10 @@ async function main() {
   const catalog = await loadCatalog(argv);
   const wanted = argv.filter((a) => LISTINGS[a]);
   const slugs = wanted.length ? wanted : Object.keys(LISTINGS);
-  const cache = new Map();
   for (const slug of slugs) {
     const l = LISTINGS[slug];
     checkListing(slug, l);
-    const result = await packageProduct(slug, l, catalog, cache);
+    const result = await packageProduct(slug, l, catalog);
     const { files, images } = result;
     if (files.length > MAX_FILES)
       throw new Error(
