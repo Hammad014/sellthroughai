@@ -1,9 +1,13 @@
 # Selling on Etsy
 
-Every product has an **Etsy edition**: downloadable files that work on their
-own (no website account needed), listing photos, and the listing text ready to
-paste. They're generated from the same content as the website, so when you
-update a product, rebuild and re-upload.
+The Etsy shop has one niche: **planners and spreadsheets**. (The prompt packs,
+AI guides, AI course and automation kit are sold on the website only: they
+don't fit the shop, and Etsy's rules on AI-generated guides are tightening.)
+
+Every Etsy product has an **Etsy edition**: downloadable files that work on
+their own (no website account needed), listing photos, and the listing text
+ready to paste. They're generated from the same content as the website, so
+when you update a product, rebuild and re-upload.
 
 ## What's in each product folder
 
@@ -16,20 +20,15 @@ scripts/etsy/out/<product>/
 
 | Product | Buyers get | Suggested Etsy price |
 |---|---|---|
-| 5 prompt packs | Designed PDF (every prompt + worked example) + copy-paste .txt | $14.99 each |
-| Prompt Power Bundle | All 5 prompt-pack PDFs | $49.99 |
-| ChatGPT & Claude for Total Beginners | PDF course (7 lessons) | $12.99 |
-| Prompt Engineering Fundamentals | PDF course (7 lessons) | $14.99 |
-| The AI-at-Work Playbook | PDF guide (8 chapters) | $9.99 |
-| Build Your First AI Agent | Agent files .zip + 9-lesson PDF | $24.99 |
-| AI Automation Starter Kit | n8n workflows .zip + setup guide PDF | $24.99 |
-| AI Automation Bundle | Kit + course files and PDFs | $39.99 |
-| Clarity / Focus planners | 3 zips (2027 Mon, 2027 Sun, undated; light + dark) + setup guide | $12.99 / $11.99 |
-| Budget Planner | 4 PDFs + setup guide | $9.99 |
 | Budget Spreadsheet | .xlsx for Google Sheets + Excel, Start Here PDF | $11.99 |
 | ADHD Student Planner | .xlsx for Google Sheets + Excel, Start Here PDF | $9.99 |
+| Clarity / Focus planners | 3 zips (2027 Mon, 2027 Sun, undated; light + dark) + setup guide | $12.99 / $11.99 |
+| Budget Planner | 4 PDFs + setup guide | $9.99 |
 | Life Planner (web app) | One HTML file that opens in the browser + Start Here PDF. Computers only | $14.99 |
 | New Year Planner Bundle | All editions of all 3 planners (3 zips) + setup guide | $24.99 |
+
+List the spreadsheets first: the research (`reports/`, not in git) found far
+fewer competing listings per search for spreadsheets than for PDF planners.
 
 Etsy prices are lower than the website's because Etsy shoppers compare a lot of
 similar listings. Change them to suit you.
@@ -43,8 +42,8 @@ similar listings. Change them to suit you.
 4. **About this listing**: *I did* · *A finished product* · *2020 – 2026*.
 5. **Type**: *Digital files*. Upload everything in `files/`.
 6. **Category**: e.g. *Paper & Party Supplies → Paper → Calendars & Planners*
-   for planners, *Books, Movies & Music → Books → Guides & How Tos* for the
-   guides and prompt packs. Pick what Etsy suggests if it fits better.
+   for the planners and spreadsheets. Pick what Etsy suggests if it fits
+   better.
 7. Publish. Etsy charges $0.20 per listing (renewed every 4 months or when it
    sells) plus a 6.5% transaction fee and payment processing.
 
@@ -69,7 +68,6 @@ Run these after changing a product (needs Playwright + Chromium:
 
 ```bash
 npm run planners:build      # planner PDFs + store images
-npm run automation:build    # n8n kit + course files
 npm run webapps:build       # interactive Life Planner (HTML) + store images
 npm run sheets:build        # spreadsheets (.xlsx) + store images
 npm run sheets:test         # recalculates them in LibreOffice and checks every number

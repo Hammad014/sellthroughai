@@ -192,37 +192,6 @@ export async function ebookPdf({ name, kind, title, subtitle, bodyHtml }) {
   return mergePdfs([cover, body]);
 }
 
-/** Render page `index` of a PDF buffer to PNG at `scale`. */
-export function renderPdfPage(pdf, index, scale = 2) {
-  const doc = mupdf.Document.openDocument(pdf, "application/pdf");
-  const pix = doc
-    .loadPage(index)
-    .toPixmap(
-      mupdf.Matrix.scale(scale, scale),
-      mupdf.ColorSpace.DeviceRGB,
-      false,
-      true,
-    );
-  return Buffer.from(pix.asPNG());
-}
-
-/**
- * Index of the first page whose text contains `needle`, ignoring case and
- * spaces (letter-spaced labels come out as "P R O M P T 0 1").
- */
-export function findPage(pdf, needle, from = 0) {
-  const doc = mupdf.Document.openDocument(pdf, "application/pdf");
-  const squash = (s) => s.toLowerCase().replace(/\s+/g, "");
-  const want = squash(needle);
-  for (let i = from; i < doc.countPages(); i++)
-    if (squash(doc.loadPage(i).toStructuredText().asText()).includes(want))
-      return i;
-  throw new Error(`No page contains "${needle}"`);
-}
-
-export const pageCount = (pdf) =>
-  mupdf.Document.openDocument(pdf, "application/pdf").countPages();
-
 /** Screenshot an HTML document at width × height → JPG buffer. */
 export async function htmlImage(name, html, width, height) {
   const page = await (
