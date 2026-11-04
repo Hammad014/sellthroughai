@@ -114,7 +114,7 @@ function startHere(wb) {
     ["", "COLOUR KEY", "h"],
     [
       "",
-      "Yellow cells are yours: type over the examples. Everything else updates itself, so don't type over it.",
+      "Yellow cells are yours to type in. Everything else updates itself, so don't type over it.",
       "key",
     ],
   ];
@@ -231,7 +231,7 @@ function today(wb) {
       ws,
       `F${r}`,
       {
-        f: `IF($J${r}="","",IF(E${r}<TODAY(),TODAY()-E${r}&" days late",IF(E${r}=TODAY(),"Today",IF(E${r}=TODAY()+1,"Tomorrow","In "&(E${r}-TODAY())&" days"))))`,
+        f: `IF($J${r}="","",IF(E${r}<TODAY(),IF(TODAY()-E${r}=1,"1 day late",TODAY()-E${r}&" days late"),IF(E${r}=TODAY(),"Today",IF(E${r}=TODAY()+1,"Tomorrow","In "&(E${r}-TODAY())&" days"))))`,
       },
       { align: "center" },
     );
@@ -527,7 +527,7 @@ function exams(wb) {
       ws,
       `G${r}`,
       {
-        f: `IF(D${r}="","",IF(D${r}<TODAY(),"Done",IF(D${r}=TODAY(),"Today!",D${r}-TODAY()&" days")))`,
+        f: `IF(D${r}="","",IF(D${r}<TODAY(),"Done",IF(D${r}=TODAY(),"Today!",IF(D${r}-TODAY()=1,"Tomorrow",D${r}-TODAY()&" days"))))`,
       },
       { align: "center", font: { bold: true } },
     );

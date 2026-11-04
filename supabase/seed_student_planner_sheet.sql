@@ -50,7 +50,7 @@ Long to-do lists are hard for ADHD brains: everything looks equally urgent, so n
 ## The details
 
 - One file, up to 300 assignments, 12 classes and 20 exams
-- Example classes and tasks to show you how it works: type over them
+- Starts empty and ready for your term: just add your classes
 - Instant download from your library, plus a short guide
 
 Lifetime access · free updates · 14-day no-questions refund.$d$,
@@ -109,9 +109,7 @@ If you like, add a **tiny first step** for each task, something that takes 5 min
 
 ## 3. Exams
 
-Add your exam dates for a countdown.
-
-The examples are there to show you how it works: type over them or delete them.$c$
+Add your exam dates for a countdown.$c$
   ),
   (
     2,

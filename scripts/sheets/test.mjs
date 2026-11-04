@@ -421,6 +421,21 @@ async function testStudent() {
     value(ex.getCell("G6")) === "9 days",
     `exam countdown ${value(ex.getCell("G6"))}`,
   );
+  // Singular wording: a task one day late, an exam tomorrow.
+  const one = buildStudent();
+  const oneDay = studentDemo(one).day;
+  one.getWorksheet("Assignments").getCell("E6").value = oneDay(-1);
+  one.getWorksheet("Exams").getCell("D6").value = oneDay(1);
+  const oneFile = path.join(
+    mkdtempSync(path.join(tmpdir(), "sheets-one-")),
+    SHEETS.student.file,
+  );
+  await one.xlsx.writeFile(oneFile);
+  const oneWb = await recalc(oneFile);
+  const late = value(oneWb.getWorksheet("Today").getCell("F11"));
+  ok(late === "1 day late", `singular late: ${late}`);
+  const soon = value(oneWb.getWorksheet("Exams").getCell("G6"));
+  ok(soon === "Tomorrow", `exam tomorrow: ${soon}`);
   const fl = wb.getWorksheet("Focus Log");
   ok(
     value(fl.getCell("B6")) === 25,
