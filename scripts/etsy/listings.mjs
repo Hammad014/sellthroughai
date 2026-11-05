@@ -10,7 +10,7 @@
  * Etsy limits: title ≤ 140 chars, 13 tags of ≤ 20 chars, 5 files ≤ 20 MB.
  */
 
-/** kind: webapp | sheet */
+/** kind: webapp | sheet | sheetbundle (all the spreadsheets) */
 export const LISTINGS = {
   // ---- Web app -----------------------------------------------------------
   "life-planner-web-app": {
@@ -123,6 +123,71 @@ export const LISTINGS = {
       "productivity",
       "2027 planner",
       "planner template",
+    ],
+  },
+  "reading-tracker": {
+    kind: "sheet",
+    sheet: "reading",
+    price: 8.99,
+    title:
+      "Reading Tracker Spreadsheet, Google Sheets & Excel Book Log, Reading Goal, Reading Challenge, Book Journal, Digital Reading Journal",
+    tags: [
+      "reading tracker",
+      "reading journal",
+      "book tracker",
+      "reading log",
+      "google sheets",
+      "book journal",
+      "reading challenge",
+      "bookish gift",
+      "book lover gift",
+      "reading goal",
+      "tbr list",
+      "excel template",
+      "digital download",
+    ],
+  },
+  "meal-planner": {
+    kind: "sheet",
+    sheet: "meal",
+    price: 8.99,
+    title:
+      "Meal Planner Spreadsheet, Google Sheets & Excel, Weekly Meal Plan With Automatic Grocery List by Aisle, Recipe Organizer Template",
+    tags: [
+      "meal planner",
+      "meal plan template",
+      "grocery list",
+      "google sheets",
+      "weekly meal plan",
+      "recipe organizer",
+      "shopping list",
+      "meal prep planner",
+      "family meal plan",
+      "food planner",
+      "excel template",
+      "dinner planner",
+      "digital download",
+    ],
+  },
+  "planner-spreadsheet-bundle": {
+    kind: "sheetbundle",
+    price: 29.99,
+    title:
+      "Planner Spreadsheet Bundle, Google Sheets & Excel: Budget, Life Planner, ADHD Planner, Student Planner, Reading Tracker, Meal Planner",
+    tags: [
+      "planner bundle",
+      "google sheets",
+      "spreadsheet bundle",
+      "budget spreadsheet",
+      "adhd planner",
+      "life planner",
+      "student planner",
+      "reading tracker",
+      "meal planner",
+      "habit tracker",
+      "excel template",
+      "digital planner",
+      "productivity",
     ],
   },
 };

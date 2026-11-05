@@ -15,6 +15,8 @@ import { SHEETS, demoDir } from "./build.mjs";
 import { buildStudent, fillDemo as studentDemo } from "./student.mjs";
 import { buildAdhd, fillDemo as adhdDemo } from "./adhd.mjs";
 import { buildLife, fillDemo as lifeDemo } from "./life.mjs";
+import { buildReading, fillDemo as readingDemo } from "./reading.mjs";
+import { AISLES, RECIPES, buildMeal, fillDemo as mealDemo } from "./meal.mjs";
 
 let fails = 0;
 const ok = (cond, msg) => {
@@ -656,9 +658,174 @@ async function testLife() {
   );
 }
 
+// ---- Reading Tracker ------------------------------------------------------
+
+async function testReading() {
+  const wb = await recalc(path.join(demoDir, SHEETS.reading.file));
+  const errors = scanErrors(wb);
+  ok(
+    errors.length === 0,
+    `reading: no formula errors ${errors.slice(0, 5).join(" ")}`,
+  );
+  const modern = scanModern(buildReading());
+  ok(
+    modern.length === 0,
+    `reading: only classic functions ${modern.slice(0, 3).join(" ")}`,
+  );
+  const books = readingDemo(buildReading()).map(
+    ([title, , genre, , pages, status, , finished, onPage, rating]) => ({
+      title,
+      genre,
+      pages,
+      status,
+      onPage,
+      stars: rating ? rating.length : null,
+      finished: finished ? new Date(`${finished}T00:00:00Z`) : null,
+    }),
+  );
+  const read = books.filter(
+    (b) => b.status === "Finished" && b.finished?.getUTCFullYear() === 2027,
+  );
+  const dash = wb.getWorksheet("Dashboard");
+  ok(
+    value(dash.getCell("B9")) === read.length,
+    `books read ${value(dash.getCell("B9"))} (expected ${read.length})`,
+  );
+  ok(
+    near(value(dash.getCell("C9")), read.length / 24),
+    `goal progress ${value(dash.getCell("C9"))}`,
+  );
+  const pages = read.reduce((s, b) => s + b.pages, 0);
+  ok(
+    value(dash.getCell("E9")) === pages,
+    `pages read ${value(dash.getCell("E9"))} (expected ${pages})`,
+  );
+  const avg = read.reduce((s, b) => s + b.stars, 0) / read.length;
+  ok(
+    near(value(dash.getCell("G9")), avg),
+    `average rating ${value(dash.getCell("G9"))} (expected ${avg})`,
+  );
+  for (let m = 0; m < 3; m++) {
+    const inMonth = read.filter((b) => b.finished.getUTCMonth() === m);
+    ok(
+      (value(dash.getCell(`C${14 + m}`)) ?? 0) === inMonth.length,
+      `month ${m + 1} books ${value(dash.getCell(`C${14 + m}`))}`,
+    );
+    ok(
+      (value(dash.getCell(`D${14 + m}`)) ?? 0) ===
+        inMonth.reduce((s, b) => s + b.pages, 0),
+      `month ${m + 1} pages ${value(dash.getCell(`D${14 + m}`))}`,
+    );
+  }
+  const reading = books.filter((b) => b.status === "Reading");
+  reading.forEach((b, k) => {
+    ok(
+      value(dash.getCell(`G${14 + k}`)) === b.title,
+      `reading now #${k + 1}: ${value(dash.getCell(`G${14 + k}`))}`,
+    );
+    ok(
+      near(value(dash.getCell(`H${14 + k}`)), b.onPage / b.pages),
+      `progress ${value(dash.getCell(`H${14 + k}`))}`,
+    );
+  });
+  const top = read
+    .map((b, i) => ({ ...b, i }))
+    .sort((a, b) => b.stars - a.stars || books.indexOf(a) - books.indexOf(b))
+    .slice(0, 5);
+  top.forEach((b, k) =>
+    ok(
+      value(dash.getCell(`G${21 + k}`)) === b.title,
+      `top rated #${k + 1}: ${value(dash.getCell(`G${21 + k}`))}`,
+    ),
+  );
+  const fiction = read.filter((b) => b.genre === "Fiction").length;
+  ok(
+    value(dash.getCell("C29")) === fiction,
+    `fiction read ${value(dash.getCell("C29"))} (expected ${fiction})`,
+  );
+  const ch = wb.getWorksheet("Challenge");
+  ok(
+    value(ch.getCell("B4")) === "3 of 24 done",
+    `challenge count: ${value(ch.getCell("B4"))}`,
+  );
+  ok(
+    value(ch.getCell("E20")) === "…",
+    `unfinished book not ticked: ${value(ch.getCell("E20"))}`,
+  );
+}
+
+// ---- Meal Planner ---------------------------------------------------------
+
+async function testMeal() {
+  const wb = await recalc(path.join(demoDir, SHEETS.meal.file));
+  const errors = scanErrors(wb);
+  ok(
+    errors.length === 0,
+    `meal: no formula errors ${errors.slice(0, 5).join(" ")}`,
+  );
+  const modern = scanModern(buildMeal());
+  ok(
+    modern.length === 0,
+    `meal: only classic functions ${modern.slice(0, 3).join(" ")}`,
+  );
+  const week = mealDemo(buildMeal()).flat();
+  const times = (name) => week.filter((m) => m === name).length;
+  // Expected list: item+unit added up across recipes, sorted by aisle then first appearance.
+  const lines = RECIPES.flatMap(([name, , , , items]) =>
+    items.map(([item, qty, unit, aisle]) => ({ name, item, qty, unit, aisle })),
+  );
+  const groups = new Map();
+  lines.forEach((l, i) => {
+    const n = times(l.name);
+    if (!n) return;
+    const key = `${l.item}|${l.unit}`;
+    if (!groups.has(key)) groups.set(key, { ...l, total: 0, first: i });
+    groups.get(key).total += l.qty * n;
+  });
+  const expected = [...groups.values()].sort(
+    (a, b) =>
+      AISLES.indexOf(a.aisle) - AISLES.indexOf(b.aisle) || a.first - b.first,
+  );
+  const gl = wb.getWorksheet("Grocery List");
+  expected.forEach((g, k) => {
+    const r = 6 + k;
+    const got = [
+      value(gl.getCell(`B${r}`)),
+      value(gl.getCell(`C${r}`)),
+      value(gl.getCell(`D${r}`)),
+      value(gl.getCell(`E${r}`)),
+    ];
+    ok(
+      got[0] === g.aisle &&
+        got[1] === g.item &&
+        near(got[2], g.total) &&
+        got[3] === g.unit,
+      `grocery #${k + 1}: ${got.join(" ")} (expected ${g.aisle} ${g.item} ${g.total} ${g.unit})`,
+    );
+  });
+  ok(
+    [null, ""].includes(value(gl.getCell(`C${6 + expected.length}`)) ?? null),
+    "grocery list stops after the last item",
+  );
+  const planned = week.filter(Boolean).length;
+  const wp = wb.getWorksheet("Week Plan");
+  ok(
+    value(wp.getCell("B13")) ===
+      `${planned} meals planned · ${expected.length} items on your grocery list`,
+    `week summary: ${value(wp.getCell("B13"))}`,
+  );
+  ok(
+    value(wb.getWorksheet("Recipes").getCell("G6")) ===
+      `${times("Overnight oats")}×`,
+    `recipe planned count: ${value(wb.getWorksheet("Recipes").getCell("G6"))}`,
+  );
+}
+
 await testBudget();
 await testStudent();
 await testAdhd();
 await testLife();
+await testReading();
+await testMeal();
 console.log(fails ? `${fails} FAILED` : "ALL PASSED");
 if (fails) process.exit(1);

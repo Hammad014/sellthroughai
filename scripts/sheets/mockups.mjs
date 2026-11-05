@@ -267,6 +267,98 @@ export const STORE = {
       ],
     ],
   },
+  reading: {
+    cover: {
+      sheet: "Dashboard",
+      eyebrow: "MAKEREADY · READING TRACKER",
+      title: "Log the book. The rest counts itself.",
+      sub: "Your goal, pages, ratings, genres and months, updated every time you finish a book.",
+      chips: [
+        "Google Sheets",
+        "Excel",
+        "Reading goal",
+        "Book log",
+        "Reading challenge",
+        "Quotes",
+      ],
+    },
+    shots: [
+      [
+        "Dashboard",
+        "01-dashboard",
+        "DASHBOARD",
+        "Your reading year at a glance",
+        "Reading dashboard: goal, pages, rating, months, genres and top rated",
+      ],
+      [
+        "Books",
+        "02-books",
+        "BOOKS",
+        "Every book, with progress and stars",
+        "Book log with status, progress and ratings",
+      ],
+      [
+        "Challenge",
+        "03-challenge",
+        "READING CHALLENGE",
+        "24 prompts that tick themselves off",
+        "24-prompt reading challenge",
+      ],
+      [
+        "Quotes",
+        "04-quotes",
+        "QUOTES",
+        "Keep the lines you loved",
+        "Favourite quotes with page numbers",
+      ],
+    ],
+  },
+  meal: {
+    cover: {
+      sheet: "Week Plan",
+      eyebrow: "MAKEREADY · MEAL PLANNER",
+      title: "Plan the week. The grocery list writes itself.",
+      sub: "Pick meals; every ingredient is added up and sorted by aisle.",
+      chips: [
+        "Google Sheets",
+        "Excel",
+        "Weekly meal plan",
+        "Grocery list",
+        "Recipes",
+        "By aisle",
+      ],
+    },
+    shots: [
+      [
+        "Week Plan",
+        "01-week",
+        "WEEK PLAN",
+        "Pick a recipe for every meal",
+        "Weekly meal plan with recipe dropdowns",
+      ],
+      [
+        "Grocery List",
+        "02-grocery",
+        "GROCERY LIST",
+        "Added up and sorted by aisle, automatically",
+        "Automatic grocery list sorted by aisle",
+      ],
+      [
+        "Recipes",
+        "03-recipes",
+        "RECIPES",
+        "Your recipe box, with 8 to start",
+        "Recipe list with meal, time and servings",
+      ],
+      [
+        "Ingredients",
+        "04-ingredients",
+        "INGREDIENTS",
+        "Add a recipe once, shop for it forever",
+        "Ingredients for each recipe with quantity, unit and aisle",
+      ],
+    ],
+  },
 };
 
 const png64 = (b) => `data:image/png;base64,${b.toString("base64")}`;
@@ -318,8 +410,45 @@ export async function sheetMockups(id) {
   return Object.keys(out);
 }
 
+/** Spreadsheets in the bundle, in listing order. */
+export const BUNDLE = ["budget", "life", "adhd", "student", "reading", "meal"];
+
+/** Bundle cover: every product's cover in a grid (run after sheetMockups). */
+export async function bundleMockup() {
+  const { readFile } = await import("node:fs/promises");
+  const covers = await Promise.all(
+    BUNDLE.map(
+      async (id) =>
+        `data:image/webp;base64,${(await readFile(path.join(storeDir(id), "cover.webp"))).toString("base64")}`,
+    ),
+  );
+  const browser = await chromium.launch();
+  const page = await browser.newPage({
+    viewport: { width: 2400, height: 1800 },
+  });
+  const cover = await compose(
+    page,
+    `<div style="position:absolute;left:0;right:0;top:100px;text-align:center">${label(
+      "MAKEREADY · THE PLANNER SPREADSHEET BUNDLE",
+      "6 planners that do the work for you",
+      "",
+    )}<div style="font-family:Body;font-size:38px;color:#5e574d;margin-top:-6px">Budget · Life · ADHD Daily · ADHD Student · Reading · Meals — for Google Sheets and Excel</div></div>
+     <div style="position:absolute;left:150px;right:150px;top:470px;display:grid;grid-template-columns:repeat(3,1fr);gap:44px">
+       ${covers.map((src) => `<img src="${src}" style="width:100%;border-radius:22px;box-shadow:0 30px 70px rgba(60,40,10,.3)">`).join("")}
+     </div>`,
+  );
+  await browser.close();
+  const dir = storeDir("bundle");
+  await mkdir(dir, { recursive: true });
+  await writeFile(path.join(dir, "cover.webp"), cover);
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const ids = process.argv.slice(2).filter((a) => STORE[a]);
   for (const id of ids.length ? ids : Object.keys(STORE))
     console.log(id, (await sheetMockups(id)).join(" "));
+  if (!ids.length) {
+    await bundleMockup();
+    console.log("bundle cover");
+  }
 }

@@ -25,6 +25,9 @@ scripts/etsy/out/<product>/
 | Life Planner Spreadsheet | .xlsx for Google Sheets + Excel, Start Here PDF | $11.99 |
 | ADHD Daily Planner | .xlsx for Google Sheets + Excel, Start Here PDF | $9.99 |
 | ADHD Student Planner | .xlsx for Google Sheets + Excel, Start Here PDF | $9.99 |
+| Reading Tracker | .xlsx for Google Sheets + Excel, Start Here PDF | $8.99 |
+| Meal Planner | .xlsx for Google Sheets + Excel, Start Here PDF | $8.99 |
+| Planner Spreadsheet Bundle | All 6 spreadsheets in one zip + Start Here PDF | $29.99 |
 | Life Planner (web app) | One HTML file that opens in the browser + Start Here PDF. Computers only | $14.99 |
 
 List the spreadsheets first: the research (`reports/`, not in git) found far

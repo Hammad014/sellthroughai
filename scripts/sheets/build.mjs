@@ -12,6 +12,8 @@ import { buildBudget, fillDemo as budgetDemo } from "./budget.mjs";
 import { buildStudent, fillDemo as studentDemo } from "./student.mjs";
 import { buildAdhd, fillDemo as adhdDemo } from "./adhd.mjs";
 import { buildLife, fillDemo as lifeDemo } from "./life.mjs";
+import { buildReading, fillDemo as readingDemo } from "./reading.mjs";
+import { buildMeal, fillDemo as mealDemo } from "./meal.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const outDir = path.join(HERE, "out");
@@ -45,6 +47,20 @@ export const SHEETS = {
     title: "Life Planner",
     build: buildLife,
     demo: lifeDemo,
+  },
+  reading: {
+    slug: "reading-tracker",
+    file: "Makeready-Reading-Tracker.xlsx",
+    title: "Reading Tracker",
+    build: buildReading,
+    demo: readingDemo,
+  },
+  meal: {
+    slug: "meal-planner",
+    file: "Makeready-Meal-Planner.xlsx",
+    title: "Meal Planner",
+    build: buildMeal,
+    demo: mealDemo,
   },
 };
 

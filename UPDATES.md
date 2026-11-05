@@ -47,6 +47,9 @@ safe to run more than once.
 | `supabase/seed_student_planner_sheet.sql` | ADHD Student Planner: Assignment Tracker (**draft**) | Spreadsheet | $12 |
 | `supabase/seed_adhd_daily_planner.sql` | ADHD Daily Planner: Brain Dump, Habits & Routines (**draft**) | Spreadsheet | $12 |
 | `supabase/seed_life_planner_sheet.sql` | Life Planner Spreadsheet: Goals, Weekly Plan & Habits (**draft**) | Spreadsheet | $15 |
+| `supabase/seed_reading_tracker.sql` | Reading Tracker: Book Log, Goal & Reading Challenge (**draft**) | Spreadsheet | $9 |
+| `supabase/seed_meal_planner.sql` | Meal Planner: Weekly Plan & Automatic Grocery List (**draft**) | Spreadsheet | $9 |
+| `supabase/seed_spreadsheet_bundle.sql` | The Planner Spreadsheet Bundle: all six (**draft**, run after the six seeds) | Bundle | $39 |
 | `supabase/seed_life_planner_web.sql` | Life Planner: interactive web-app planner, one HTML file (**draft**) | Planner | $19 |
 
 > **Run `seed_prompt_bundle.sql` last** — it links the 5 prompt packs, so they
@@ -219,6 +222,12 @@ everything else is a formula.
 - **Life Planner** (8 tabs): Dashboard, Weekly Plan (top 3, daily tasks,
   review), Goals (progress and next step from Milestones), Milestones,
   Habits, Dates (birthdays roll over yearly), Monthly Review.
+- **Reading Tracker** (5 tabs): Dashboard (books and pages this year, goal,
+  average rating, by month and genre, reading now, top rated), Books,
+  24-prompt Challenge that ticks itself, Quotes.
+- **Meal Planner** (5 tabs): Week Plan, Grocery List (every planned
+  ingredient added up across recipes and sorted by aisle), Recipes (8
+  starters), Ingredients.
 - **ADHD Student Planner** (7 tabs): Today (next 12 open tasks, most urgent
   first, each with a tiny first step), This Week, Assignments (auto priority
   and colours), Classes (progress, next due, average grade), Exams countdown,
@@ -227,10 +236,10 @@ everything else is a formula.
 | File | What it does |
 |---|---|
 | `lib.mjs` | Shared styles and helpers (cards, inputs, dropdowns, text progress bars) |
-| `budget.mjs`, `student.mjs`, `adhd.mjs`, `life.mjs` | The four workbooks, plus demo data for tests and screenshots |
+| `budget.mjs`, `student.mjs`, `adhd.mjs`, `life.mjs`, `reading.mjs`, `meal.mjs` | The six workbooks, plus demo data for tests and screenshots |
 | `blocks.mjs` | Shared tabs: Start Here, habit log with streaks, focus log |
 | `build.mjs` | Writes `scripts/sheets/out/*.xlsx` (and `out/demo/` with example data) |
-| `test.mjs` | Recalculates the demos in LibreOffice and checks every key number against an independent JS calculation (134 checks) |
+| `test.mjs` | Recalculates the demos in LibreOffice and checks every key number against an independent JS calculation (192 checks) |
 | `render.mjs`, `mockups.mjs` | Real renders of each tab → cover + gallery images |
 | `links.mjs` | Optional Google Sheets "Make a copy" links for the Etsy guide |
 | `publish.mjs` | Uploads the .xlsx and images to Supabase |

@@ -30,8 +30,10 @@ import {
 import { APPS, outDir as webappOut } from "../webapps/build.mjs";
 import { SHEETS, outDir as sheetsOut } from "../sheets/build.mjs";
 import { SHEET_LINKS } from "../sheets/links.mjs";
+import { zip } from "../automation/lib/zip.mjs";
 import {
   STORE as SHEET_STORE,
+  BUNDLE as SHEET_BUNDLE,
   storeDir as sheetStore,
 } from "../sheets/mockups.mjs";
 import {
@@ -54,6 +56,12 @@ const ETSY_WORDING = [
   [/^.*(Lifetime access|no-questions refund).*$\n?/gm, ""],
   [/Instant download from your library, plus/g, "Instant download, plus"],
   [/from your library/g, "from your Etsy purchase"],
+  // Spreadsheet bundle: website price and library wording.
+  [/ Save \$33\./g, " Save over $30 compared with buying them one by one."],
+  [
+    /Buy once and all six unlock in your library straight away, each with its own short guide\./g,
+    "Instant download: all six spreadsheets in one zip, plus a Start Here guide for each.",
+  ],
   [
     /(Questions or stuck\? )?Email (us at )?support@usemakeready\.com/g,
     "$1Message us on Etsy",
@@ -207,6 +215,8 @@ async function storeImage(file) {
 // ======================================================================
 
 const NEED = {
+  sheetbundle:
+    "a free Google account (Google Sheets) or Microsoft Excel. Easiest on a computer; the Google Sheets app works on phones",
   sheet:
     "a free Google account (Google Sheets) or Microsoft Excel. Easiest on a computer; the Google Sheets app works on phones",
   webapp:
@@ -214,6 +224,11 @@ const NEED = {
 };
 
 const STEPS = {
+  sheetbundle: [
+    "Download and unzip the spreadsheets",
+    "Open each in Google Sheets (free) or Excel",
+    "Type in the yellow cells. They do the maths",
+  ],
   sheet: [
     "Download the spreadsheet file",
     "Open it in Google Sheets (free) or Excel",
@@ -273,6 +288,65 @@ async function packageProduct(slug, l, catalog) {
     images.push(cover);
     for (const [, name] of SHEET_STORE[l.sheet].shots)
       images.push(await storeImage(path.join(store, `${name}.webp`)));
+  }
+
+  if (l.kind === "sheetbundle") {
+    // Etsy allows 5 files, so the six spreadsheets travel in one zip.
+    const entries = [];
+    for (const id of SHEET_BUNDLE)
+      entries.push({
+        name: SHEETS[id].file,
+        data: await readFile(path.join(sheetsOut, SHEETS[id].file)),
+      });
+    files.push({
+      name: "Makeready-Planner-Spreadsheets.zip",
+      data: zip(entries),
+    });
+    const links = SHEET_BUNDLE.filter((id) => SHEET_LINKS[id]);
+    const lessons = [
+      {
+        title: "Unzip, then open them in Google Sheets or Excel",
+        content_md: `Download **Makeready-Planner-Spreadsheets.zip** from your Etsy purchase and unzip it (double-click it on a computer). Inside are six .xlsx files:\n\n${SHEET_BUNDLE.map((id) => `- **${SHEETS[id].file}**`).join("\n")}\n\n## Google Sheets (free)\n\n1. Go to **drive.google.com** and sign in.\n2. Click **New → File upload** and choose a file (you can pick several).\n3. Double-click it in Drive, then **File → Save as Google Sheets**.\n\n## Microsoft Excel\n\nDouble-click a file. It works in Microsoft 365, Excel 2016 or newer, Excel for Mac and the free Excel on the web.`,
+      },
+      ...(links.length
+        ? [
+            {
+              title: "Or: one click into Google Sheets",
+              content_md: links
+                .map(
+                  (id) =>
+                    `- [**Make your copy of the ${SHEETS[id].title}**](${SHEET_LINKS[id]})`,
+                )
+                .join("\n"),
+            },
+          ]
+        : []),
+      // Each planner's "set it up" step, labelled with its name.
+      ...SHEET_BUNDLE.map((id) => {
+        const item = catalog.get(SHEETS[id].slug);
+        if (!item) throw new Error(`${SHEETS[id].slug} is not in the catalog`);
+        return {
+          ...item.lessons[1],
+          title: `${SHEETS[id].title}: ${item.lessons[1].title}`,
+        };
+      }),
+    ];
+    files.push({
+      name: "Makeready-Planner-Spreadsheets-Start-Here.pdf",
+      data: await lessonsPdf(
+        { ...p, lessons },
+        { kind: "Guide", label: "Step", title: `${p.title}: Start Here` },
+      ),
+    });
+    fileLines = [
+      `${SHEET_BUNDLE.length} spreadsheets (.xlsx for Google Sheets and Excel), in one zip`,
+      "Start Here guide PDF",
+    ];
+    images.push(
+      await storeImage(path.join(sheetStore("bundle"), "cover.webp")),
+    );
+    for (const id of SHEET_BUNDLE)
+      images.push(await storeImage(path.join(sheetStore(id), "cover.webp")));
   }
 
   if (l.kind === "webapp") {
