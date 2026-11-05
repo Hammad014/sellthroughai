@@ -313,7 +313,8 @@ function groceryList(wb) {
     const r = 5 + k;
     put(ws, `J${r}`, { f: `IFERROR(SMALL(${IN("J")},${k}),"")` }); // hidden key
     const row = `MOD($J${r},10000)`;
-    const pick = (col) => `IF($J${r}="","",INDEX(${INT(col)},${row}))`;
+    const pick = (col) =>
+      `IF($J${r}="","",IF(INDEX(${INT(col)},${row})="","",INDEX(${INT(col)},${row})))`;
     put(
       ws,
       `B${r}`,

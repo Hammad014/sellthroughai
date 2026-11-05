@@ -252,7 +252,7 @@ function dashboard(ws, habits) {
     const r = 27 + k;
     put(ws, `H${r}`, { f: `IFERROR(SMALL(${DT("H")},${k}),"")` }); // hidden key
     const pick = (col) =>
-      `IF($H${r}="","",INDEX(${DTT(col)},MOD($H${r},10000)))`;
+      `IF($H${r}="","",IF(INDEX(${DTT(col)},MOD($H${r},10000))="","",INDEX(${DTT(col)},MOD($H${r},10000))))`;
     calc(ws, `B${r}`, { f: pick("C") });
     calc(
       ws,

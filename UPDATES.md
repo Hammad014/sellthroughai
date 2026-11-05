@@ -49,6 +49,11 @@ safe to run more than once.
 | `supabase/seed_life_planner_sheet.sql` | Life Planner Spreadsheet: Goals, Weekly Plan & Habits (**draft**) | Spreadsheet | $15 |
 | `supabase/seed_reading_tracker.sql` | Reading Tracker: Book Log, Goal & Reading Challenge (**draft**) | Spreadsheet | $9 |
 | `supabase/seed_meal_planner.sql` | Meal Planner: Weekly Plan & Automatic Grocery List (**draft**) | Spreadsheet | $9 |
+| `supabase/seed_cleaning_schedule.sql` | Cleaning Schedule (**draft**) | Spreadsheet | $9 |
+| `supabase/seed_workout_tracker.sql` | Workout & Weight Tracker (**draft**) | Spreadsheet | $9 |
+| `supabase/seed_pregnancy_tracker.sql` | Pregnancy & Baby Tracker (**draft**) | Spreadsheet | $12 |
+| `supabase/seed_wedding_planner.sql` | Wedding Planner & Budget (**draft**) | Spreadsheet | $15 |
+| `supabase/seed_sales_tracker.sql` | Small Business Sales Tracker (**draft**) | Spreadsheet | $15 |
 | `supabase/seed_spreadsheet_bundle.sql` | The Planner Spreadsheet Bundle: all six (**draft**, run after the six seeds) | Bundle | $39 |
 | `supabase/seed_life_planner_web.sql` | Life Planner: interactive web-app planner, one HTML file (**draft**) | Planner | $19 |
 
@@ -228,6 +233,20 @@ everything else is a formula.
 - **Meal Planner** (5 tabs): Week Plan, Grocery List (every planned
   ingredient added up across recipes and sorted by aisle), Recipes (8
   starters), Ingredients.
+- **Cleaning Schedule**: chores with a frequency and last-done date → next
+  due and status; Today (most overdue first), Next 7 Days, room scores,
+  Declutter 30. 34 starter chores.
+- **Workout & Weight Tracker**: goal progress, weight log, workouts,
+  strength log, personal bests per exercise (heaviest, best volume, last).
+- **Pregnancy & Baby Tracker**: from the due date, weeks + days, trimester,
+  days to go and baby's size; appointments, bump log, hospital bag, baby
+  log (today's feeds, nappies, sleep). Not medical advice.
+- **Wedding Planner & Budget**: countdown, 32-task checklist counted back
+  from the date, budget (actual else estimate), guest list with RSVPs and
+  meal counts, vendors.
+- **Small Business Sales Tracker**: orders with Etsy fee estimates (rates on
+  the Dashboard), cost of goods and profit; products ranked by profit;
+  expenses; monthly P&L.
 - **ADHD Student Planner** (7 tabs): Today (next 12 open tasks, most urgent
   first, each with a tiny first step), This Week, Assignments (auto priority
   and colours), Classes (progress, next due, average grade), Exams countdown,
@@ -236,10 +255,10 @@ everything else is a formula.
 | File | What it does |
 |---|---|
 | `lib.mjs` | Shared styles and helpers (cards, inputs, dropdowns, text progress bars) |
-| `budget.mjs`, `student.mjs`, `adhd.mjs`, `life.mjs`, `reading.mjs`, `meal.mjs` | The six workbooks, plus demo data for tests and screenshots |
+| `budget.mjs`, `student.mjs`, `adhd.mjs`, `life.mjs`, `reading.mjs`, `meal.mjs`, `cleaning.mjs`, `fitness.mjs`, `baby.mjs`, `wedding.mjs`, `shop.mjs` | The eleven workbooks, plus demo data for tests and screenshots |
 | `blocks.mjs` | Shared tabs: Start Here, habit log with streaks, focus log |
 | `build.mjs` | Writes `scripts/sheets/out/*.xlsx` (and `out/demo/` with example data) |
-| `test.mjs` | Recalculates the demos in LibreOffice and checks every key number against an independent JS calculation (192 checks) |
+| `test.mjs` | Recalculates the demos in LibreOffice and checks every key number against an independent JS calculation (309 checks) |
 | `render.mjs`, `mockups.mjs` | Real renders of each tab → cover + gallery images |
 | `links.mjs` | Optional Google Sheets "Make a copy" links for the Etsy guide |
 | `publish.mjs` | Uploads the .xlsx and images to Supabase |

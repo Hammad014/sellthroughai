@@ -122,7 +122,7 @@ function startHere(wb) {
 /** k-th open assignment by due date: key, then any column of that row. */
 const nth = (k) => `IFERROR(SMALL(${KEY},${k}),"")`;
 const pick = (keyCell, col) =>
-  `IF(${keyCell}="","",INDEX(${AT(col)},MOD(${keyCell},10000)))`;
+  `IF(${keyCell}="","",IF(INDEX(${AT(col)},MOD(${keyCell},10000))="","",INDEX(${AT(col)},MOD(${keyCell},10000))))`;
 
 function today(wb) {
   const ws = sheet(wb, "Today", {

@@ -17,6 +17,22 @@ import { buildAdhd, fillDemo as adhdDemo } from "./adhd.mjs";
 import { buildLife, fillDemo as lifeDemo } from "./life.mjs";
 import { buildReading, fillDemo as readingDemo } from "./reading.mjs";
 import { AISLES, RECIPES, buildMeal, fillDemo as mealDemo } from "./meal.mjs";
+import {
+  FREQ,
+  TASKS as CLEAN_TASKS,
+  buildCleaning,
+  fillDemo as cleaningDemo,
+} from "./cleaning.mjs";
+import { buildFitness, fillDemo as fitnessDemo } from "./fitness.mjs";
+import { SIZES, buildBaby } from "./baby.mjs";
+import {
+  CHECKLIST,
+  DEMO_BUDGET,
+  DEMO_GUESTS,
+  MEALS,
+  buildWedding,
+} from "./wedding.mjs";
+import { DEMO_EXPENSES, DEMO_ORDERS, buildShop } from "./shop.mjs";
 
 let fails = 0;
 const ok = (cond, msg) => {
@@ -821,11 +837,441 @@ async function testMeal() {
   );
 }
 
+// ---- Shared date helpers for the "today"-relative demos -------------------
+
+const utcToday = () => {
+  const n = new Date();
+  return Date.UTC(n.getFullYear(), n.getMonth(), n.getDate());
+};
+const dayN = (d) => Math.round((d.getTime() - utcToday()) / 864e5); // date → days from today
+const asDay = (v) => (v instanceof Date ? dayN(v) : null);
+
+// ---- Cleaning Schedule ------------------------------------------------------
+
+async function testCleaning() {
+  const wb = await recalc(path.join(demoDir, SHEETS.cleaning.file));
+  const errors = scanErrors(wb);
+  ok(
+    errors.length === 0,
+    `cleaning: no formula errors ${errors.slice(0, 5).join(" ")}`,
+  );
+  ok(
+    scanModern(buildCleaning()).length === 0,
+    "cleaning: only classic functions",
+  );
+  const { ago } = cleaningDemo(buildCleaning());
+  const every = Object.fromEntries(FREQ);
+  const tasks = CLEAN_TASKS.map(([room, task, freq], i) => ({
+    room,
+    task,
+    i,
+    next: ago[i] === null ? 0 : -ago[i] + every[freq],
+  }));
+  const status = (n) =>
+    n < 0 ? "Overdue" : n === 0 ? "Due today" : n <= 7 ? "This week" : "Later";
+  const count = (s) => tasks.filter((t) => status(t.next) === s).length;
+  const today = wb.getWorksheet("Today");
+  ok(
+    value(today.getCell("B8")) === count("Overdue"),
+    `cleaning overdue ${value(today.getCell("B8"))} (expected ${count("Overdue")})`,
+  );
+  ok(
+    value(today.getCell("C8")) === count("Due today"),
+    `cleaning due today ${value(today.getCell("C8"))} (expected ${count("Due today")})`,
+  );
+  ok(
+    value(today.getCell("D8")) === count("This week"),
+    `cleaning this week ${value(today.getCell("D8"))} (expected ${count("This week")})`,
+  );
+  const due = tasks
+    .filter((t) => t.next <= 0)
+    .sort((a, b) => a.next - b.next || a.i - b.i)
+    .slice(0, 20);
+  due.forEach((t, k) =>
+    ok(
+      value(today.getCell(`C${11 + k}`)) === t.task &&
+        value(today.getCell(`B${11 + k}`)) === t.room,
+      `today #${k + 1}: ${value(today.getCell(`C${11 + k}`))}`,
+    ),
+  );
+  const first = due[0];
+  ok(
+    value(today.getCell("E11")) ===
+      (first.next === -1 ? "1 day overdue" : `${-first.next} days overdue`),
+    `overdue wording: ${value(today.getCell("E11"))}`,
+  );
+  const kitchen = tasks.filter((t) => t.room === "Kitchen");
+  const score = 1 - kitchen.filter((t) => t.next < 0).length / kitchen.length;
+  ok(
+    near(value(wb.getWorksheet("Rooms").getCell("F6")), score),
+    `kitchen score ${value(wb.getWorksheet("Rooms").getCell("F6"))} (expected ${score})`,
+  );
+  const week = wb.getWorksheet("Next 7 Days");
+  const tomorrow = tasks.filter((t) => t.next === 1);
+  ok(
+    (value(week.getCell("C6")) ?? "") ===
+      (tomorrow[0] ? `${tomorrow[0].task} (${tomorrow[0].room})` : ""),
+    `tomorrow column: ${value(week.getCell("C6"))}`,
+  );
+  ok(
+    value(wb.getWorksheet("Declutter 30").getCell("B4")) === "6 of 30 done",
+    "declutter count",
+  );
+}
+
+// ---- Workout & Weight -------------------------------------------------------
+
+async function testFitness() {
+  const wb = await recalc(path.join(demoDir, SHEETS.fitness.file));
+  const errors = scanErrors(wb);
+  ok(
+    errors.length === 0,
+    `fitness: no formula errors ${errors.slice(0, 5).join(" ")}`,
+  );
+  ok(
+    scanModern(buildFitness()).length === 0,
+    "fitness: only classic functions",
+  );
+  const { weights, sessions, lifts } = fitnessDemo(buildFitness());
+  const dash = wb.getWorksheet("Dashboard");
+  const cur = weights.at(-1);
+  ok(
+    near(value(dash.getCell("B11")), cur),
+    `current weight ${value(dash.getCell("B11"))}`,
+  );
+  ok(
+    near(value(dash.getCell("C11")), 82 - cur),
+    `lost so far ${value(dash.getCell("C11"))}`,
+  );
+  ok(
+    near(value(dash.getCell("D11")), cur - 74),
+    `to go ${value(dash.getCell("D11"))}`,
+  );
+  ok(
+    near(value(dash.getCell("F13")), (82 - cur) / 8),
+    `progress ${value(dash.getCell("F13"))}`,
+  );
+  const dow = (new Date().getDay() + 6) % 7;
+  const thisWeek = sessions.filter(([d]) => d >= -dow && d <= 0).length;
+  ok(
+    value(dash.getCell("E11")) === thisWeek,
+    `workouts this week ${value(dash.getCell("E11"))} (expected ${thisWeek})`,
+  );
+  const month = new Date().getMonth();
+  const inMonth = sessions.filter(
+    ([d]) => new Date(utcToday() + d * 864e5).getUTCMonth() === month,
+  );
+  ok(
+    (value(dash.getCell(`C${17 + month}`)) ?? 0) === inMonth.length,
+    `this month's workouts ${value(dash.getCell(`C${17 + month}`))}`,
+  );
+  ok(
+    (value(dash.getCell(`D${17 + month}`)) ?? 0) ===
+      inMonth.reduce((s, x) => s + x[2], 0),
+    `this month's minutes ${value(dash.getCell(`D${17 + month}`))}`,
+  );
+  const ex = wb.getWorksheet("Exercises");
+  for (const [row, name] of [
+    [6, "Squat"],
+    [7, "Deadlift"],
+    [8, "Bench press"],
+  ]) {
+    const mine = lifts.filter((l) => l[1] === name);
+    const best = Math.max(...mine.map((l) => l[4]));
+    const vol = Math.max(...mine.map((l) => l[2] * l[3] * l[4]));
+    const last = Math.max(...mine.map((l) => l[0]));
+    ok(
+      near(value(ex.getCell(`C${row}`)), best),
+      `${name} best ${value(ex.getCell(`C${row}`))} (expected ${best})`,
+    );
+    ok(
+      near(value(ex.getCell(`F${row}`)), vol),
+      `${name} best volume ${value(ex.getCell(`F${row}`))} (expected ${vol})`,
+    );
+    ok(
+      asDay(value(ex.getCell(`D${row}`))) === last,
+      `${name} last done ${asDay(value(ex.getCell(`D${row}`)))} (expected ${last})`,
+    );
+    ok(value(ex.getCell(`E${row}`)) === mine.length, `${name} sessions`);
+  }
+  const wt = wb.getWorksheet("Weight");
+  ok(
+    near(value(wt.getCell("E7")), weights[1] - weights[0]),
+    `weight change ${value(wt.getCell("E7"))}`,
+  );
+}
+
+// ---- Pregnancy & Baby -------------------------------------------------------
+
+async function testBaby() {
+  const wb = await recalc(path.join(demoDir, SHEETS.baby.file));
+  const errors = scanErrors(wb);
+  ok(
+    errors.length === 0,
+    `baby: no formula errors ${errors.slice(0, 5).join(" ")}`,
+  );
+  ok(scanModern(buildBaby()).length === 0, "baby: only classic functions");
+  const dash = wb.getWorksheet("Dashboard");
+  ok(
+    value(dash.getCell("B9")) === "24 weeks 3 days",
+    `how far along: ${value(dash.getCell("B9"))}`,
+  );
+  ok(
+    value(dash.getCell("C9")) === "2nd",
+    `trimester: ${value(dash.getCell("C9"))}`,
+  );
+  ok(
+    value(dash.getCell("D9")) === 109,
+    `days to go: ${value(dash.getCell("D9"))}`,
+  );
+  ok(
+    value(dash.getCell("F9")) === SIZES[24 - 4],
+    `size: ${value(dash.getCell("F9"))}`,
+  );
+  ok(
+    value(dash.getCell("B14")) === "Midwife · GP surgery" &&
+      value(dash.getCell("E14")) === "In 4 days",
+    `next appointment: ${value(dash.getCell("B14"))} ${value(dash.getCell("E14"))}`,
+  );
+  ok(
+    value(dash.getCell("B15")) === "Antenatal class · Community centre",
+    `second appointment: ${value(dash.getCell("B15"))}`,
+  );
+  ok(
+    near(value(dash.getCell("H14")), 6 / 12) &&
+      near(value(dash.getCell("H15")), 3 / 10),
+    `bag progress ${value(dash.getCell("H14"))} ${value(dash.getCell("H15"))}`,
+  );
+  ok(
+    value(dash.getCell("C21")) === 2 && value(dash.getCell("D21")) === 2,
+    `baby today feeds/nappies ${value(dash.getCell("C21"))}/${value(dash.getCell("D21"))}`,
+  );
+  ok(
+    near(value(dash.getCell("E21")), 4),
+    `baby sleep today ${value(dash.getCell("E21"))}`,
+  );
+  ok(
+    value(dash.getCell("C22")) === 1,
+    `feeds yesterday ${value(dash.getCell("C22"))}`,
+  );
+  ok(
+    value(wb.getWorksheet("Baby Log").getCell("F6")) === 90,
+    "bottle ml today",
+  );
+  const bump = wb.getWorksheet("Bump Log");
+  ok(
+    value(bump.getCell("C6")) === Math.floor((171 - 56) / 7),
+    `bump week ${value(bump.getCell("C6"))}`,
+  );
+  ok(
+    near(value(bump.getCell("F8")), 70.6 - 68),
+    `bump weight change ${value(bump.getCell("F8"))}`,
+  );
+  ok(
+    asDay(value(wb.getWorksheet("Week by Week").getCell("E6"))) ===
+      109 - 280 + 28,
+    "week 4 start date",
+  );
+}
+
+// ---- Wedding ------------------------------------------------------------------
+
+async function testWedding() {
+  const wb = await recalc(path.join(demoDir, SHEETS.wedding.file));
+  const errors = scanErrors(wb);
+  ok(
+    errors.length === 0,
+    `wedding: no formula errors ${errors.slice(0, 5).join(" ")}`,
+  );
+  ok(
+    scanModern(buildWedding()).length === 0,
+    "wedding: only classic functions",
+  );
+  const dash = wb.getWorksheet("Dashboard");
+  const committed = DEMO_BUDGET.reduce(
+    (s, [, , est, act]) => s + (act ?? est),
+    0,
+  );
+  const paid = DEMO_BUDGET.reduce((s, r) => s + r[4], 0);
+  ok(
+    value(dash.getCell("B10")) === 200,
+    `days to go ${value(dash.getCell("B10"))}`,
+  );
+  ok(
+    near(value(dash.getCell("C10")), 20000 - committed),
+    `budget left ${value(dash.getCell("C10"))} (expected ${20000 - committed})`,
+  );
+  ok(
+    near(value(dash.getCell("D10")), paid),
+    `paid ${value(dash.getCell("D10"))}`,
+  );
+  const ppl = (pred) => DEMO_GUESTS.filter(pred).reduce((s, g) => s + g[3], 0);
+  const invited = ppl((g) => g[4] === "✓");
+  const coming = ppl((g) => g[5] === "Yes");
+  ok(
+    value(dash.getCell("F10")) === `${coming} of ${invited} invited`,
+    `guests card: ${value(dash.getCell("F10"))}`,
+  );
+  ok(value(dash.getCell("C28")) === ppl((g) => g[5] === "No"), "not coming");
+  ok(
+    value(dash.getCell("C29")) ===
+      ppl((g) => g[4] === "✓" && (g[5] === "Waiting" || !g[5])),
+    `waiting ${value(dash.getCell("C29"))}`,
+  );
+  MEALS.forEach((meal, i) =>
+    ok(
+      (value(dash.getCell(`C${32 + i}`)) ?? 0) ===
+        ppl((g) => g[5] === "Yes" && g[6] === meal),
+      `${meal} meals ${value(dash.getCell(`C${32 + i}`)) ?? 0}`,
+    ),
+  );
+  const open = CHECKLIST.map(([days, , task], i) => ({
+    days,
+    task,
+    i,
+    done: days > 200 && i !== 9,
+  }))
+    .filter((t) => !t.done)
+    .sort((a, b) => b.days - a.days || a.i - b.i);
+  open
+    .slice(0, 8)
+    .forEach((t, k) =>
+      ok(
+        value(dash.getCell(`B${16 + k}`)) === t.task,
+        `next task #${k + 1}: ${value(dash.getCell(`B${16 + k}`))}`,
+      ),
+    );
+  ok(
+    value(dash.getCell("D16")) === "Overdue",
+    `overdue task flagged: ${value(dash.getCell("D16"))}`,
+  );
+  ok(
+    near(
+      value(dash.getCell("G12")),
+      (CHECKLIST.length - open.length) / CHECKLIST.length,
+    ),
+    `checklist done ${value(dash.getCell("G12"))}`,
+  );
+  ok(
+    near(value(dash.getCell("H16")), 6500),
+    `venue category ${value(dash.getCell("H16"))}`,
+  );
+}
+
+// ---- Sales tracker ------------------------------------------------------------
+
+async function testShop() {
+  const wb = await recalc(path.join(demoDir, SHEETS.shop.file));
+  const errors = scanErrors(wb);
+  ok(
+    errors.length === 0,
+    `shop: no formula errors ${errors.slice(0, 5).join(" ")}`,
+  );
+  ok(scanModern(buildShop()).length === 0, "shop: only classic functions");
+  const products = {
+    "Digital planner": [9.99, 0],
+    "Hand-poured candle": [18, 5.2],
+    "Linen tote bag": [24, 8.5],
+    "Greeting card": [4.5, 0.9],
+  };
+  const rows = DEMO_ORDERS.map(
+    ([date, , product, qty, price, ship, platform, fee]) => {
+      const p = price ?? products[product][0];
+      const revenue = qty * p + ship;
+      const fees =
+        fee ??
+        (platform === "Etsy"
+          ? Math.round((revenue * 0.095 + 0.45) * 100) / 100
+          : 0);
+      const cost = qty * products[product][1];
+      return {
+        month: Number(date.slice(5, 7)) - 1,
+        product,
+        qty,
+        revenue,
+        fees,
+        cost,
+        profit: revenue - fees - cost,
+      };
+    },
+  );
+  const ord = wb.getWorksheet("Orders");
+  rows.forEach((r, i) =>
+    ok(
+      near(value(ord.getCell(`N${6 + i}`)), r.profit),
+      `order ${i + 1} profit ${value(ord.getCell(`N${6 + i}`))} (expected ${r.profit.toFixed(2)})`,
+    ),
+  );
+  const dash = wb.getWorksheet("Dashboard");
+  const exp = [0, 0, 0];
+  DEMO_EXPENSES.forEach(
+    ([d, , , amt]) => (exp[Number(d.slice(5, 7)) - 1] += amt),
+  );
+  for (let m = 0; m < 3; m++) {
+    const mine = rows.filter((r) => r.month === m);
+    const sum = (k) => mine.reduce((s, r) => s + r[k], 0);
+    ok(
+      near(value(dash.getCell(`C${14 + m}`)), sum("revenue")),
+      `month ${m + 1} revenue ${value(dash.getCell(`C${14 + m}`))}`,
+    );
+    ok(
+      near(value(dash.getCell(`G${14 + m}`)), sum("profit") - exp[m]),
+      `month ${m + 1} profit ${value(dash.getCell(`G${14 + m}`))} (expected ${(sum("profit") - exp[m]).toFixed(2)})`,
+    );
+  }
+  const total =
+    rows.reduce((s, r) => s + r.profit, 0) - exp.reduce((a, b) => a + b, 0);
+  ok(
+    near(value(dash.getCell("G11")), total),
+    `year profit ${value(dash.getCell("G11"))} (expected ${total.toFixed(2)})`,
+  );
+  const byProduct = Object.keys(products).map((p, i) => ({
+    p,
+    i,
+    profit: rows
+      .filter((r) => r.product === p)
+      .reduce((s, r) => s + r.profit, 0),
+    qty: rows.filter((r) => r.product === p).reduce((s, r) => s + r.qty, 0),
+  }));
+  const pr = wb.getWorksheet("Products");
+  byProduct.forEach((b) => {
+    ok(
+      value(pr.getCell(`F${6 + b.i}`)) === b.qty,
+      `${b.p} sold ${value(pr.getCell(`F${6 + b.i}`))}`,
+    );
+    ok(
+      near(value(pr.getCell(`I${6 + b.i}`)), b.profit),
+      `${b.p} profit ${value(pr.getCell(`I${6 + b.i}`))}`,
+    );
+  });
+  const best = [...byProduct]
+    .filter((b) => b.profit > 0)
+    .sort((a, b) => Math.round(b.profit) - Math.round(a.profit) || a.i - b.i);
+  best.forEach((b, k) =>
+    ok(
+      value(dash.getCell(`I${14 + k}`)) === b.p,
+      `best product #${k + 1}: ${value(dash.getCell(`I${14 + k}`))}`,
+    ),
+  );
+  const etsy = rows
+    .filter((_, i) => DEMO_ORDERS[i][6] === "Etsy")
+    .reduce((s, r) => s + r.revenue, 0);
+  ok(
+    near(value(dash.getCell("J21")), etsy),
+    `Etsy revenue ${value(dash.getCell("J21"))}`,
+  );
+}
+
 await testBudget();
 await testStudent();
 await testAdhd();
 await testLife();
 await testReading();
 await testMeal();
+await testCleaning();
+await testFitness();
+await testBaby();
+await testWedding();
+await testShop();
 console.log(fails ? `${fails} FAILED` : "ALL PASSED");
 if (fails) process.exit(1);

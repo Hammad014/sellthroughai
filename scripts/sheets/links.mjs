@@ -17,4 +17,9 @@ export const SHEET_LINKS = {
   life: "",
   reading: "",
   meal: "",
+  cleaning: "",
+  fitness: "",
+  baby: "",
+  wedding: "",
+  shop: "",
 };

@@ -222,7 +222,8 @@ function todaySheet(wb, ws, habits, focus) {
   for (let k = 1; k <= 10; k++) {
     const r = 17 + k;
     put(ws, `H${r}`, { f: `IFERROR(SMALL(${BD("G")},${k}),"")` }); // hidden key = row number
-    const pick = (col) => `IF($H${r}="","",INDEX(${BDT(col)},$H${r}))`;
+    const pick = (col) =>
+      `IF($H${r}="","",IF(INDEX(${BDT(col)},$H${r})="","",INDEX(${BDT(col)},$H${r})))`;
     put(
       ws,
       `B${r}`,
