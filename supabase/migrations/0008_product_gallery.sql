@@ -1,5 +1,5 @@
 -- ============================================================
--- Promptory — product image gallery
+-- Makeready — product image gallery
 --
 -- products.gallery: ordered list of public preview images shown on the sales
 -- page, as JSON objects { "url": text, "alt": text }. Images live in the

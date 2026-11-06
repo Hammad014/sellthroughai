@@ -1,5 +1,5 @@
 {
-  "name": "promptory",
+  "name": "makeready",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,7 +10,17 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "planners:build": "node scripts/planners/build.mjs && node scripts/planners/check-links.mjs && node scripts/planners/mockups.mjs",
-    "planners:publish": "node scripts/planners/publish.mjs"
+    "planners:publish": "node scripts/planners/publish.mjs",
+    "automation:build": "node scripts/automation/build.mjs",
+    "automation:publish": "node scripts/automation/publish.mjs",
+    "webapps:build": "node scripts/webapps/build.mjs && node scripts/webapps/mockups.mjs",
+    "webapps:test": "node scripts/webapps/test.mjs",
+    "webapps:publish": "node scripts/webapps/publish.mjs",
+    "printables:build": "node scripts/printables/build.mjs",
+    "sheets:build": "node scripts/sheets/build.mjs && node scripts/printables/build.mjs && node scripts/sheets/mockups.mjs",
+    "sheets:test": "node scripts/sheets/test.mjs",
+    "sheets:publish": "node scripts/sheets/publish.mjs",
+    "etsy:build": "node scripts/etsy/build.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
@@ -42,6 +52,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.7",
     "eslint-config-prettier": "^10.1.8",
+    "exceljs": "^4.4.0",
     "mupdf": "^1.28.1",
     "pdfkit": "^0.20.2",
     "prettier": "^3.8.3",

@@ -1,5 +1,5 @@
 -- ============================================================
--- Aiselling — course product: "ChatGPT & Claude for Total Beginners"
+-- Makeready — course product: "ChatGPT & Claude for Total Beginners"
 --
 -- A 'gated' product (delivery_type = 'gated', category = 'courses'): 7 text
 -- lessons authored as markdown in course_lessons. Buyers read them in the

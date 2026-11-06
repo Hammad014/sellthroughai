@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
+import { SUPPORT_EMAIL } from "@/lib/site";
 import { LegalLayout } from "@/components/site/legal-layout";
 
 export const metadata: Metadata = { title: "Terms of Service" };
 
-// PLACEHOLDER COPY — edit freely. Replace bracketed bits with your details.
+// PLACEHOLDER COPY — edit freely.
 export default function TermsPage() {
   return (
     <LegalLayout title="Terms of Service" updated="June 3, 2026">
       <p>
         These Terms of Service (&quot;Terms&quot;) govern your access to and use
-        of Promptory and the digital products sold through it. By creating an
+        of Makeready and the digital products sold through it. By creating an
         account or making a purchase, you agree to these Terms.
       </p>
 
@@ -50,14 +51,14 @@ export default function TermsPage() {
       <h2>6. Disclaimer &amp; liability</h2>
       <p>
         Products are provided &quot;as is&quot; without warranties of any kind.
-        To the maximum extent permitted by law, Promptory is not liable for
+        To the maximum extent permitted by law, Makeready is not liable for
         indirect or consequential damages arising from use of the products.
       </p>
 
       <h2>7. Contact</h2>
       <p>
         Questions about these Terms? Email{" "}
-        <a href="mailto:[support@yourdomain.com]">[support@yourdomain.com]</a>.
+        <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>.
       </p>
     </LegalLayout>
   );

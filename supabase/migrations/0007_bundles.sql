@@ -1,5 +1,5 @@
 -- ============================================================
--- Aiselling — product bundles
+-- Makeready — product bundles
 --
 -- A "bundle" is a product (category = 'bundles') that, when purchased, grants
 -- the buyer entitlements to a SET of other products. Membership lives in

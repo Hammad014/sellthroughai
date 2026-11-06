@@ -1,4 +1,4 @@
-# Aiselling — Updates & Apply Guide
+# Makeready — Updates & Apply Guide
 
 Everything built/changed in this round of work: a security fix, the email/password
 auth split, the in-app **prompt library** feature, site content, and **8 product
@@ -37,6 +37,25 @@ safe to run more than once.
 | `supabase/seed_ai_at_work_playbook.sql` | The AI-at-Work Playbook | Guide | $19 |
 | `supabase/seed_prompt_bundle.sql` | The Prompt Power Bundle (all 5 packs) | Bundle | $99 |
 | `supabase/seed_clarity_planner.sql` | Clarity Digital Planner (✅ applied) | Planner | $19 |
+| `supabase/seed_ai_automation_kit.sql` | The AI Automation Starter Kit (seeded as **draft**) | Automation kit | $29 |
+| `supabase/seed_focus_planner.sql` | Focus Planner: ADHD-Friendly (seeded as **draft**) | Planner | $17 |
+| `supabase/seed_budget_planner.sql` | Budget Planner (seeded as **draft**) | Planner | $15 |
+| `supabase/seed_ai_agent_course.sql` | Build Your First AI Agent (No Code) (seeded as **draft**) | Course | $39 |
+| `supabase/seed_automation_bundle.sql` | The AI Automation Bundle: kit + agent course (**draft**, run after both) | Bundle | $55 |
+| `supabase/seed_planner_bundle.sql` | The New Year Planner Bundle: Clarity + Focus + Budget (**draft**, run after all three) | Bundle | $35 |
+| `supabase/seed_budget_spreadsheet.sql` | Budget Spreadsheet: Google Sheets & Excel (**draft**) | Spreadsheet | $15 |
+| `supabase/seed_student_planner_sheet.sql` | ADHD Student Planner: Assignment Tracker (**draft**) | Spreadsheet | $12 |
+| `supabase/seed_adhd_daily_planner.sql` | ADHD Daily Planner: Brain Dump, Habits & Routines (**draft**) | Spreadsheet | $12 |
+| `supabase/seed_life_planner_sheet.sql` | Life Planner Spreadsheet: Goals, Weekly Plan & Habits (**draft**) | Spreadsheet | $15 |
+| `supabase/seed_reading_tracker.sql` | Reading Tracker: Book Log, Goal & Reading Challenge (**draft**) | Spreadsheet | $9 |
+| `supabase/seed_meal_planner.sql` | Meal Planner: Weekly Plan & Automatic Grocery List (**draft**) | Spreadsheet | $9 |
+| `supabase/seed_cleaning_schedule.sql` | Cleaning Schedule (**draft**) | Spreadsheet | $9 |
+| `supabase/seed_workout_tracker.sql` | Workout & Weight Tracker (**draft**) | Spreadsheet | $9 |
+| `supabase/seed_pregnancy_tracker.sql` | Pregnancy & Baby Tracker (**draft**) | Spreadsheet | $12 |
+| `supabase/seed_wedding_planner.sql` | Wedding Planner & Budget (**draft**) | Spreadsheet | $15 |
+| `supabase/seed_sales_tracker.sql` | Small Business Sales Tracker (**draft**) | Spreadsheet | $15 |
+| `supabase/seed_spreadsheet_bundle.sql` | The Planner Spreadsheet Bundle: all six (**draft**, run after the six seeds) | Bundle | $39 |
+| `supabase/seed_life_planner_web.sql` | Life Planner: interactive web-app planner, one HTML file (**draft**) | Planner | $19 |
 
 > **Run `seed_prompt_bundle.sql` last** — it links the 5 prompt packs, so they
 > must already be seeded (and migration 0007 applied).
@@ -168,17 +187,125 @@ no design tools needed, and every link is machine-checked.
 
 | File | What it does |
 |---|---|
-| `lib/pdf.mjs` | Page size (iPad landscape 4:3), Paper/Midnight themes, fonts, drawing + link primitives |
+| `planners.mjs` | **Registry** of every planner (slug, builder, themes, gallery shots, cover, palette). Add a planner here and every script below picks it up |
+| `lib/pdf.mjs` | Page size (iPad landscape 4:3), themes (Paper/Midnight, Sage/Night), fonts, drawing + link primitives |
+| `lib/layout.mjs` | Shared page grid, header + pill buttons, month tabs, mini calendars |
 | `lib/calendar.mjs` | UTC date helpers (weeks, month grids, Monday/Sunday start) |
 | `clarity.mjs` | The Clarity Planner: page plan + every page layout + link wiring |
-| `build.mjs` | Builds the 6 buyer files → `scripts/planners/out/clarity/` (gitignored) |
+| `focus.mjs` | The Focus Planner (ADHD-friendly): just 3 things, time blocks, brain dump + sort, task breakdowns, routines, dopamine menu |
+| `build.mjs` | Builds each planner's 6 buyer files → `scripts/planners/out/<id>/` (gitignored) |
 | `check-links.mjs` | Fails if any link is broken or any page is unreachable |
-| `mockups.mjs` | Renders REAL pages (MuPDF) into tablet mockups → cover + 8 gallery images |
-| `publish.mjs` | Uploads PDFs (private bucket + `product_files`) and images (public bucket), sets cover + gallery. Idempotent |
+| `mockups.mjs` | Renders REAL pages (MuPDF) into tablet mockups → cover + 8 gallery images per planner |
+| `publish.mjs` | Uploads PDFs (private bucket + `product_files`) and images (public bucket), sets cover + gallery. Idempotent; skips planners whose product isn't seeded yet |
+
+Every script takes optional planner ids (`clarity`, `focus`); no ids = all.
 
 ```bash
-npm run planners:build     # build PDFs, verify links, render store images
-npm run planners:publish   # push files + images to Supabase (needs .env.local)
+npm run planners:build                      # build PDFs, verify links, render store images (all planners)
+npm run planners:publish                    # push files + images to Supabase (needs .env.local)
+node scripts/planners/publish.mjs focus     # just one planner
+```
+
+### Spreadsheets (Google Sheets + Excel): `scripts/sheets/`
+
+The research showed working spreadsheets are the clearest gap on Etsy, so the
+next products are `.xlsx` files that open in Excel and import cleanly into
+Google Sheets. They use only classic functions both apps support (the test
+fails on newer ones like MINIFS, which older Excel can't read), list
+dropdowns and same-sheet conditional formatting. Buyers type in yellow cells;
+everything else is a formula.
+
+- **Budget Spreadsheet** (10 tabs): Setup (categories, zero-based "left to
+  assign", 50/30/20), monthly Dashboard with a month picker, Transactions,
+  Year at a glance, Bills & paychecks, Debt Payoff (snowball/avalanche with a
+  360-month simulation), Debt Plan, Savings & sinking funds, Net Worth.
+- **ADHD Daily Planner** (7 tabs): Today (energy check-in with a suggestion,
+  just 3 things, everything marked Today in the brain dump, habits), Brain
+  Dump (When: today / tomorrow / this week / someday / let it go), Habits
+  (year-long log with current and best streaks), Routines, Dopamine Menu,
+  Focus Log.
+- **Life Planner** (8 tabs): Dashboard, Weekly Plan (top 3, daily tasks,
+  review), Goals (progress and next step from Milestones), Milestones,
+  Habits, Dates (birthdays roll over yearly), Monthly Review.
+- **Reading Tracker** (5 tabs): Dashboard (books and pages this year, goal,
+  average rating, by month and genre, reading now, top rated), Books,
+  24-prompt Challenge that ticks itself, Quotes.
+- **Meal Planner** (5 tabs): Week Plan, Grocery List (every planned
+  ingredient added up across recipes and sorted by aisle), Recipes (8
+  starters), Ingredients.
+- **Cleaning Schedule**: chores with a frequency and last-done date → next
+  due and status; Today (most overdue first), Next 7 Days, room scores,
+  Declutter 30. 34 starter chores.
+- **Workout & Weight Tracker**: goal progress, weight log, workouts,
+  strength log, personal bests per exercise (heaviest, best volume, last).
+- **Pregnancy & Baby Tracker**: from the due date, weeks + days, trimester,
+  days to go and baby's size; appointments, bump log, hospital bag, baby
+  log (today's feeds, nappies, sleep). Not medical advice.
+- **Wedding Planner & Budget**: countdown, 32-task checklist counted back
+  from the date, budget (actual else estimate), guest list with RSVPs and
+  meal counts, vendors.
+- **Small Business Sales Tracker**: orders with Etsy fee estimates (rates on
+  the Dashboard), cost of goods and profit; products ranked by profit;
+  expenses; monthly P&L.
+- **ADHD Student Planner** (7 tabs): Today (next 12 open tasks, most urgent
+  first, each with a tiny first step), This Week, Assignments (auto priority
+  and colours), Classes (progress, next due, average grade), Exams countdown,
+  Focus Log.
+
+| File | What it does |
+|---|---|
+| `lib.mjs` | Shared styles and helpers (cards, inputs, dropdowns, text progress bars) |
+| `budget.mjs`, `student.mjs`, `adhd.mjs`, `life.mjs`, `reading.mjs`, `meal.mjs`, `cleaning.mjs`, `fitness.mjs`, `baby.mjs`, `wedding.mjs`, `shop.mjs` | The eleven workbooks, plus demo data for tests and screenshots |
+| `blocks.mjs` | Shared tabs: Start Here, habit log with streaks, focus log |
+| `build.mjs` | Writes `scripts/sheets/out/*.xlsx` (and `out/demo/` with example data) |
+| `test.mjs` | Recalculates the demos in LibreOffice and checks every key number against an independent JS calculation (309 checks) |
+| `render.mjs`, `mockups.mjs` | Real renders of each tab → cover + gallery images |
+| `links.mjs` | Optional Google Sheets "Make a copy" links for the Etsy guide |
+| `publish.mjs` | Uploads the .xlsx and images to Supabase |
+
+```bash
+npm run sheets:build      # .xlsx files + store images (needs LibreOffice)
+npm run sheets:test       # must say ALL PASSED
+npm run sheets:publish    # after running the two seeds (needs .env.local)
+```
+
+**Printing.** Every tab has print settings (`print.mjs`): summary tabs fit
+the page width, log tabs print their header plus the first 40 rows with the
+header repeated. Each guide explains printing a selection.
+
+**Printable pages** (`scripts/printables/`): every spreadsheet also ships
+blank pages to print and write on, in US Letter and A4, 52 pages across the
+11 products (`products.mjs` describes them; `lib.mjs` is the layout kit;
+`build.mjs` renders them with Chromium and fails if any page spills onto a
+second sheet). They're in the Etsy listings, the website downloads and the
+store images ("Printable pages included").
+
+These products use the `templates` category, renamed **Spreadsheets &
+Templates** on the site; their library page leads with the download.
+
+### Interactive Life Planner (web app) — `scripts/webapps/`
+
+For buyers who don't want to set anything up: **one HTML file** they
+double-click. It opens in the browser on today, saves as they type
+(localStorage), works offline, and has backup / restore in Settings. Today
+(top 3, to-dos, time blocks, mood/energy/water, habits, wins), Week, Month,
+Habit tracker, Goals, Brain dump, Money (budget by category, spending log,
+savings) and Settings (theme, week start, currency). Made for computers: phones
+can't run a downloaded HTML file reliably (iPhone only previews it), and every
+listing says so.
+
+| File | What it does |
+|---|---|
+| `planner/app.js`, `planner/styles.css` | The app (vanilla JS, no dependencies) |
+| `build.mjs` | Inlines CSS, JS and fonts → `scripts/webapps/out/Makeready-Life-Planner.html` (~145 KB) |
+| `test.mjs` | Real-browser test: every screen, saving, reload, backup/erase/restore, dark mode, phone widths |
+| `mockups.mjs` | Demo week loaded into the real app → cover + 6 gallery images |
+| `publish.mjs` | Uploads the HTML (private bucket + `product_files`) and images, sets cover + gallery |
+
+```bash
+npm run webapps:build      # HTML file + store images
+npm run webapps:test       # must say ALL PASSED
+npm run webapps:publish    # after running seed_life_planner_web.sql (needs .env.local)
 ```
 
 **How planners show up in the app:** category `planners` ("Digital Planners") +
@@ -190,6 +317,44 @@ PDF, then the setup guide. Admins can edit any product's gallery on its edit pag
 
 **To change the planner:** edit `clarity.mjs`, run both commands above. The PDF
 paths are stable, so buyers who download again get the new version.
+
+## 3e. n8n products (workflows generated from code)
+
+Two products are built from `scripts/automation/` (no hand-edited JSON),
+listed in `lib/packages.mjs`:
+
+- **kit**: the AI Automation Starter Kit, 10 workflows (`workflows/`) + Google Sheets templates (`sheets/`)
+- **course**: Build Your First AI Agent, 3 example agents (`agents/`) + the system-prompt template (`course-files/`)
+
+Every script takes an optional package id (`kit`, `course`); no id = both.
+Build output goes to `out/<id>/`, store images live in `store/<id>/`.
+
+| File | What it does |
+|---|---|
+| `lib/workflow.mjs`, `lib/nodes.mjs` | Tiny workflow builder + node factories pinned to n8n 2.45's node versions |
+| `workflows/NN-*.mjs`, `agents/*.mjs` | One file per workflow/agent: nodes, wires, prompts, on-canvas setup note |
+| `lib/packages.mjs` | Package registry: slug, source folder, zip name, extras, README, gallery shots, cover text |
+| `sheets/*.csv` | Google Sheets templates the workflows read/write |
+| `build.mjs` | Writes each workflow `.json` + the package zip → `scripts/automation/out/<id>/` (gitignored) |
+| `validate.mjs` | Dev check with **n8n's own validator** (needs an n8n install, see the file header) |
+| `store-images.mjs` | Dev tool: screenshots the workflows in a running n8n editor → `store/<id>/` (committed) |
+| `publish.mjs` | Uploads the zip + JSON files (private bucket + `product_files`) and the store images; sets cover + gallery. Idempotent |
+
+```bash
+npm run automation:build     # build both packages (workflow files + zips)
+npm run automation:publish   # push files + images to Supabase (needs .env.local)
+```
+
+**How it was tested:** every workflow passes n8n's validator, imports into
+n8n 2.45 and opens cleanly in the editor, and runs end to end in a real n8n
+with sample data and a mock AI (Gmail/Sheets/Slack steps bypassed). **Run
+each one once with your own accounts before launch**: that's the one thing
+that couldn't be tested here.
+
+**How it shows up in the app:** category `automation` + `delivery_type='gated'`.
+The buyer's library card says **Get automation kit**; the kit page leads with
+the downloads (complete .zip first, then each workflow), then one setup guide
+per workflow. The first guide is the free preview on the sales page.
 
 ## 4. Still on you (not code)
 

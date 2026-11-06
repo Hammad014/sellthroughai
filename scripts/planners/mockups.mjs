@@ -1,40 +1,15 @@
 /**
  * Store imagery from REAL planner pages: renders pages with MuPDF and frames
- * them in a tablet mockup with sharp. Output → scripts/planners/out/clarity/store/
+ * them in a tablet mockup with sharp. Output → scripts/planners/out/<id>/store/
  *
- *   node scripts/planners/mockups.mjs      (run build.mjs first)
+ *   node scripts/planners/mockups.mjs [planner…]   (run build.mjs first)
  */
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
-import { buildClarity } from "./clarity.mjs";
-import { OUT, VARIANTS, YEAR } from "./build.mjs";
+import { PLANNERS, YEAR, outDir, selected, variants } from "./planners.mjs";
 import { renderPages } from "./render.mjs";
-
-const STORE = path.join(OUT, "store");
-
-/** Gallery shots: [variant index, page key, file, caption]. */
-export const SHOTS = [
-  [0, "home", "01-home", "Home hub — every month and section one tap away"],
-  [
-    0,
-    "month-3",
-    "02-monthly",
-    "Monthly calendar — tap a date to open that day, a week number to open the week",
-  ],
-  [1, "week-14", "03-weekly-midnight", "Weekly spread in the Midnight theme"],
-  [
-    0,
-    "day-2027-04-05",
-    "04-daily",
-    "Daily page — schedule, top 3, to-do, notes, mood & water",
-  ],
-  [1, "habit-3", "05-habits-midnight", "Monthly habit tracker"],
-  [0, "year", "06-year", "Year at a glance — all 365 dates are links"],
-  [0, "goal-1", "07-goals", "Goal planners with milestones and action steps"],
-  [4, "month-3", "08-undated", "Undated edition — start any month, any year"],
-];
 
 const BEZEL = 34;
 const RADIUS = 58;
@@ -98,18 +73,18 @@ async function shadowed(img, blur = 34, opacity = 0.45) {
     .toBuffer();
 }
 
-function background(w, h) {
+function background(w, h, [hi, mid, deep, glow]) {
   return Buffer.from(
     `<svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <radialGradient id="g" cx="25%" cy="15%" r="110%">
-          <stop offset="0" stop-color="#2d5f93"/>
-          <stop offset="0.5" stop-color="#173252"/>
-          <stop offset="1" stop-color="#0c1626"/>
+          <stop offset="0" stop-color="${hi}"/>
+          <stop offset="0.5" stop-color="${mid}"/>
+          <stop offset="1" stop-color="${deep}"/>
         </radialGradient>
         <radialGradient id="glow" cx="85%" cy="95%" r="60%">
-          <stop offset="0" stop-color="#5da9f2" stop-opacity="0.28"/>
-          <stop offset="1" stop-color="#5da9f2" stop-opacity="0"/>
+          <stop offset="0" stop-color="${glow}" stop-opacity="0.28"/>
+          <stop offset="1" stop-color="${glow}" stop-opacity="0"/>
         </radialGradient>
       </defs>
       <rect width="100%" height="100%" fill="url(#g)"/>
@@ -118,13 +93,13 @@ function background(w, h) {
   );
 }
 
-async function pageImages() {
+async function pageImages(id) {
   const cache = new Map();
   const get = async (vi) => {
     if (!cache.has(vi)) {
-      const v = VARIANTS[vi];
-      const { pages } = await buildClarity({ ...v, year: YEAR });
-      const pdf = await readFile(path.join(OUT, v.file));
+      const v = variants(id)[vi];
+      const { pages } = await PLANNERS[id].build({ ...v, year: YEAR });
+      const pdf = await readFile(path.join(outDir(id), v.file));
       cache.set(vi, { pages, pdf });
     }
     return cache.get(vi);
@@ -138,16 +113,22 @@ async function pageImages() {
 }
 
 async function main() {
+  for (const id of selected()) await mockups(id);
+}
+
+async function mockups(id) {
+  const { shots, cover: coverPages, palette } = PLANNERS[id];
+  const STORE = path.join(outDir(id), "store");
   await mkdir(STORE, { recursive: true });
-  const page = await pageImages();
+  const page = await pageImages(id);
 
   // Gallery: 1600×1200 — one tablet, centred.
-  for (const [vi, key, name] of SHOTS) {
+  for (const [vi, key, name] of shots) {
     const dev = await shadowed(await device(await page(vi, key), 1300));
     const meta = await sharp(dev).metadata();
     const W = 1600;
     const H = 1200;
-    const out = await sharp(background(W, H))
+    const out = await sharp(background(W, H, palette))
       .composite([
         {
           input: dev,
@@ -158,18 +139,18 @@ async function main() {
       .webp({ quality: 88 })
       .toBuffer();
     await writeFile(path.join(STORE, `${name}.webp`), out);
-    console.log(`${name}.webp`);
+    console.log(`${id}/${name}.webp`);
   }
 
-  // Cover: 1600×1100 — dark month behind, light weekly in front.
+  // Cover: 1600×1100 — a dark page tilted behind a light one.
   const back = await sharp(
-    await shadowed(await device(await page(1, "month-3"), 1040)),
+    await shadowed(await device(await page(...coverPages.back), 1040)),
   )
     .rotate(-7, { background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .png()
     .toBuffer();
   const front = await sharp(
-    await shadowed(await device(await page(0, "week-14"), 1100)),
+    await shadowed(await device(await page(...coverPages.front), 1100)),
   )
     .rotate(4, { background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .png()
@@ -180,7 +161,7 @@ async function main() {
   const fm = await sharp(front).metadata();
   // Compose on an oversized canvas so tablets can bleed off the edges, then crop.
   const M = 600;
-  const canvas = await sharp(background(CW + M * 2, CH + M * 2))
+  const canvas = await sharp(background(CW + M * 2, CH + M * 2, palette))
     .composite([
       {
         input: back,
@@ -197,11 +178,11 @@ async function main() {
     .toBuffer();
   const cover = await sharp(canvas)
     .extract({ left: M, top: M, width: CW, height: CH })
-    .composite([{ input: background(CW, CH), blend: "dest-over" }])
+    .composite([{ input: background(CW, CH, palette), blend: "dest-over" }])
     .webp({ quality: 88 })
     .toBuffer();
   await writeFile(path.join(STORE, "cover.webp"), cover);
-  console.log("cover.webp");
+  console.log(`${id}/cover.webp`);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) await main();

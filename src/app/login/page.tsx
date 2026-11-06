@@ -16,9 +16,9 @@ function sanitizeNext(next: string | undefined): string {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string; error?: string }>;
+  searchParams: Promise<{ next?: string; error?: string; purchased?: string }>;
 }) {
-  const { next, error } = await searchParams;
+  const { next, error, purchased } = await searchParams;
   const target = sanitizeNext(next);
 
   // Already signed in → skip the login screen.
@@ -31,10 +31,12 @@ export default async function LoginPage({
         <div className="mb-8 flex flex-col items-center text-center">
           <Logo />
           <h1 className="font-display mt-6 text-2xl font-semibold tracking-tight">
-            Welcome back
+            {purchased ? "Thanks for your purchase!" : "Welcome back"}
           </h1>
           <p className="text-muted-foreground mt-2 text-sm">
-            Sign in to access your library, courses and downloads.
+            {purchased
+              ? "It's saved to the email you used at checkout. Set a password for that email to open your library. Already have an account? Just sign in."
+              : "Sign in to access your library, courses and downloads."}
           </p>
         </div>
 
@@ -44,7 +46,10 @@ export default async function LoginPage({
               Something went wrong signing you in. Please try again.
             </p>
           )}
-          <LoginForm next={target} />
+          <LoginForm
+            next={target}
+            initialMode={purchased ? "forgot" : "signin"}
+          />
         </div>
       </div>
     </main>

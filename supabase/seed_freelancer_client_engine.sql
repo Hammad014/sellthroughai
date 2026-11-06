@@ -1,5 +1,5 @@
 -- ============================================================
--- Aiselling — prompt product: "The Freelancer Client Engine"
+-- Makeready — prompt product: "The Freelancer Client Engine"
 --
 -- A 'prompts' product: 10 prompts that win, run and retain client work —
 -- discovery, scoping, pricing, proposals, and the awkward conversations.

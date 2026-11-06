@@ -42,10 +42,10 @@ export const CATEGORIES: Category[] = [
   },
   {
     slug: "templates",
-    name: "Notion & Templates",
+    name: "Spreadsheets & Templates",
     gradient: "grad-templates",
     icon: Layers,
-    blurb: "Plug-and-play systems to run your work and life.",
+    blurb: "Google Sheets and Excel templates that do the maths for you.",
   },
   {
     slug: "courses",
@@ -88,6 +88,16 @@ const CATEGORY_MAP = new Map(CATEGORIES.map((c) => [c.slug, c]));
 
 export function getCategory(slug: string): Category | undefined {
   return CATEGORY_MAP.get(slug as CategorySlug);
+}
+
+/**
+ * Planners delivered as a single HTML web app (opens in the browser, saves
+ * locally) rather than PDFs — their pages need different wording.
+ */
+const WEB_APP_SLUGS = new Set(["life-planner-web-app"]);
+
+export function isWebApp(slug: string): boolean {
+  return WEB_APP_SLUGS.has(slug);
 }
 
 export function categoryName(slug: string): string {

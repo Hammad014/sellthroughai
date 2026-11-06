@@ -42,6 +42,10 @@ export async function startCheckout(
     email: user?.email ?? null,
     userId: user?.id ?? null,
     productId: product.id,
-    redirectUrl: `${siteUrl}/dashboard?purchased=1`,
+    // Guests get an account (no password) from the webhook, so send them to
+    // the login screen's "set a password" step instead of a locked dashboard.
+    redirectUrl: user
+      ? `${siteUrl}/dashboard?purchased=1`
+      : `${siteUrl}/login?purchased=1&next=${encodeURIComponent("/dashboard?purchased=1")}`,
   });
 }

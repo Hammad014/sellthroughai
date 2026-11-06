@@ -6,7 +6,9 @@ import {
   Download,
   LibraryBig,
   PlayCircle,
+  Sheet,
   Sparkles,
+  Workflow,
 } from "lucide-react";
 import { requireUser, getProfile } from "@/lib/auth";
 import { listLibrary } from "@/lib/entitlements";
@@ -78,13 +80,21 @@ export default async function DashboardPage({
               delivery === "gated" && product.category === "ebooks";
             const isPlanner =
               delivery === "gated" && product.category === "planners";
+            const isKit =
+              delivery === "gated" && product.category === "automation";
+            const isSheet =
+              delivery === "gated" && product.category === "templates";
             const badgeLabel =
               delivery === "gated"
                 ? isPlanner
                   ? "Planner"
-                  : isGuide
-                    ? "Guide"
-                    : "Course"
+                  : isKit
+                    ? "Kit"
+                    : isSheet
+                      ? "Spreadsheet"
+                      : isGuide
+                        ? "Guide"
+                        : "Course"
                 : delivery === "prompts"
                   ? "Prompts"
                   : "License";
@@ -127,6 +137,14 @@ export default async function DashboardPage({
                           <>
                             <CalendarDays className="size-4" /> Get planner
                             files
+                          </>
+                        ) : isKit ? (
+                          <>
+                            <Workflow className="size-4" /> Get automation kit
+                          </>
+                        ) : isSheet ? (
+                          <>
+                            <Sheet className="size-4" /> Get spreadsheet
                           </>
                         ) : isGuide ? (
                           <>

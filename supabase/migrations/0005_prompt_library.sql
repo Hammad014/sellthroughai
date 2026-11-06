@@ -1,5 +1,5 @@
 -- ============================================================
--- Aiselling — in-app prompt library (delivery_type = 'prompts')
+-- Makeready — in-app prompt library (delivery_type = 'prompts')
 --
 -- Adds a third delivery type. A 'prompts' product is a curated set of prompts
 -- that buyers browse and copy inside their dashboard (no file download). Each

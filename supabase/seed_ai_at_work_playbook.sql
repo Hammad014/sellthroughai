@@ -1,5 +1,5 @@
 -- ============================================================
--- Aiselling — guide product: "The AI-at-Work Playbook"
+-- Makeready — guide product: "The AI-at-Work Playbook"
 --
 -- A 'gated' product in the 'ebooks' category: an 8-chapter guide authored as
 -- markdown in course_lessons. Buyers read it in the in-app reader at

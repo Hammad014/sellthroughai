@@ -1,5 +1,5 @@
 -- ============================================================
--- Promptory — planner product: "Clarity Digital Planner"
+-- Makeready — planner product: "Clarity Digital Planner"
 --
 -- A 'gated' planner (delivery_type='gated', category='planners'). Buyers get
 -- six hyperlinked PDFs (product_files, private bucket) + a 4-step setup guide
@@ -71,7 +71,7 @@ Grab **2027 · Monday start · Paper**. It's the one most people stick with, and
     'Import it into your planner app',
     $c$## 1. Download it on your tablet
 
-Open your Promptory library on the iPad or tablet you'll plan on and tap the file. On iPad it goes to **Files → Downloads**; on Android it lands in your **Downloads** folder.
+Open your Makeready library on the iPad or tablet you'll plan on and tap the file. On iPad it goes to **Files → Downloads**; on Android it lands in your **Downloads** folder.
 
 ## 2. Open it in your app
 

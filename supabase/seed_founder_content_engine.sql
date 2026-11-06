@@ -1,5 +1,5 @@
 -- ============================================================
--- Aiselling — first prompt product: "The Founder's Content Engine"
+-- Makeready — first prompt product: "The Founder's Content Engine"
 --
 -- A 'prompts' product (delivery_type = 'prompts'): 10 chained prompts that turn
 -- one idea into a week of content + the system to repeat it. Buyers browse and

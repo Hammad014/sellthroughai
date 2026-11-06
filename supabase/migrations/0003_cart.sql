@@ -1,5 +1,5 @@
 -- ============================================================
--- Aiselling — persistent cart
+-- Makeready — persistent cart
 -- Additive only. Run after 0002_payments.sql.
 -- Guests keep their cart in localStorage; on login it merges here.
 -- ============================================================

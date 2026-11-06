@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SUPPORT_EMAIL } from "@/lib/site";
 import { LegalLayout } from "@/components/site/legal-layout";
 
 export const metadata: Metadata = { title: "Privacy Policy" };
@@ -8,7 +9,7 @@ export default function PrivacyPage() {
   return (
     <LegalLayout title="Privacy Policy" updated="June 3, 2026">
       <p>
-        This Privacy Policy explains what information Promptory collects, how we
+        This Privacy Policy explains what information Makeready collects, how we
         use it, and the choices you have. We aim to collect only what we need to
         run the store and deliver your purchases.
       </p>
@@ -44,7 +45,7 @@ export default function PrivacyPage() {
       <h2>Your rights</h2>
       <p>
         You can request access to or deletion of your personal data by emailing{" "}
-        <a href="mailto:[privacy@yourdomain.com]">[privacy@yourdomain.com]</a>.
+        <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>.
       </p>
 
       <h2>Cookies</h2>
@@ -55,8 +56,8 @@ export default function PrivacyPage() {
 
       <h2>Contact</h2>
       <p>
-        Questions? Email{" "}
-        <a href="mailto:[privacy@yourdomain.com]">[privacy@yourdomain.com]</a>.
+        Questions? Email <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>
+        .
       </p>
     </LegalLayout>
   );

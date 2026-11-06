@@ -27,8 +27,12 @@ type OrderItemRow = {
 export async function getSalesSummary(): Promise<SalesSummary> {
   const supabase = createServiceClient();
   const [{ data: orders }, { count: units }] = await Promise.all([
-    supabase.from("orders").select("total_usd"),
-    supabase.from("order_items").select("*", { count: "exact", head: true }),
+    // Fully refunded orders don't count as sales.
+    supabase.from("orders").select("total_usd").neq("status", "refunded"),
+    supabase
+      .from("order_items")
+      .select("id, orders!inner(status)", { count: "exact", head: true })
+      .neq("orders.status", "refunded"),
   ]);
   const revenue = (orders ?? []).reduce(
     (sum, o) => sum + Number(o.total_usd || 0),
@@ -41,7 +45,10 @@ export async function getTopProducts(limit = 5): Promise<TopProduct[]> {
   const supabase = createServiceClient();
   const { data } = await supabase
     .from("order_items")
-    .select("product_id, price_usd, products(title, slug)");
+    .select(
+      "product_id, price_usd, products(title, slug), orders!inner(status)",
+    )
+    .neq("orders.status", "refunded");
 
   const byProduct = new Map<string, TopProduct>();
   for (const row of (data ?? []) as unknown as OrderItemRow[]) {
