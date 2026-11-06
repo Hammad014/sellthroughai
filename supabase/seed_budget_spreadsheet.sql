@@ -2,8 +2,8 @@
 -- Makeready — spreadsheet product: "Budget Spreadsheet"
 --
 -- A 'gated' template (delivery_type='gated', category='templates'). Buyers
--- get one .xlsx (product_files, private bucket) that works in Google Sheets
--- and Excel, plus a 3-step guide (course_lessons) at
+-- get one .xlsx that works in Google Sheets and Excel, plus printable PDF
+-- pages in US Letter and A4 (product_files, private bucket), plus a 3-step guide (course_lessons) at
 -- /dashboard/courses/budget-spreadsheet.
 --
 -- The file, cover and gallery images are generated from code and uploaded by
@@ -45,6 +45,7 @@ Most budget planners hand you empty boxes and a calculator. This one is a spread
 
 ## The details
 
+- Printable pages to print and write on (US Letter and A4 PDFs)
 - One file: open it in the app you like
 - Example categories, bills and debts to show you how it works: type over them
 - Yellow cells are yours; everything else is a formula, so nothing to break by accident
@@ -86,6 +87,10 @@ That's it: dropdowns, formulas and colours all carry over. Use the new Google Sh
 ## Microsoft Excel
 
 Double-click the file. It works in Microsoft 365, Excel 2016 or newer, Excel for Mac, and the free **Excel on the web** (upload it to OneDrive). If Excel shows *Enable Editing*, click it.
+
+## Prefer pen and paper?
+
+Download the **Printable** PDF (US Letter or A4) from your library and print as many pages as you like.
 
 ## Apple Numbers
 

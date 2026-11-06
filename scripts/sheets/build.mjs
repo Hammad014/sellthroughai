@@ -9,6 +9,7 @@ import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildBudget, fillDemo as budgetDemo } from "./budget.mjs";
+import { applyPrint } from "./print.mjs";
 import { buildStudent, fillDemo as studentDemo } from "./student.mjs";
 import { buildAdhd, fillDemo as adhdDemo } from "./adhd.mjs";
 import { buildLife, fillDemo as lifeDemo } from "./life.mjs";
@@ -107,9 +108,12 @@ export const SHEETS = {
 export async function buildSheet(id) {
   const s = SHEETS[id];
   await mkdir(demoDir, { recursive: true });
-  await s.build().xlsx.writeFile(path.join(outDir, s.file));
+  const wb = s.build();
+  applyPrint(wb);
+  await wb.xlsx.writeFile(path.join(outDir, s.file));
   const demo = s.build();
   s.demo(demo);
+  applyPrint(demo);
   await demo.xlsx.writeFile(path.join(demoDir, s.file));
   return path.join(outDir, s.file);
 }

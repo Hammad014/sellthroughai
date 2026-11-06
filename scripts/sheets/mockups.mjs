@@ -701,10 +701,56 @@ export async function bundleMockup() {
   await writeFile(path.join(dir, "cover.webp"), cover);
 }
 
+/**
+ * "Printable pages included": three real printable pages, fanned out like
+ * paper (run after scripts/printables/build.mjs).
+ */
+export async function printableMockup(id) {
+  const { readdir, readFile } = await import("node:fs/promises");
+  const dir = path.join(
+    path.dirname(fileURLToPath(import.meta.url)),
+    "..",
+    "printables",
+    "out",
+    id,
+    "pages",
+  );
+  const files = (await readdir(dir)).filter((f) => f.endsWith(".png")).sort();
+  const pick = [files[0], files[1], files[2] ?? files[0]];
+  const pages = await Promise.all(
+    pick.map(
+      async (f) =>
+        `data:image/png;base64,${(await readFile(path.join(dir, f))).toString("base64")}`,
+    ),
+  );
+  const browser = await chromium.launch();
+  const page = await browser.newPage({
+    viewport: { width: 2400, height: 1800 },
+  });
+  const fan = pages
+    .map(
+      (src, i) =>
+        `<img src="${src}" style="position:absolute;width:780px;left:${1010 + i * 250}px;top:${330 + i * 60}px;transform:rotate(${-7 + i * 6}deg);border-radius:6px;box-shadow:0 40px 90px rgba(60,40,10,.32);background:#fff">`,
+    )
+    .join("");
+  const img = await compose(
+    page,
+    `<div style="position:absolute;left:150px;top:420px;width:780px">${label(
+      "PRINTABLE PAGES INCLUDED",
+      "Prefer pen and paper?",
+      `${files.length} printable pages to print and write on, in US Letter and A4. Print as many as you like.`,
+    )}</div>${fan}`,
+  );
+  await browser.close();
+  await writeFile(path.join(storeDir(id), "printables.webp"), img);
+}
+
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const ids = process.argv.slice(2).filter((a) => STORE[a]);
-  for (const id of ids.length ? ids : Object.keys(STORE))
+  for (const id of ids.length ? ids : Object.keys(STORE)) {
     console.log(id, (await sheetMockups(id)).join(" "));
+    await printableMockup(id);
+  }
   if (!ids.length) {
     await bundleMockup();
     console.log("bundle cover");

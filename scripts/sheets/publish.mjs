@@ -1,6 +1,7 @@
 /**
  * Publish the spreadsheet products to Supabase:
- *   - the .xlsx → PRIVATE product-files bucket + a product_files row
+ *   - the .xlsx and its printable PDFs (Letter, A4) → PRIVATE product-files
+ *     bucket + product_files rows
  *   - cover + gallery images → PUBLIC product-covers bucket, and set
  *     products.cover_image_url / products.gallery
  *
@@ -20,9 +21,14 @@ import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import { SHEETS, outDir } from "./build.mjs";
 import { STORE, storeDir } from "./mockups.mjs";
+import {
+  outDir as printablesOut,
+  printableFiles,
+} from "../printables/build.mjs";
 
 const FILES_BUCKET = "product-files";
 const COVERS_BUCKET = "product-covers";
+const PDF = "application/pdf";
 const XLSX =
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
@@ -66,31 +72,36 @@ for (const id of ids.length ? ids : Object.keys(SHEETS)) {
     continue;
   }
 
-  const storagePath = `${product.id}/${file}`;
-  await upload(
-    FILES_BUCKET,
-    storagePath,
-    await readFile(path.join(outDir, file)),
-    XLSX,
-  );
-  const found = await retry("file row", () =>
-    supabase
-      .from("product_files")
-      .select("id")
-      .eq("product_id", product.id)
-      .eq("storage_path", storagePath)
-      .maybeSingle(),
-  );
-  if (!found)
-    await retry("insert file row", () =>
-      supabase.from("product_files").insert({
-        product_id: product.id,
-        storage_path: storagePath,
-        file_name: file,
-        sort_order: 0,
-      }),
+  // The spreadsheet first, then its printable pages (both paper sizes).
+  const printable = printableFiles(id);
+  const deliverables = [
+    [file, path.join(outDir, file), XLSX],
+    [printable.letter, path.join(printablesOut(id), printable.letter), PDF],
+    [printable.a4, path.join(printablesOut(id), printable.a4), PDF],
+  ];
+  for (const [i, [name, source, type]] of deliverables.entries()) {
+    const storagePath = `${product.id}/${name}`;
+    await upload(FILES_BUCKET, storagePath, await readFile(source), type);
+    const found = await retry("file row", () =>
+      supabase
+        .from("product_files")
+        .select("id")
+        .eq("product_id", product.id)
+        .eq("storage_path", storagePath)
+        .maybeSingle(),
     );
-  console.log(`file   ${file}`);
+    const row = { file_name: name, sort_order: i };
+    await retry(`${name} row`, () =>
+      found
+        ? supabase.from("product_files").update(row).eq("id", found.id)
+        : supabase.from("product_files").insert({
+            ...row,
+            product_id: product.id,
+            storage_path: storagePath,
+          }),
+    );
+    console.log(`file   ${name}`);
+  }
 
   const uploadImage = async (name) => {
     const body = await readFile(path.join(storeDir(id), `${name}.webp`));
@@ -102,7 +113,12 @@ for (const id of ids.length ? ids : Object.keys(SHEETS)) {
       .publicUrl;
   };
   const cover = await uploadImage("cover");
-  const gallery = [];
+  const gallery = [
+    {
+      url: await uploadImage("printables"),
+      alt: "Printable pages included: US Letter and A4",
+    },
+  ];
   for (const [, name, , , alt] of STORE[id].shots)
     gallery.push({ url: await uploadImage(name), alt });
   await retry("product images", () =>

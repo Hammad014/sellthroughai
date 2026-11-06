@@ -41,7 +41,7 @@ export const LISTINGS = {
     sheet: "budget",
     price: 11.99,
     title:
-      "Budget Spreadsheet Google Sheets & Excel, Paycheck Budget, Debt Snowball Calculator, Sinking Funds, Bill Tracker, Monthly Budget Template",
+      "Budget Spreadsheet Google Sheets & Excel + Printable Budget Planner, Paycheck Budget, Debt Snowball, Sinking Funds, Bill Tracker",
     tags: [
       "budget spreadsheet",
       "google sheets budget",
@@ -55,7 +55,7 @@ export const LISTINGS = {
       "zero based budget",
       "savings tracker",
       "net worth tracker",
-      "personal finance",
+      "printable budget",
     ],
   },
   "adhd-student-planner": {
@@ -63,7 +63,7 @@ export const LISTINGS = {
     sheet: "student",
     price: 9.99,
     title:
-      "ADHD Student Planner Spreadsheet, Google Sheets & Excel Assignment Tracker, College Homework Planner, Exam Countdown, Study Log",
+      "ADHD Student Planner Spreadsheet + Printable, Google Sheets & Excel Assignment Tracker, College Homework Planner, Exam Study Plan",
     tags: [
       "adhd planner",
       "student planner",
@@ -77,7 +77,7 @@ export const LISTINGS = {
       "academic planner",
       "excel template",
       "university planner",
-      "study tracker",
+      "printable planner",
     ],
   },
 
@@ -86,7 +86,7 @@ export const LISTINGS = {
     sheet: "adhd",
     price: 9.99,
     title:
-      "ADHD Daily Planner Spreadsheet, Google Sheets & Excel, Brain Dump, Habit Tracker, Routines, Dopamine Menu, Focus Planner Template",
+      "ADHD Daily Planner Printable + Spreadsheet, Google Sheets & Excel, Brain Dump, Habit Tracker, Routines, Dopamine Menu",
     tags: [
       "adhd planner",
       "adhd daily planner",
@@ -100,7 +100,7 @@ export const LISTINGS = {
       "to do list",
       "focus planner",
       "excel template",
-      "adhd tools",
+      "adhd printable",
     ],
   },
   "life-planner-spreadsheet": {
@@ -108,7 +108,7 @@ export const LISTINGS = {
     sheet: "life",
     price: 11.99,
     title:
-      "Life Planner Spreadsheet Google Sheets & Excel, Goal Tracker, Weekly Planner, Habit Tracker, Birthday Reminder, Undated Digital Planner",
+      "Life Planner Printable + Spreadsheet, Google Sheets & Excel Goal Planner, Weekly Planner, Habit Tracker, Undated Digital Planner",
     tags: [
       "life planner",
       "goal planner",
@@ -122,7 +122,7 @@ export const LISTINGS = {
       "monthly review",
       "productivity",
       "2027 planner",
-      "planner template",
+      "printable planner",
     ],
   },
   "reading-tracker": {
@@ -130,7 +130,7 @@ export const LISTINGS = {
     sheet: "reading",
     price: 8.99,
     title:
-      "Reading Tracker Spreadsheet, Google Sheets & Excel Book Log, Reading Goal, Reading Challenge, Book Journal, Digital Reading Journal",
+      "Reading Tracker Spreadsheet + Printable Reading Journal, Google Sheets & Excel Book Log, Reading Challenge, Book Review Pages",
     tags: [
       "reading tracker",
       "reading journal",
@@ -144,7 +144,7 @@ export const LISTINGS = {
       "reading goal",
       "tbr list",
       "excel template",
-      "digital download",
+      "printable journal",
     ],
   },
   "meal-planner": {
@@ -152,7 +152,7 @@ export const LISTINGS = {
     sheet: "meal",
     price: 8.99,
     title:
-      "Meal Planner Spreadsheet, Google Sheets & Excel, Weekly Meal Plan With Automatic Grocery List by Aisle, Recipe Organizer Template",
+      "Meal Planner Printable + Spreadsheet, Google Sheets & Excel Weekly Meal Plan, Automatic Grocery List by Aisle, Recipe Cards",
     tags: [
       "meal planner",
       "meal plan template",
@@ -166,14 +166,14 @@ export const LISTINGS = {
       "food planner",
       "excel template",
       "dinner planner",
-      "digital download",
+      "meal plan printable",
     ],
   },
   "planner-spreadsheet-bundle": {
     kind: "sheetbundle",
     price: 29.99,
     title:
-      "Planner Spreadsheet Bundle, Google Sheets & Excel: Budget, Life Planner, ADHD Planner, Student Planner, Reading Tracker, Meal Planner",
+      "Planner Spreadsheet Bundle + Printables, Google Sheets & Excel: Budget, Life Planner, ADHD, Student, Reading Tracker, Meal Planner",
     tags: [
       "planner bundle",
       "google sheets",
@@ -187,7 +187,7 @@ export const LISTINGS = {
       "habit tracker",
       "excel template",
       "digital planner",
-      "productivity",
+      "printable planner",
     ],
   },
   "cleaning-schedule": {
@@ -195,7 +195,7 @@ export const LISTINGS = {
     sheet: "cleaning",
     price: 7.99,
     title:
-      "Cleaning Schedule Spreadsheet, Google Sheets & Excel Chore Chart, House Cleaning Checklist, Weekly Cleaning Planner, Declutter Challenge",
+      "Cleaning Schedule Printable + Spreadsheet, Google Sheets & Excel Chore Chart, Cleaning Checklist, Declutter Challenge",
     tags: [
       "cleaning schedule",
       "chore chart",
@@ -209,7 +209,7 @@ export const LISTINGS = {
       "family chore chart",
       "weekly cleaning",
       "excel template",
-      "digital download",
+      "cleaning printable",
     ],
   },
   "workout-weight-tracker": {
@@ -217,7 +217,7 @@ export const LISTINGS = {
     sheet: "fitness",
     price: 8.99,
     title:
-      "Workout and Weight Loss Tracker Spreadsheet, Google Sheets & Excel Fitness Planner, Gym Log, Personal Bests, Weight Loss Chart",
+      "Workout and Weight Loss Tracker Printable + Spreadsheet, Google Sheets & Excel Fitness Planner, Gym Log, Workout Calendar",
     tags: [
       "workout tracker",
       "weight loss tracker",
@@ -231,7 +231,7 @@ export const LISTINGS = {
       "workout planner",
       "weight loss chart",
       "excel template",
-      "digital download",
+      "fitness printable",
     ],
   },
   "pregnancy-baby-tracker": {
@@ -239,7 +239,7 @@ export const LISTINGS = {
     sheet: "baby",
     price: 9.99,
     title:
-      "Pregnancy Tracker Spreadsheet, Google Sheets & Excel, Week by Week, Appointments, Hospital Bag Checklist, Baby Feeding and Sleep Log",
+      "Pregnancy Tracker Printable + Spreadsheet, Google Sheets & Excel, Hospital Bag Checklist, Appointments, Baby Feeding Log",
     tags: [
       "pregnancy tracker",
       "pregnancy planner",
@@ -253,7 +253,7 @@ export const LISTINGS = {
       "baby sleep log",
       "due date",
       "excel template",
-      "new mom gift",
+      "pregnancy printable",
     ],
   },
   "wedding-planner": {
@@ -261,7 +261,7 @@ export const LISTINGS = {
     sheet: "wedding",
     price: 12.99,
     title:
-      "Wedding Planner Spreadsheet, Google Sheets & Excel, Wedding Budget, Guest List & RSVP Tracker, Wedding Checklist, Vendor Planner",
+      "Wedding Planner Printable + Spreadsheet, Google Sheets & Excel Wedding Budget, Guest List & RSVP Tracker, Wedding Checklist",
     tags: [
       "wedding planner",
       "wedding budget",
@@ -275,7 +275,7 @@ export const LISTINGS = {
       "wedding organizer",
       "seating plan",
       "excel template",
-      "digital download",
+      "wedding printable",
     ],
   },
   "small-business-sales-tracker": {
@@ -283,7 +283,7 @@ export const LISTINGS = {
     sheet: "shop",
     price: 12.99,
     title:
-      "Etsy Seller Spreadsheet, Small Business Sales Tracker, Google Sheets & Excel, Profit and Expense Tracker With Etsy Fee Calculator",
+      "Small Business Sales Tracker Spreadsheet + Printable, Google Sheets & Excel for Etsy Sellers, Profit, Expense & Inventory Log",
     tags: [
       "etsy seller tools",
       "sales tracker",
@@ -297,7 +297,7 @@ export const LISTINGS = {
       "business planner",
       "etsy shop",
       "excel template",
-      "digital download",
+      "business printable",
     ],
   },
 };

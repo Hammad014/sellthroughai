@@ -105,7 +105,7 @@ export default async function CoursePlayerPage({
             {isKit
               ? "Start with the complete kit: one .zip with every workflow plus the Google Sheets templates. Or download single workflows. The guides below walk you through importing them into n8n."
               : isSheet
-                ? "Download the file, then open it in Google Sheets or Excel. The first step below shows exactly how (about 2 minutes)."
+                ? "Download the spreadsheet, then open it in Google Sheets or Excel: the first step below shows exactly how (about 2 minutes). Prefer paper? The printable pages come in US Letter and A4."
                 : webApp
                   ? "Download it to your computer and double-click it: it opens in your browser, ready to use. Everything you type saves automatically. The guide below has the details."
                   : "Download the version you like (or all of them) and open it in GoodNotes, Notability, Noteshelf, Xodo or Samsung Notes. New to digital planners? The setup guide below walks you through it."}
@@ -125,7 +125,7 @@ export default async function CoursePlayerPage({
                       {isKit
                         ? kitFileLabel(f.file_name)
                         : isSheet
-                          ? "Spreadsheet · Google Sheets & Excel"
+                          ? sheetFileLabel(f.file_name)
                           : plannerFileLabel(f.file_name)}
                     </span>
                     <span className="text-text-faint block truncate font-mono text-xs">
@@ -209,6 +209,14 @@ function kitFileLabel(fileName: string): string {
     return "Complete kit · all workflows + sheet templates";
   const m = fileName.replace(/\.json$/i, "").match(/^(\d+)-(.+)$/);
   return m ? `${m[1]} · ${m[2].replace(/-/g, " ")}` : fileName;
+}
+
+/** "…-Printable-A4.pdf" → "Printable pages · A4"; the .xlsx → "Spreadsheet…". */
+function sheetFileLabel(fileName: string): string {
+  if (/-Printable-A4\.pdf$/i.test(fileName)) return "Printable pages · A4";
+  if (/-Printable-Letter\.pdf$/i.test(fileName))
+    return "Printable pages · US Letter";
+  return "Spreadsheet · Google Sheets & Excel";
 }
 
 function plannerFileLabel(fileName: string): string {

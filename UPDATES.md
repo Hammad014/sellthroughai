@@ -269,6 +269,17 @@ npm run sheets:test       # must say ALL PASSED
 npm run sheets:publish    # after running the two seeds (needs .env.local)
 ```
 
+**Printing.** Every tab has print settings (`print.mjs`): summary tabs fit
+the page width, log tabs print their header plus the first 40 rows with the
+header repeated. Each guide explains printing a selection.
+
+**Printable pages** (`scripts/printables/`): every spreadsheet also ships
+blank pages to print and write on, in US Letter and A4, 52 pages across the
+11 products (`products.mjs` describes them; `lib.mjs` is the layout kit;
+`build.mjs` renders them with Chromium and fails if any page spills onto a
+second sheet). They're in the Etsy listings, the website downloads and the
+store images ("Printable pages included").
+
 These products use the `templates` category, renamed **Spreadsheets &
 Templates** on the site; their library page leads with the download.
 

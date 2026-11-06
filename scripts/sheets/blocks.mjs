@@ -28,6 +28,19 @@ const fillBg = (argb) => ({
 export function guideSheet(wb, heading, sub, rows) {
   const ws = sheet(wb, "Start Here", { tab: C.navy, widths: [4, 92] });
   title(ws, heading, sub, 2);
+  rows = [
+    ...rows,
+    ["", ""],
+    ["", "PRINTING", "h"],
+    [
+      "•",
+      "File → Print: every tab is set up to print neatly. For a long list, select the rows you want first, then print just those (Excel: Print Selection · Google Sheets: Print → Selected cells).",
+    ],
+    [
+      "•",
+      "Prefer pen and paper? The printable PDF pages in your download are ready to print and write on (US Letter and A4).",
+    ],
+  ];
   rows.forEach(([n, text, kind], i) => {
     const r = 5 + i;
     ws.getRow(r).height = kind === "h" ? 24 : 28;

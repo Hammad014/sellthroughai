@@ -2,8 +2,8 @@
 -- Makeready — spreadsheet product: "Small Business Sales Tracker"
 --
 -- A 'gated' template (delivery_type='gated', category='templates'). Buyers
--- get one .xlsx (product_files, private bucket) that works in Google Sheets
--- and Excel, plus a 3-step guide (course_lessons) at
+-- get one .xlsx that works in Google Sheets and Excel, plus printable PDF
+-- pages in US Letter and A4 (product_files, private bucket), plus a 3-step guide (course_lessons) at
 -- /dashboard/courses/small-business-sales-tracker.
 --
 -- The file, cover and gallery images are generated from code and uploaded by
@@ -44,6 +44,7 @@ Etsy fee estimates are a guide (6.5% transaction + 3% payment processing + $0.45
 
 ## The details
 
+- Printable pages to print and write on (US Letter and A4 PDFs)
 - Etsy, website, markets, wholesale and more
 - Room for 2,000 sales, 100 products and 1,000 expenses
 - Instant download from your library, plus a short guide
@@ -84,6 +85,10 @@ Dropdowns, formulas and colours all carry over. Use the new Google Sheets versio
 ## Microsoft Excel
 
 Double-click the file. It works in Microsoft 365, Excel 2016 or newer, Excel for Mac and the free **Excel on the web**. If Excel shows *Enable Editing*, click it.
+
+## Prefer pen and paper?
+
+Download the **Printable** PDF (US Letter or A4) from your library and print as many pages as you like.
 
 ## Apple Numbers
 

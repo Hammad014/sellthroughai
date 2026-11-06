@@ -2,8 +2,8 @@
 -- Makeready — spreadsheet product: "Cleaning Schedule"
 --
 -- A 'gated' template (delivery_type='gated', category='templates'). Buyers
--- get one .xlsx (product_files, private bucket) that works in Google Sheets
--- and Excel, plus a 3-step guide (course_lessons) at
+-- get one .xlsx that works in Google Sheets and Excel, plus printable PDF
+-- pages in US Letter and A4 (product_files, private bucket), plus a 3-step guide (course_lessons) at
 -- /dashboard/courses/cleaning-schedule.
 --
 -- The file, cover and gallery images are generated from code and uploaded by
@@ -41,6 +41,7 @@ The hard part of cleaning isn't the cleaning: it's remembering when you last did
 
 ## The details
 
+- Printable pages to print and write on (US Letter and A4 PDFs)
 - Room for 200 chores and 15 rooms
 - Works for one person or a whole household
 - Instant download from your library, plus a short guide
@@ -81,6 +82,10 @@ Dropdowns, formulas and colours all carry over. Use the new Google Sheets versio
 ## Microsoft Excel
 
 Double-click the file. It works in Microsoft 365, Excel 2016 or newer, Excel for Mac and the free **Excel on the web**. If Excel shows *Enable Editing*, click it.
+
+## Prefer pen and paper?
+
+Download the **Printable** PDF (US Letter or A4) from your library and print as many pages as you like.
 
 ## Apple Numbers
 

@@ -2,8 +2,8 @@
 -- Makeready — spreadsheet product: "Life Planner (Spreadsheet)"
 --
 -- A 'gated' template (delivery_type='gated', category='templates'). Buyers
--- get one .xlsx (product_files, private bucket) that works in Google Sheets
--- and Excel, plus a 3-step guide (course_lessons) at
+-- get one .xlsx that works in Google Sheets and Excel, plus printable PDF
+-- pages in US Letter and A4 (product_files, private bucket), plus a 3-step guide (course_lessons) at
 -- /dashboard/courses/life-planner-spreadsheet.
 --
 -- The file, cover and gallery images are generated from code and uploaded by
@@ -43,6 +43,7 @@ Goals don't fail for lack of motivation; they fail because they never turn into 
 
 ## The details
 
+- Printable pages to print and write on (US Letter and A4 PDFs)
 - One file, 8 tabs
 - Example goals and steps to show you how it works: type over them
 - Instant download from your library, plus a short guide
@@ -83,6 +84,10 @@ Dropdowns, formulas and colours all carry over. Use the new Google Sheets versio
 ## Microsoft Excel
 
 Double-click the file. It works in Microsoft 365, Excel 2016 or newer, Excel for Mac and the free **Excel on the web**. If Excel shows *Enable Editing*, click it.
+
+## Prefer pen and paper?
+
+Download the **Printable** PDF (US Letter or A4) from your library and print as many pages as you like.
 
 ## Apple Numbers
 

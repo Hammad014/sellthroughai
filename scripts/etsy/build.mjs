@@ -32,6 +32,10 @@ import { SHEETS, outDir as sheetsOut } from "../sheets/build.mjs";
 import { SHEET_LINKS } from "../sheets/links.mjs";
 import { zip } from "../automation/lib/zip.mjs";
 import {
+  outDir as printablesOut,
+  printableFiles,
+} from "../printables/build.mjs";
+import {
   STORE as SHEET_STORE,
   BUNDLE as SHEET_BUNDLE,
   storeDir as sheetStore,
@@ -277,8 +281,16 @@ async function packageProduct(slug, l, catalog) {
         title: `${sh.title}: Start Here`,
       }),
     });
+    // Printable pages to write on, in both paper sizes.
+    const printable = printableFiles(l.sheet);
+    for (const name of [printable.letter, printable.a4])
+      files.push({
+        name,
+        data: await readFile(path.join(printablesOut(l.sheet), name)),
+      });
     fileLines = [
       `${sh.title} (.xlsx for Google Sheets and Excel)`,
+      `Printable pages PDF (US Letter and A4)`,
       link
         ? "Start Here guide PDF with a one-click Google Sheets copy"
         : "Start Here guide PDF",
@@ -286,6 +298,7 @@ async function packageProduct(slug, l, catalog) {
     const store = sheetStore(l.sheet);
     const cover = await storeImage(path.join(store, "cover.webp"));
     images.push(cover);
+    images.push(await storeImage(path.join(store, "printables.webp")));
     for (const [, name] of SHEET_STORE[l.sheet].shots)
       images.push(await storeImage(path.join(store, `${name}.webp`)));
   }
@@ -306,7 +319,7 @@ async function packageProduct(slug, l, catalog) {
     const lessons = [
       {
         title: "Unzip, then open them in Google Sheets or Excel",
-        content_md: `Download **Makeready-Planner-Spreadsheets.zip** from your Etsy purchase and unzip it (double-click it on a computer). Inside are six .xlsx files:\n\n${SHEET_BUNDLE.map((id) => `- **${SHEETS[id].file}**`).join("\n")}\n\n## Google Sheets (free)\n\n1. Go to **drive.google.com** and sign in.\n2. Click **New → File upload** and choose a file (you can pick several).\n3. Double-click it in Drive, then **File → Save as Google Sheets**.\n\n## Microsoft Excel\n\nDouble-click a file. It works in Microsoft 365, Excel 2016 or newer, Excel for Mac and the free Excel on the web.`,
+        content_md: `Download **Makeready-Planner-Spreadsheets.zip** from your Etsy purchase and unzip it (double-click it on a computer). Inside are six .xlsx files:\n\n${SHEET_BUNDLE.map((id) => `- **${SHEETS[id].file}**`).join("\n")}\n\n**Makeready-Printable-Pages.zip** has printable pages for every planner, in US Letter and A4: print as many as you like.\n\n## Google Sheets (free)\n\n1. Go to **drive.google.com** and sign in.\n2. Click **New → File upload** and choose a file (you can pick several).\n3. Double-click it in Drive, then **File → Save as Google Sheets**.\n\n## Microsoft Excel\n\nDouble-click a file. It works in Microsoft 365, Excel 2016 or newer, Excel for Mac and the free Excel on the web.`,
       },
       ...(links.length
         ? [
@@ -338,8 +351,19 @@ async function packageProduct(slug, l, catalog) {
         { kind: "Guide", label: "Step", title: `${p.title}: Start Here` },
       ),
     });
+    const prints = [];
+    for (const id of SHEET_BUNDLE) {
+      const names = printableFiles(id);
+      for (const name of [names.letter, names.a4])
+        prints.push({
+          name,
+          data: await readFile(path.join(printablesOut(id), name)),
+        });
+    }
+    files.push({ name: "Makeready-Printable-Pages.zip", data: zip(prints) });
     fileLines = [
       `${SHEET_BUNDLE.length} spreadsheets (.xlsx for Google Sheets and Excel), in one zip`,
+      "Printable pages for all six (US Letter and A4), in one zip",
       "Start Here guide PDF",
     ];
     images.push(

@@ -36,6 +36,8 @@ Google Sheets (free, on computer and phone) and Microsoft Excel.
 
 ## How it works
 
+Every planner also comes with printable pages (US Letter and A4) to print and write on.
+
 Buy once and all six unlock in your library straight away, each with its own short guide.
 
 Lifetime access · free updates · 14-day no-questions refund.$d$,

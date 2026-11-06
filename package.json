@@ -16,7 +16,8 @@
     "webapps:build": "node scripts/webapps/build.mjs && node scripts/webapps/mockups.mjs",
     "webapps:test": "node scripts/webapps/test.mjs",
     "webapps:publish": "node scripts/webapps/publish.mjs",
-    "sheets:build": "node scripts/sheets/build.mjs && node scripts/sheets/mockups.mjs",
+    "printables:build": "node scripts/printables/build.mjs",
+    "sheets:build": "node scripts/sheets/build.mjs && node scripts/printables/build.mjs && node scripts/sheets/mockups.mjs",
     "sheets:test": "node scripts/sheets/test.mjs",
     "sheets:publish": "node scripts/sheets/publish.mjs",
     "etsy:build": "node scripts/etsy/build.mjs"

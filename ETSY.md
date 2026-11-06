@@ -21,18 +21,18 @@ scripts/etsy/out/<product>/
 
 | Product | Buyers get | Suggested Etsy price |
 |---|---|---|
-| Budget Spreadsheet | .xlsx for Google Sheets + Excel, Start Here PDF | $11.99 |
-| Life Planner Spreadsheet | .xlsx for Google Sheets + Excel, Start Here PDF | $11.99 |
-| ADHD Daily Planner | .xlsx for Google Sheets + Excel, Start Here PDF | $9.99 |
-| ADHD Student Planner | .xlsx for Google Sheets + Excel, Start Here PDF | $9.99 |
-| Reading Tracker | .xlsx for Google Sheets + Excel, Start Here PDF | $8.99 |
-| Meal Planner | .xlsx for Google Sheets + Excel, Start Here PDF | $8.99 |
-| Cleaning Schedule | .xlsx for Google Sheets + Excel, Start Here PDF | $7.99 |
-| Workout & Weight Tracker | .xlsx for Google Sheets + Excel, Start Here PDF | $8.99 |
-| Pregnancy & Baby Tracker | .xlsx for Google Sheets + Excel, Start Here PDF | $9.99 |
-| Wedding Planner & Budget | .xlsx for Google Sheets + Excel, Start Here PDF | $12.99 |
-| Small Business Sales Tracker | .xlsx for Google Sheets + Excel, Start Here PDF | $12.99 |
-| Planner Spreadsheet Bundle | All 6 spreadsheets in one zip + Start Here PDF | $29.99 |
+| Budget Spreadsheet | .xlsx for Google Sheets + Excel, printable pages (Letter + A4), Start Here PDF | $11.99 |
+| Life Planner Spreadsheet | .xlsx for Google Sheets + Excel, printable pages (Letter + A4), Start Here PDF | $11.99 |
+| ADHD Daily Planner | .xlsx for Google Sheets + Excel, printable pages (Letter + A4), Start Here PDF | $9.99 |
+| ADHD Student Planner | .xlsx for Google Sheets + Excel, printable pages (Letter + A4), Start Here PDF | $9.99 |
+| Reading Tracker | .xlsx for Google Sheets + Excel, printable pages (Letter + A4), Start Here PDF | $8.99 |
+| Meal Planner | .xlsx for Google Sheets + Excel, printable pages (Letter + A4), Start Here PDF | $8.99 |
+| Cleaning Schedule | .xlsx for Google Sheets + Excel, printable pages (Letter + A4), Start Here PDF | $7.99 |
+| Workout & Weight Tracker | .xlsx for Google Sheets + Excel, printable pages (Letter + A4), Start Here PDF | $8.99 |
+| Pregnancy & Baby Tracker | .xlsx for Google Sheets + Excel, printable pages (Letter + A4), Start Here PDF | $9.99 |
+| Wedding Planner & Budget | .xlsx for Google Sheets + Excel, printable pages (Letter + A4), Start Here PDF | $12.99 |
+| Small Business Sales Tracker | .xlsx for Google Sheets + Excel, printable pages (Letter + A4), Start Here PDF | $12.99 |
+| Planner Spreadsheet Bundle | All 6 spreadsheets in one zip, all their printables in another, + Start Here PDF | $29.99 |
 | Life Planner (web app) | One HTML file that opens in the browser + Start Here PDF. Computers only | $14.99 |
 
 List the spreadsheets first: the research (`reports/`, not in git) found far
@@ -76,7 +76,7 @@ Run these after changing a product (needs Playwright + Chromium:
 
 ```bash
 npm run webapps:build       # interactive Life Planner (HTML) + store images
-npm run sheets:build        # spreadsheets (.xlsx) + store images
+npm run sheets:build        # spreadsheets (.xlsx) + printable PDFs + store images
 npm run sheets:test         # recalculates them in LibreOffice and checks every number
 npm run etsy:build          # all Etsy editions, from the live database
 npm run etsy:build -- budget-digital-planner   # just one
